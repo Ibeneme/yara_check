@@ -6,6 +6,7 @@ import { Menu, X, AlertTriangle, Search, Shield, LogOut, FileText, CheckCircle, 
 import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./LanguageSwitcher";
+import yaraimage from '../../public/yara.png'
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,7 +35,7 @@ const Header = () => {
       <div className="yaracheck-container">
         <div className="flex justify-between items-center py-4">
           <Link to="/" className="flex items-center">
-            <img src="/lovable-uploads/eeb1eab5-4663-488a-b9e9-3b3dde432a88.png" alt="YaraCheck" className="h-20 w-20" />
+            <img src={yaraimage} alt="YaraCheck" className="h-20 w-20" />
           </Link>
 
           {/* Desktop navigation */}

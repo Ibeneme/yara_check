@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AlertTriangle, Search, MessageSquare, Check } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import yaraimage from '../../public/yara.png'
+
 const Index = () => {
   return (
     <div className="flex flex-col min-h-screen">
@@ -131,9 +133,9 @@ const Index = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 items-center px-4">
               <div>
                 <img
-                  src="/lovable-uploads/eeb1eab5-4663-488a-b9e9-3b3dde432a88.png"
+                  src={yaraimage}
                   alt="YaraCheck Logo"
-                  className="rounded-lg shadow-lg w-full"
+                  className="rounded-lg w-full"
                 />
               </div>
               <div className="space-y-6">
