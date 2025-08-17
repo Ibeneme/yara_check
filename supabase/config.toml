@@ -1,0 +1,92 @@
+project_id = "iuaysbxfqcuyzbtwttvu"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+
+[studio]
+enabled = true
+port = 54323
+
+[inbuckets]
+enabled = true
+port = 54324
+
+[functions.create-account-payment]
+verify_jwt = false
+
+[functions.create-admin-user]
+verify_jwt = false
+
+[functions.create-device-payment]
+verify_jwt = false
+
+[functions.create-household-payment]
+verify_jwt = false
+
+[functions.create-paystack-account-payment]
+verify_jwt = false
+
+[functions.create-paystack-device-payment]
+verify_jwt = false
+
+[functions.create-paystack-household-payment]
+verify_jwt = false
+
+[functions.create-paystack-person-payment]
+verify_jwt = false
+
+[functions.create-paystack-personal-payment]
+verify_jwt = false
+
+[functions.create-paystack-reputation-payment]
+verify_jwt = false
+
+[functions.create-paystack-vehicle-payment]
+verify_jwt = false
+
+[functions.create-person-payment]
+verify_jwt = false
+
+[functions.create-personal-payment]
+verify_jwt = false
+
+[functions.create-reputation-payment]
+verify_jwt = false
+
+[functions.create-vehicle-payment]
+verify_jwt = false
+
+[functions.create-flutterwave-person-payment]
+verify_jwt = false
+
+[functions.create-flutterwave-device-payment]
+verify_jwt = false
+
+[functions.create-flutterwave-vehicle-payment]
+verify_jwt = false
+
+[functions.create-flutterwave-household-payment]
+verify_jwt = false
+
+[functions.create-flutterwave-personal-payment]
+verify_jwt = false
+
+[functions.create-flutterwave-account-payment]
+verify_jwt = false
+
+[functions.create-flutterwave-reputation-payment]
+verify_jwt = false
+
+[functions.verify-flutterwave-payment]
+verify_jwt = false
+
+[edge-runtime]
+enabled = true
+port = 54325
