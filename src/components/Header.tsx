@@ -29,13 +29,14 @@ const Header = () => {
   const handleAdminLogin = () => {
     navigate("/verify");
   };
+
   
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="yaracheck-container">
         <div className="flex justify-between items-center py-4">
           <Link to="/" className="flex items-center">
-            <img src={yaraimage} alt="YaraCheck" className="h-15 w-22" />
+            <img src={yaraimage} alt="YaraCheck" className="h-[48px] w-[68px]" />
           </Link>
 
           {/* Desktop navigation */}
