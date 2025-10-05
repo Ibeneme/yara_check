@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -95,6 +95,7 @@ export type Database = {
           tracking_code: string | null
           transaction_amount: string
           transaction_date: string
+          updated_at: string | null
           user_id: string | null
           verification_notes: string | null
           verified_at: string | null
@@ -119,6 +120,7 @@ export type Database = {
           tracking_code?: string | null
           transaction_amount: string
           transaction_date: string
+          updated_at?: string | null
           user_id?: string | null
           verification_notes?: string | null
           verified_at?: string | null
@@ -143,6 +145,7 @@ export type Database = {
           tracking_code?: string | null
           transaction_amount?: string
           transaction_date?: string
+          updated_at?: string | null
           user_id?: string | null
           verification_notes?: string | null
           verified_at?: string | null
@@ -749,6 +752,84 @@ export type Database = {
           },
         ]
       }
+      pets: {
+        Row: {
+          age: string | null
+          breed: string | null
+          color: string | null
+          country_id: string | null
+          created_at: string | null
+          date_missing: string
+          description: string | null
+          id: string
+          image_url: string | null
+          last_seen_location: string
+          name: string
+          report_date: string
+          reward: string | null
+          size: string | null
+          status: string
+          submitter_email: string | null
+          submitter_name: string | null
+          submitter_phone: string | null
+          tracking_code: string | null
+          type: string
+          updated_at: string | null
+          user_id: string | null
+          visible: boolean | null
+        }
+        Insert: {
+          age?: string | null
+          breed?: string | null
+          color?: string | null
+          country_id?: string | null
+          created_at?: string | null
+          date_missing: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          last_seen_location: string
+          name: string
+          report_date?: string
+          reward?: string | null
+          size?: string | null
+          status?: string
+          submitter_email?: string | null
+          submitter_name?: string | null
+          submitter_phone?: string | null
+          tracking_code?: string | null
+          type: string
+          updated_at?: string | null
+          user_id?: string | null
+          visible?: boolean | null
+        }
+        Update: {
+          age?: string | null
+          breed?: string | null
+          color?: string | null
+          country_id?: string | null
+          created_at?: string | null
+          date_missing?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          last_seen_location?: string
+          name?: string
+          report_date?: string
+          reward?: string | null
+          size?: string | null
+          status?: string
+          submitter_email?: string | null
+          submitter_name?: string | null
+          submitter_phone?: string | null
+          tracking_code?: string | null
+          type?: string
+          updated_at?: string | null
+          user_id?: string | null
+          visible?: boolean | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           admin_role: Database["public"]["Enums"]["admin_role"] | null
@@ -1213,8 +1294,8 @@ export type Database = {
       create_paystack_vehicle_payment: {
         Args: { p_amount?: number }
         Returns: {
-          reference: string
           authorization_url: string
+          reference: string
         }[]
       }
       detect_links: {
@@ -1232,9 +1313,9 @@ export type Database = {
       get_user_reports_by_email: {
         Args: { user_email: string }
         Returns: {
+          report_data: Json
           report_id: string
           report_type: string
-          report_data: Json
         }[]
       }
       get_user_role: {
@@ -1254,7 +1335,7 @@ export type Database = {
         Returns: boolean
       }
       log_admin_action: {
-        Args: { action_text: string; action_details?: Json }
+        Args: { action_details?: Json; action_text: string }
         Returns: undefined
       }
       promote_to_super_admin: {
@@ -1264,31 +1345,31 @@ export type Database = {
       search_by_tracking_code: {
         Args: { search_tracking_code: string }
         Returns: {
+          report_data: Json
           report_id: string
           report_type: string
-          report_data: Json
         }[]
       }
       search_items_public: {
         Args: { search_term: string }
         Returns: {
+          item_data: Json
           item_id: string
           item_type: string
-          item_data: Json
         }[]
       }
       search_persons_public: {
         Args: { search_term: string }
         Returns: {
-          person_id: string
           person_data: Json
+          person_id: string
         }[]
       }
       update_report_status: {
         Args: {
+          new_status: string
           report_id_param: string
           report_type_param: string
-          new_status: string
         }
         Returns: boolean
       }

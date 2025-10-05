@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -8,6 +8,14 @@ import TrackingCodeSearch from "@/components/reports/TrackingCodeSearch";
 
 const MyReports = () => {
   const { t } = useTranslation();
+
+  // Auto scroll to tracking section when page loads
+  useEffect(() => {
+    const trackingSection = document.querySelector('main');
+    if (trackingSection) {
+      trackingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">

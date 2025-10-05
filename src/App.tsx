@@ -26,6 +26,7 @@ import AccountReportForm from "./pages/AccountReportForm";
 import ReputationReportForm from "./pages/ReputationReportForm";
 import HouseholdReportForm from "./pages/HouseholdReportForm";
 import PersonalReportForm from "./pages/PersonalReportForm";
+import PetReportForm from "./pages/PetReportForm";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
@@ -63,6 +64,7 @@ const App = () => (
             <Route path="/submit-report/vehicle" element={<VehicleReportForm />} />
             <Route path="/submit-report/account" element={<AccountReportForm />} />
             <Route path="/submit-report/reputation" element={<ReputationReportForm />} />
+            <Route path="/submit-report/pet" element={<PetReportForm />} />
             <Route path="/report-confirmation" element={<ReportConfirmation />} />
             <Route path="/confirmation" element={<PaymentConfirmation />} />
             <Route path="/payment-confirmation" element={<PaymentConfirmation />} />

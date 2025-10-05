@@ -9,7 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Eye, EyeOff, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+import { Eye, EyeOff, CheckCircle, XCircle, AlertTriangle, Trash2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 type TableName = "persons" | "devices" | "vehicles" | "household_items" | "personal_belongings" | "hacked_accounts" | "business_reputation_reports";
 
@@ -17,6 +18,11 @@ const ReportsManagement = () => {
   const [selectedTable, setSelectedTable] = useState<TableName | "all">("all");
   const [verificationNotes, setVerificationNotes] = useState("");
   const queryClient = useQueryClient();
+  const { profile } = useAuth();
+  
+  // Check if user has delete permissions
+  const canDelete = profile?.role === 'super_admin' || 
+    (profile?.role === 'admin' && (profile?.permissions as any)?.can_delete_reports === true);
 
   const reportTables = [
     { id: "all", name: "All Reports", statusField: "status" },
@@ -152,6 +158,27 @@ const ReportsManagement = () => {
     onError: (error) => {
       console.error("Error verifying report:", error);
       toast.error("Failed to verify report");
+    },
+  });
+
+  const deleteReportMutation = useMutation({
+    mutationFn: async ({ id, tableType }: { id: string; tableType: string }) => {
+      const targetTable = tableType === "all" ? selectedTable : tableType;
+      const { error } = await supabase
+        .from(targetTable as TableName)
+        .delete()
+        .eq("id", id);
+      
+      if (error) throw error;
+      return { id, tableType: targetTable };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-reports", selectedTable] });
+      toast.success("Report deleted successfully");
+    },
+    onError: (error) => {
+      console.error("Error deleting report:", error);
+      toast.error("Failed to delete report");
     },
   });
 
@@ -341,6 +368,26 @@ const ReportsManagement = () => {
                       </div>
                     </DialogContent>
                   </Dialog>
+                )}
+
+                {/* Delete Button */}
+                {canDelete && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => {
+                      if (confirm("Are you sure you want to delete this report? This action cannot be undone.")) {
+                        deleteReportMutation.mutate({
+                          id: report.id,
+                          tableType: report.table_type || selectedTable
+                        });
+                      }
+                    }}
+                    disabled={deleteReportMutation.isPending}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete
+                  </Button>
                 )}
               </div>
             </div>

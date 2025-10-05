@@ -1,20 +1,28 @@
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { MessageSquare, Search, Calendar, Phone, Filter, Eye } from "lucide-react";
+import { MessageSquare, Search, Calendar, Phone, Filter, Eye, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import ReportDetails from "../reports/ReportDetails";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const AnonymousMessagesDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<string>("all");
   const [selectedMessage, setSelectedMessage] = useState<any>(null);
+  const queryClient = useQueryClient();
+  const { profile } = useAuth();
+  
+  // Check if user has delete permissions
+  const canDelete = profile?.role === 'super_admin' || 
+    (profile?.role === 'admin' && (profile?.permissions as any)?.can_delete_anonymous_messages === true);
 
   const { data: messages, isLoading, refetch } = useQuery({
     queryKey: ["anonymous-messages-dashboard", searchTerm, filterType],
@@ -64,6 +72,25 @@ const AnonymousMessagesDashboard = () => {
       );
 
       return enrichedMessages;
+    },
+  });
+
+  const deleteMessageMutation = useMutation({
+    mutationFn: async (messageId: string) => {
+      const { error } = await supabase
+        .from("anonymous_messages")
+        .delete()
+        .eq("id", messageId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["anonymous-messages-dashboard"] });
+      toast.success("Anonymous message deleted successfully");
+    },
+    onError: (error) => {
+      console.error("Error deleting message:", error);
+      toast.error("Failed to delete message");
     },
   });
 
@@ -177,7 +204,7 @@ const AnonymousMessagesDashboard = () => {
                           <span className="font-medium">Report ID:</span> {message.report_id}
                         </div>
                       </div>
-                      <div className="ml-4">
+                      <div className="ml-4 flex gap-2">
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button variant="outline" size="sm">
@@ -195,6 +222,20 @@ const AnonymousMessagesDashboard = () => {
                             />
                           </DialogContent>
                         </Dialog>
+                        {canDelete && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => {
+                              if (confirm("Are you sure you want to delete this message? This action cannot be undone.")) {
+                                deleteMessageMutation.mutate(message.id);
+                              }
+                            }}
+                            disabled={deleteMessageMutation.isPending}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </CardContent>

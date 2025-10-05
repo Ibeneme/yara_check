@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 interface AnonymousMessagesProps {
   reportId: string;
-  reportType: 'person' | 'device' | 'vehicle';
+  reportType: 'person' | 'device' | 'vehicle' | 'household' | 'personal' | 'account' | 'reputation';
   showForReporter?: boolean;
 }
 

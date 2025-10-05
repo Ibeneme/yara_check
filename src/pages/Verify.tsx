@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -31,7 +32,7 @@ const Verify = () => {
   const { user, isAdmin, profile, loading, adminLogin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState("");
-
+  
   // Simple navigation check - if user exists and we're not loading, go to admin
   useEffect(() => {
     if (user && !loading) {
@@ -94,7 +95,7 @@ const Verify = () => {
       <p className="text-center text-gray-600 mb-8">
         This area is restricted to authorized personnel only
       </p>
-
+      
       <div className="bg-white p-6 rounded-lg shadow">
         <div className="flex justify-center mb-6">
           <div className="bg-padiman-lightBlue p-3 rounded-full">
@@ -111,12 +112,9 @@ const Verify = () => {
             </AlertDescription>
           </Alert>
         )}
-
+        
         <Form {...loginForm}>
-          <form
-            onSubmit={loginForm.handleSubmit(onLoginSubmit)}
-            className="space-y-6"
-          >
+          <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
             <FormField
               control={loginForm.control}
               name="email"
@@ -124,19 +122,17 @@ const Verify = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="admin@example.com"
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(e.target.value.trim().toLowerCase())
-                      }
+                    <Input 
+                      placeholder="admin@example.com" 
+                      {...field} 
+                      onChange={(e) => field.onChange(e.target.value.trim().toLowerCase())}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
+            
             <FormField
               control={loginForm.control}
               name="password"
@@ -151,8 +147,8 @@ const Verify = () => {
               )}
             />
 
-            <Button
-              type="submit"
+            <Button 
+              type="submit" 
               className="w-full bg-padiman-blue hover:bg-padiman-darkBlue"
               disabled={isLoading}
             >
@@ -161,19 +157,17 @@ const Verify = () => {
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Authenticating...
                 </>
-              ) : (
-                "Admin Login"
-              )}
+              ) : "Admin Login"}
             </Button>
           </form>
         </Form>
 
         <div className="mt-6 pt-6 border-t border-gray-200">
           <p className="text-sm text-center text-gray-600">
-            For reporting lost or found items, no login is required.
-            <Button
-              variant="link"
-              onClick={() => navigate("/")}
+            For reporting lost or found items, no login is required. 
+            <Button 
+              variant="link" 
+              onClick={() => navigate("/")} 
               className="pl-1 text-padiman-blue"
             >
               Return to homepage

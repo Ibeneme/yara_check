@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +23,14 @@ const ItemVerification = () => {
     type?: string;
   } | null>(null);
   const { t } = useTranslation();
+
+  // Auto scroll to main content when page loads
+  useEffect(() => {
+    const mainContent = document.querySelector('main');
+    if (mainContent) {
+      mainContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, []);
 
   const handleItemSearch = async () => {
     if (!searchQuery.trim()) {
@@ -998,9 +1006,9 @@ const ItemVerification = () => {
                                   searchResult.type === 'account' ? '⚠️ ACCOUNT REPORTED AS COMPROMISED' :
                                   searchResult.type === 'reputation' ? '⚠️ BUSINESS REPUTATION ALERT' : '⚠️ REPORT FOUND'}
                                </h3>
-                               <p className="text-red-600 font-medium">
-                                 🚨 This {searchResult.type} has been reported to our system. {searchResult.type === 'person' ? 'Please contact authorities immediately if you have information.' : 'Do not proceed with this transaction.'}
-                               </p>
+                                <p className="text-red-600 font-medium">
+                                  🚨 This {searchResult.type} has been reported to our system. {searchResult.type === 'person' ? 'Please contact authorities immediately if you have information.' : searchResult.type === 'reputation' ? 'Be careful with this transaction and do your due diligence before proceeding.' : 'Do not proceed with this transaction.'}
+                                </p>
                              </div>
                            </div>
                            
@@ -1073,16 +1081,37 @@ const ItemVerification = () => {
                                  </>
                                )}
 
-                               {searchResult.type === 'reputation' && (
-                                 <>
-                                   <div><strong>Person/Business:</strong> {searchResult.item.reported_person_name}</div>
-                                   <div><strong>Business Type:</strong> {searchResult.item.business_type}</div>
-                                   <div><strong>Contact:</strong> {searchResult.item.reported_person_contact}</div>
-                                   <div><strong>Reputation Status:</strong> {searchResult.item.reputation_status}</div>
-                                   <div><strong>Transaction Date:</strong> {new Date(searchResult.item.transaction_date).toLocaleDateString()}</div>
-                                   <div><strong>Amount:</strong> {searchResult.item.transaction_amount}</div>
-                                 </>
-                               )}
+                                {searchResult.type === 'reputation' && (
+                                  <>
+                                    <div><strong>Person/Business:</strong> {searchResult.item.reported_person_name}</div>
+                                    <div><strong>Business Type:</strong> {searchResult.item.business_type}</div>
+                                    <div><strong>Contact:</strong> {searchResult.item.reported_person_contact}</div>
+                                    <div><strong>Reputation Status:</strong> {searchResult.item.reputation_status}</div>
+                                    <div><strong>Transaction Date:</strong> {new Date(searchResult.item.transaction_date).toLocaleDateString()}</div>
+                                    <div><strong>Amount:</strong> {searchResult.item.transaction_amount}</div>
+                                    {searchResult.item.description && (
+                                      <div className="col-span-2"><strong>Detailed Description:</strong> {searchResult.item.description}</div>
+                                    )}
+                                    {searchResult.item.evidence_urls && (
+                                      <div className="col-span-2">
+                                        <strong>Supporting Evidence:</strong>
+                                        <div className="mt-2 flex flex-wrap gap-2">
+                                          {searchResult.item.evidence_urls.map((url: string, index: number) => (
+                                            <a 
+                                              key={index}
+                                              href={url} 
+                                              target="_blank" 
+                                              rel="noopener noreferrer"
+                                              className="text-blue-600 hover:text-blue-800 underline text-sm"
+                                            >
+                                              Evidence {index + 1}
+                                            </a>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </>
+                                )}
                                
                                <div><strong>Status:</strong> {searchResult.item.status}</div>
                                <div><strong>Report Date:</strong> {new Date(searchResult.item.report_date).toLocaleDateString()}</div>
@@ -1121,10 +1150,10 @@ const ItemVerification = () => {
                   </div>
                 )}
                 
-                {searchResult.found && !searchResult.hidden && searchResult.type && ['person', 'device', 'vehicle', 'household', 'personal'].includes(searchResult.type) && (
+                {searchResult.found && !searchResult.hidden && searchResult.type && ['person', 'device', 'vehicle', 'household', 'personal', 'reputation'].includes(searchResult.type) && (
                   <ContactActions 
                     reportId={searchResult.item.id}
-                    reportType={searchResult.type as 'person' | 'device' | 'vehicle' | 'household' | 'personal'}
+                    reportType={searchResult.type as 'person' | 'device' | 'vehicle' | 'household' | 'personal' | 'reputation'}
                     reportData={searchResult.item}
                   />
                 )}

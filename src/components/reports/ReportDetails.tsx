@@ -11,7 +11,7 @@ import AnonymousMessages from "./AnonymousMessages";
 
 interface ReportDetailsProps {
   reportId: string;
-  reportType: 'person' | 'device' | 'vehicle';
+  reportType: 'person' | 'device' | 'vehicle' | 'household' | 'personal' | 'account' | 'reputation';
 }
 
 const ReportDetails = ({ reportId, reportType }: ReportDetailsProps) => {

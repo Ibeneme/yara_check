@@ -40,7 +40,7 @@ export const useAdminReports = (adminId?: string, adminProfile?: any) => {
             .from('provinces')
             .select('country_id')
             .eq('id', adminProfile.province_id)
-            .single();
+            .maybeSingle();
           
           if (provinceData?.country_id) {
             personsQuery = personsQuery.eq('country_id', provinceData.country_id);
@@ -81,7 +81,7 @@ export const useAdminProfile = (adminId?: string) => {
           province:provinces(name)
         `)
         .eq("id", adminId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
@@ -121,7 +121,7 @@ export const useCountryStats = (adminProfile?: any) => {
             .from('provinces')
             .select('country_id')
             .eq('id', adminProfile.province_id)
-            .single();
+            .maybeSingle();
           
           if (provinceData?.country_id) {
             personsQuery = personsQuery.eq('country_id', provinceData.country_id);

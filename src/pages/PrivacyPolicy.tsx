@@ -33,17 +33,24 @@ const PrivacyPolicy = () => {
                     <h3 className="text-lg font-medium">Personal Information</h3>
                     <ul className="list-disc pl-6 space-y-1 text-gray-700">
                       <li>Name and contact information (email, phone number, address)</li>
-                      <li>Payment information for report submission fees</li>
-                      <li>Account credentials and authentication data</li>
-                      <li>Report details including descriptions, locations, and photos</li>
+                      <li>Payment information processed through Stripe, Paystack, and Flutterwave</li>
+                      <li>Account credentials and authentication data via Supabase</li>
+                      <li>Report details including descriptions, locations, photos, and tracking codes</li>
+                      <li>Device information for device recovery reports</li>
+                      <li>Vehicle information for vehicle recovery services</li>
+                      <li>Pet information for pet recovery services</li>
+                      <li>Personal identification details for missing person reports</li>
+                      <li>Account security information for compromise reports</li>
                     </ul>
                     
-                    <h3 className="text-lg font-medium">Usage Information</h3>
+                    <h3 className="text-lg font-medium">Technical Information</h3>
                     <ul className="list-disc pl-6 space-y-1 text-gray-700">
-                      <li>IP address and device information</li>
-                      <li>Browser type and version</li>
-                      <li>Pages visited and time spent on our platform</li>
+                      <li>IP address and geolocation data for dynamic pricing</li>
+                      <li>Device type, browser information, and operating system</li>
+                      <li>Language preferences for multi-language support</li>
+                      <li>Session data and user interaction patterns</li>
                       <li>Search queries and verification requests</li>
+                      <li>Chat messages and support communications</li>
                     </ul>
                   </div>
                 </section>
@@ -51,12 +58,18 @@ const PrivacyPolicy = () => {
                 <section>
                   <h2 className="text-2xl font-semibold text-yaracheck-blue mb-3">How We Use Your Information</h2>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
-                    <li>Process and verify reports of missing persons, stolen items, and compromised accounts</li>
-                    <li>Facilitate communication between reporters and relevant parties</li>
-                    <li>Process payments and maintain financial records</li>
-                    <li>Improve our services and user experience</li>
-                    <li>Send important updates and notifications</li>
-                    <li>Comply with legal obligations and law enforcement requests</li>
+                    <li>Process reports for devices, vehicles, persons, pets, households, accounts, and reputation</li>
+                    <li>Generate unique tracking codes for report verification and follow-up</li>
+                    <li>Facilitate real-time chat support and communication between parties</li>
+                    <li>Process payments through multiple secure processors based on location</li>
+                    <li>Implement dynamic pricing based on geographic location and report type</li>
+                    <li>Provide multi-language support and automatic language detection</li>
+                    <li>Generate analytics and insights for administrative users</li>
+                    <li>Manage anonymous tip submissions while maintaining anonymity</li>
+                    <li>Provide photo search and verification services</li>
+                    <li>Send notifications and updates about report status</li>
+                    <li>Comply with legal obligations and assist law enforcement when required</li>
+                    <li>Improve our services through usage analytics and user feedback</li>
                   </ul>
                 </section>
 
@@ -65,9 +78,13 @@ const PrivacyPolicy = () => {
                   <p className="text-gray-700 mb-3">We may share your information in the following circumstances:</p>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
                     <li>With law enforcement agencies when required by law or to assist in investigations</li>
-                    <li>With third-party service providers who assist in our operations (payment processors, hosting services)</li>
+                    <li>With payment processors (Stripe, Paystack, Flutterwave) for transaction processing</li>
+                    <li>With Supabase for authentication, database management, and hosting services</li>
+                    <li>With authorized administrators for report management and analytics</li>
+                    <li>With relevant parties when facilitating item recovery or person finding</li>
                     <li>With your explicit consent for specific purposes</li>
                     <li>In emergency situations to protect life and safety</li>
+                    <li>With social media platforms when you choose to share content</li>
                     <li>In connection with a business transfer or merger</li>
                   </ul>
                 </section>
@@ -117,9 +134,9 @@ const PrivacyPolicy = () => {
                     If you have questions about this Privacy Policy or our data practices, please contact us at:
                   </p>
                   <div className="mt-3 text-gray-700">
-                    <p>Email: privacy@yaracheck.com</p>
-                    <p>Phone: +2347047906867</p>
-                    <p>Address: 5, Military Lane, Port Harcourt</p>
+                    <p>Email: info@yaracheck.com</p>
+                    <p>Phone: +447405672016 (WhatsApp)</p>
+                    <p>Address: Stoke Park Mews, St Michaels Road, Coventry CV2 4NU</p>
                   </div>
                 </section>
               </div>

@@ -35,7 +35,7 @@ const Header = () => {
       <div className="yaracheck-container">
         <div className="flex justify-between items-center py-4">
           <Link to="/" className="flex items-center">
-            <img src={yaraimage} alt="YaraCheck" className="h-20 w-20" />
+            <img src={yaraimage} alt="YaraCheck" className="h-15 w-22" />
           </Link>
 
           {/* Desktop navigation */}

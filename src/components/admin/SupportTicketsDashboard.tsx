@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,9 +7,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, Clock, CheckCircle, AlertCircle, User } from "lucide-react";
+import { FileText, Clock, CheckCircle, AlertCircle, User, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SupportTicket {
   id: string;
@@ -32,6 +33,11 @@ const SupportTicketsDashboard = () => {
   const [resolutionNotes, setResolutionNotes] = useState("");
   const [newStatus, setNewStatus] = useState<string>("");
   const queryClient = useQueryClient();
+  const { profile } = useAuth();
+  
+  // Check if user has delete permissions
+  const canDelete = profile?.role === 'super_admin' || 
+    (profile?.role === 'admin' && (profile?.permissions as any)?.can_delete_support_tickets === true);
 
   // Fetch all support tickets
   const { data: tickets, isLoading } = useQuery({
@@ -86,6 +92,32 @@ const SupportTicketsDashboard = () => {
       });
     }
   };
+
+  const deleteTicketMutation = useMutation({
+    mutationFn: async (ticketId: string) => {
+      const { error } = await supabase
+        .from('support_tickets')
+        .delete()
+        .eq('id', ticketId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['support-tickets'] });
+      toast({
+        title: "Ticket deleted",
+        description: "Support ticket has been permanently deleted",
+      });
+      setSelectedTicket(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete ticket",
+        variant: "destructive",
+      });
+    },
+  });
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -199,13 +231,29 @@ const SupportTicketsDashboard = () => {
                   </div>
                 )}
                 
-                <Button 
-                  onClick={() => updateTicketStatus(selectedTicket.id, newStatus, resolutionNotes)}
-                  disabled={!newStatus}
-                  className="w-full"
-                >
-                  Update Ticket
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => updateTicketStatus(selectedTicket.id, newStatus, resolutionNotes)}
+                    disabled={!newStatus}
+                    className="flex-1"
+                  >
+                    Update Ticket
+                  </Button>
+                  {canDelete && (
+                    <Button
+                      variant="destructive"
+                      onClick={() => {
+                        if (confirm("Are you sure you want to delete this ticket? This action cannot be undone.")) {
+                          deleteTicketMutation.mutate(selectedTicket.id);
+                        }
+                      }}
+                      disabled={deleteTicketMutation.isPending}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      Delete
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
           </CardContent>
@@ -306,7 +354,7 @@ const SupportTicketsDashboard = () => {
                         </p>
                       </div>
                       
-                      <div className="ml-4">
+                      <div className="ml-4 flex gap-2">
                         <Button
                           variant="outline"
                           size="sm"
@@ -314,6 +362,20 @@ const SupportTicketsDashboard = () => {
                         >
                           View Details
                         </Button>
+                        {canDelete && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => {
+                              if (confirm("Are you sure you want to delete this ticket? This action cannot be undone.")) {
+                                deleteTicketMutation.mutate(ticket.id);
+                              }
+                            }}
+                            disabled={deleteTicketMutation.isPending}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </Card>

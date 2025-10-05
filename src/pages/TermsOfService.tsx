@@ -30,13 +30,21 @@ const TermsOfService = () => {
                 <section>
                   <h2 className="text-2xl font-semibold text-yaracheck-blue mb-3">Description of Service</h2>
                   <p className="text-gray-700">
-                    YaraCheck provides a platform for reporting and verifying lost or stolen items, missing persons, and compromised accounts. Our services include:
+                    YaraCheck provides a comprehensive platform for reporting and verifying various types of incidents and items. Our services include:
                   </p>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
-                    <li>Report submission and verification services</li>
-                    <li>Item and person verification database</li>
-                    <li>Communication facilitation between parties</li>
-                    <li>Analytics and reporting tools</li>
+                    <li>Device tracking and reporting (smartphones, tablets, laptops)</li>
+                    <li>Vehicle recovery and stolen vehicle reports</li>
+                    <li>Missing person reports and verification</li>
+                    <li>Personal item recovery (jewelry, documents, valuables)</li>
+                    <li>Pet recovery services</li>
+                    <li>Household item reports</li>
+                    <li>Account security and compromise reporting</li>
+                    <li>Reputation monitoring and reporting</li>
+                    <li>Anonymous tip submission system</li>
+                    <li>Real-time chat support and communication</li>
+                    <li>Analytics and reporting dashboards for administrators</li>
+                    <li>Multi-language support for global accessibility</li>
                   </ul>
                 </section>
 
@@ -78,17 +86,22 @@ const TermsOfService = () => {
                   <div className="space-y-3">
                     <h3 className="text-lg font-medium">Service Fees</h3>
                     <p className="text-gray-700">
-                      A fee of $8 USD is required for each report submission to maintain our verification systems and cover operational costs.
+                      Service fees vary by report type and are calculated using dynamic pricing based on location and report complexity. Fees help maintain our verification systems, global infrastructure, and 24/7 support services.
+                    </p>
+                    
+                    <h3 className="text-lg font-medium">Payment Methods</h3>
+                    <p className="text-gray-700">
+                      We accept payments through multiple secure processors including Stripe (international), Paystack (Africa), and Flutterwave (Africa and global). All transactions are encrypted and processed through PCI DSS compliant systems.
                     </p>
                     
                     <h3 className="text-lg font-medium">Payment Terms</h3>
                     <p className="text-gray-700">
-                      All fees are due immediately upon report submission. We accept major credit cards and process payments through secure third-party providers.
+                      All fees are due immediately upon report submission. Payment confirmation is required before report processing begins.
                     </p>
                     
                     <h3 className="text-lg font-medium">Refund Policy</h3>
                     <p className="text-gray-700">
-                      Fees are generally non-refundable once a report has been processed. Refunds may be considered in exceptional circumstances at our sole discretion.
+                      Fees are generally non-refundable once a report has been processed and entered into our verification database. Refunds may be considered for technical failures or exceptional circumstances at our sole discretion.
                     </p>
                   </div>
                 </section>
@@ -148,9 +161,9 @@ const TermsOfService = () => {
                     If you have any questions about these Terms of Service, please contact us at:
                   </p>
                   <div className="mt-3 text-gray-700">
-                    <p>Email: legal@yaracheck.com</p>
-                    <p>Phone: +2347047906867</p>
-                    <p>Address: 5, Military Lane, Port Harcourt</p>
+                    <p>Email: info@yaracheck.com</p>
+                    <p>Phone: +447405672016 (WhatsApp)</p>
+                    <p>Address: Stoke Park Mews, St Michaels Road, Coventry CV2 4NU</p>
                   </div>
                 </section>
               </div>

@@ -14,7 +14,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Upload, X } from "lucide-react";
-import { calculatePrice, formatPrice } from "@/utils/dynamicPricing";
+import { calculatePrice, formatPrice, formatFreePrice } from "@/utils/dynamicPricing";
 import { savePersonToSupabase, uploadImageToStorage } from "@/utils/supabaseStorage";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 
@@ -418,8 +418,7 @@ const PersonReportForm = () => {
                           <FormMessage />
                           {watchedAge && (
                             <p className="text-xs text-gray-600">
-                              Report fee: {formatPrice(price)} 
-                              {price === 0 && " (Free for ages 1-7)"}
+                              Report fee: Free <span className="line-through text-gray-400">{formatFreePrice(price)}</span>
                             </p>
                           )}
                         </FormItem>
@@ -591,34 +590,59 @@ const PersonReportForm = () => {
                     </div>
                   </div>
 
-                  <div className="flex gap-4 pt-6">
+                  <div className="flex flex-col gap-4 pt-6">
                     <Button
                       type="button"
-                      variant="outline"
-                      onClick={() => navigate("/submit-report")}
-                      className="flex-1"
+                      onClick={() => {
+                        if (price === 0) {
+                          const formData = form.getValues();
+                          handleFreeSubmission(formData);
+                        } else {
+                          const formData = form.getValues();
+                          handleFreeSubmission(formData);  
+                        }
+                      }}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white"
+                      disabled={isSubmitting}
                     >
-                      Back
-                    </Button>
-                    <Button
-                      type="submit"
-                      className="flex-1 bg-yaracheck-blue hover:bg-yaracheck-darkBlue"
-                      disabled={isSubmitting || isProcessingPayment}
-                    >
-                      {isProcessingPayment ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Processing Payment...
-                        </>
-                      ) : isSubmitting ? (
+                      {isSubmitting ? (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                           Submitting Report...
                         </>
                       ) : (
-                        price === 0 ? "Submit Report (Free)" : `Proceed to Payment (${formatPrice(price)})`
+                        "Submit For Free"
                       )}
                     </Button>
+                    <div className="flex gap-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => navigate("/submit-report")}
+                        className="flex-1"
+                      >
+                        Back
+                      </Button>
+                      <Button
+                        type="submit"
+                        className="flex-1 bg-yaracheck-blue hover:bg-yaracheck-darkBlue"
+                        disabled={isSubmitting || isProcessingPayment}
+                      >
+                        {isProcessingPayment ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            Processing Payment...
+                          </>
+                        ) : isSubmitting ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            Submitting Report...
+                          </>
+                        ) : (
+                          <>Submit Report (Free <span className="line-through text-gray-400">{formatFreePrice(price)}</span>)</>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </form>
               </Form>

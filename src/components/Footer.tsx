@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin, Youtube } from "lucide-react";
+import { Facebook, Twitter, Mail, Phone, MapPin, Youtube } from "lucide-react";
 const Footer = () => {
   const { t } = useTranslation();
   return <footer className="bg-yaracheck-darkBlue text-white py-8 mt-12">
@@ -15,11 +15,11 @@ const Footer = () => {
             <div className="space-y-2 text-sm text-gray-300">
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4" />
-                <span>5, Military Lane, Port Harcourt</span>
+                <span>Stoke Park Mews, St Michaels Road, Coventry CV2 4NU</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4" />
-                <span>+2347047906867</span>
+                <span>+447405672016 (WhatsApp)</span>
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
@@ -79,17 +79,11 @@ const Footer = () => {
               <a href="https://facebook.com/yaracheck" target="_blank" rel="noopener noreferrer" className="bg-yaracheck-blue hover:bg-yaracheck-lightBlue p-2 rounded-full transition-colors">
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="https://twitter.com/yaracheck" target="_blank" rel="noopener noreferrer" className="bg-yaracheck-blue hover:bg-yaracheck-lightBlue p-2 rounded-full transition-colors">
+              <a href="https://x.com/YaraCheck" target="_blank" rel="noopener noreferrer" className="bg-yaracheck-blue hover:bg-yaracheck-lightBlue p-2 rounded-full transition-colors">
                 <Twitter className="h-5 w-5" />
               </a>
-              <a href="https://instagram.com/yaracheck" target="_blank" rel="noopener noreferrer" className="bg-yaracheck-blue hover:bg-yaracheck-lightBlue p-2 rounded-full transition-colors">
-                <Instagram className="h-5 w-5" />
-              </a>
-              <a href="https://youtube.com/@yaracheck" target="_blank" rel="noopener noreferrer" className="bg-yaracheck-blue hover:bg-yaracheck-lightBlue p-2 rounded-full transition-colors">
+              <a href="https://www.youtube.com/@YaraCheck" target="_blank" rel="noopener noreferrer" className="bg-yaracheck-blue hover:bg-yaracheck-lightBlue p-2 rounded-full transition-colors">
                 <Youtube className="h-5 w-5" />
-              </a>
-              <a href="https://linkedin.com/company/yaracheck" target="_blank" rel="noopener noreferrer" className="bg-yaracheck-blue hover:bg-yaracheck-lightBlue p-2 rounded-full transition-colors">
-                <Linkedin className="h-5 w-5" />
               </a>
             </div>
             <p className="text-sm text-gray-300">

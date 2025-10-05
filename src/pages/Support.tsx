@@ -275,17 +275,8 @@ const Support = () => {
                         <Phone className="h-4 w-4 text-yaracheck-blue" />
                       </div>
                       <div>
-                        <p className="font-medium">Emergency Hotline</p>
-                        <p className="text-gray-600">+1-800-YARA-911</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="bg-yaracheck-lightBlue p-2 rounded-full">
-                        <MessageSquare className="h-4 w-4 text-yaracheck-blue" />
-                      </div>
-                      <div>
-                        <p className="font-medium">General Support</p>
-                        <p className="text-gray-600">+1-800-YARA-HELP</p>
+                        <p className="font-medium">WhatsApp Support</p>
+                        <p className="text-gray-600">+447405672016 (WhatsApp)</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -334,9 +325,10 @@ const Support = () => {
                         <p className="font-medium">Headquarters</p>
                         <p className="text-gray-600">
                           YaraCheck Global<br />
-                          123 Recovery Street<br />
-                          Hope City, HC 12345<br />
-                          United States
+                          Stoke Park Mews<br />
+                          St Michaels Road<br />
+                          Coventry CV2 4NU<br />
+                          United Kingdom
                         </p>
                       </div>
                     </div>

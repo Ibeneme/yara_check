@@ -15,7 +15,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { UserCheck } from "lucide-react";
-import { calculatePrice, formatPrice } from "@/utils/dynamicPricing";
+import { calculatePrice, formatPrice, formatFreePrice } from "@/utils/dynamicPricing";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 
 const formSchema = z.object({
@@ -39,6 +39,7 @@ const ReputationReportForm = () => {
   const navigate = useNavigate();
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showPaymentSelector, setShowPaymentSelector] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -126,6 +127,49 @@ const ReputationReportForm = () => {
       toast.error("Payment processing failed. Please try again.");
     } finally {
       setIsProcessingPayment(false);
+    }
+  };
+
+  const handleFreeSubmission = async (data: FormData) => {
+    setIsSubmitting(true);
+    try {
+      const trackingCode = crypto.randomUUID();
+
+      const { error } = await supabase
+        .from('business_reputation_reports')
+        .insert({
+          reported_person_name: data.reported_person_name,
+          reported_person_contact: data.reported_person_contact,
+          business_type: data.business_type,
+          transaction_date: data.transaction_date,
+          transaction_amount: data.transaction_amount,
+          reputation_status: data.reputation_status,
+          description: data.description,
+          evidence: data.evidence,
+          reporter_name: data.reporter_name,
+          reporter_email: data.reporter_email,
+          reporter_phone: data.reporter_phone,
+          reporter_address: data.reporter_address,
+          tracking_code: trackingCode,
+          status: 'pending_verification'
+        });
+
+      if (!error) {
+        toast.success("Business reputation report submitted successfully!");
+        navigate("/report-confirmation", { 
+          state: { 
+            trackingCode, 
+            reportType: 'reputation'
+          }
+        });
+      } else {
+        toast.error("Failed to submit report. Please try again.");
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast.error("Failed to submit report. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -249,7 +293,7 @@ const ReputationReportForm = () => {
                           <FormItem>
                             <FormLabel>Transaction Amount</FormLabel>
                             <FormControl>
-                              <Input placeholder="e.g., $500 or ₦250,000" {...field} />
+                              <Input placeholder="e.g., $500 or $250,000" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -391,29 +435,49 @@ const ReputationReportForm = () => {
                     </ul>
                   </div>
 
-                  <div className="flex gap-4 pt-6">
+                  <div className="flex flex-col gap-4 pt-6">
                     <Button
                       type="button"
-                      variant="outline"
-                      onClick={() => navigate("/submit-report")}
-                      className="flex-1"
+                      onClick={async () => {
+                        const formData = form.getValues();
+                        await handleFreeSubmission(formData);
+                      }}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white"
+                      disabled={isSubmitting}
                     >
-                      Back
-                    </Button>
-                    <Button
-                      type="submit"
-                      className="flex-1 bg-yaracheck-blue hover:bg-yaracheck-darkBlue"
-                      disabled={isProcessingPayment}
-                    >
-                      {isProcessingPayment ? (
+                      {isSubmitting ? (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Processing Payment...
+                          Submitting Report...
                         </>
                       ) : (
-                        `Proceed to Payment (${formatPrice(price)})`
+                        "Submit For Free"
                       )}
                     </Button>
+                    <div className="flex gap-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => navigate("/submit-report")}
+                        className="flex-1"
+                      >
+                        Back
+                      </Button>
+                      <Button
+                        type="submit"
+                        className="flex-1 bg-yaracheck-blue hover:bg-yaracheck-darkBlue"
+                        disabled={isSubmitting || isProcessingPayment}
+                      >
+                        {isProcessingPayment ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            Processing Payment...
+                          </>
+                        ) : (
+                          <>Submit Report (Free <span className="line-through text-gray-400">{formatFreePrice(price)}</span>)</>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </form>
               </Form>

@@ -14,8 +14,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { Briefcase, Upload, X } from "lucide-react";
-import { calculatePrice, formatPrice } from "@/utils/dynamicPricing";
-import { saveDeviceToSupabase } from "@/utils/supabaseStorage";
+import { calculatePrice, formatPrice, formatFreePrice } from "@/utils/dynamicPricing";
+import { saveDeviceToSupabase, uploadImageToStorage, savePersonalToSupabase } from "@/utils/supabaseStorage";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 
 const formSchema = z.object({
@@ -165,6 +165,55 @@ const PersonalReportForm = () => {
       toast.error("Payment processing failed. Please try again.");
     } finally {
       setIsProcessingPayment(false);
+    }
+  };
+
+  const handleFreeSubmission = async (data: FormData) => {
+    setIsSubmitting(true);
+    try {
+      const personalData = {
+        type: data.type,
+        brand: data.brand,
+        model: data.model,
+        color: data.color,
+        imei: data.imei,
+        year: parseInt(data.year),
+        location: data.location,
+        description: data.description || "",
+        contact: data.contact,
+        reporter_name: data.reporter_name,
+        reporter_email: data.reporter_email,
+        reporter_phone: data.reporter_phone,
+        reporter_address: data.reporter_address,
+      };
+
+      console.log("Submitting personal belongings report:", { personalData, hasImage: !!uploadedImage });
+      
+      // Generate UUID tracking code for consistency
+      const trackingCode = crypto.randomUUID();
+      
+      const savedReport = await savePersonalToSupabase(personalData, uploadedImage || undefined, trackingCode);
+      
+      if (savedReport) {
+        localStorage.setItem('lastTrackingCode', trackingCode);
+        localStorage.setItem('lastReportType', 'personal');
+        
+        toast.success("Personal belongings report submitted successfully!");
+        navigate("/report-confirmation", { 
+          state: { 
+            trackingCode, 
+            reportType: 'personal',
+            reportData: savedReport
+          }
+        });
+      } else {
+        toast.error("Failed to submit report. Please try again.");
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast.error("Failed to submit report. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -455,29 +504,49 @@ const PersonalReportForm = () => {
                     </div>
                   </div>
 
-                  <div className="flex gap-4 pt-6">
+                  <div className="flex flex-col gap-4 pt-6">
                     <Button
                       type="button"
-                      variant="outline"
-                      onClick={() => navigate("/submit-report")}
-                      className="flex-1"
+                      onClick={async () => {
+                        const formData = form.getValues();
+                        await handleFreeSubmission(formData);
+                      }}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white"
+                      disabled={isSubmitting}
                     >
-                      Back
-                    </Button>
-                    <Button
-                      type="submit"
-                      className="flex-1 bg-yaracheck-blue hover:bg-yaracheck-darkBlue"
-                      disabled={isSubmitting || isProcessingPayment}
-                    >
-                      {isProcessingPayment ? (
+                      {isSubmitting ? (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Processing Payment...
+                          Submitting Report...
                         </>
-                       ) : (
-                         `Proceed to Payment (${formatPrice(price)})`
-                       )}
+                      ) : (
+                        "Submit For Free"
+                      )}
                     </Button>
+                    <div className="flex gap-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => navigate("/submit-report")}
+                        className="flex-1"
+                      >
+                        Back
+                      </Button>
+                      <Button
+                        type="submit"
+                        className="flex-1 bg-yaracheck-blue hover:bg-yaracheck-darkBlue"
+                        disabled={isSubmitting || isProcessingPayment}
+                      >
+                        {isProcessingPayment ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            Processing Payment...
+                          </>
+                        ) : (
+                          <>Submit Report (Free <span className="line-through text-gray-400">{formatFreePrice(price)}</span>)</>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </form>
               </Form>

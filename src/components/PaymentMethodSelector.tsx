@@ -22,7 +22,7 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
         <CardHeader>
           <CardTitle className="text-center">Choose Payment Method</CardTitle>
           <p className="text-center text-gray-600">
-            Payment required: ₦{((amount / 100) * 1500).toLocaleString()} / ${(amount / 100).toFixed(2)}
+            Payment required: ${(amount / 100).toFixed(2)}
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -35,7 +35,7 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
               <DollarSign className="h-6 w-6" />
               <div className="text-left">
                 <div className="font-semibold">Pay with Paystack</div>
-                <div className="text-sm opacity-90">African currencies (₦{((amount / 100) * 1500).toLocaleString()})</div>
+                <div className="text-sm opacity-90">USD ${(amount / 100).toFixed(2)}</div>
               </div>
             </div>
           </Button>
@@ -49,7 +49,7 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
               <Banknote className="h-6 w-6" />
               <div className="text-left">
                 <div className="font-semibold">Pay with Flutterwave</div>
-                <div className="text-sm opacity-90">African currencies (₦{((amount / 100) * 1500).toLocaleString()})</div>
+                <div className="text-sm opacity-90">USD ${(amount / 100).toFixed(2)}</div>
               </div>
             </div>
           </Button>
@@ -64,7 +64,7 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
               <CreditCard className="h-6 w-6" />
               <div className="text-left">
                 <div className="font-semibold">Pay with Stripe</div>
-                <div className="text-sm opacity-90">US Dollars (${(amount / 100).toFixed(2)})</div>
+                <div className="text-sm opacity-90">USD ${(amount / 100).toFixed(2)}</div>
               </div>
             </div>
           </Button>

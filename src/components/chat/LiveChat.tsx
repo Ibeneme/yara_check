@@ -18,19 +18,9 @@ interface LiveChatProps {
   sessionId?: string; // For admin to respond to specific session
 }
 
-const LiveChat: React.FC<LiveChatProps> = ({
-  userEmail,
-  userName,
-  isAdmin,
-  adminId,
-  sessionId: propSessionId,
-}) => {
+const LiveChat: React.FC<LiveChatProps> = ({ userEmail, userName, isAdmin, adminId, sessionId: propSessionId }) => {
   const [message, setMessage] = useState("");
-  const [sessionId] = useState(
-    () =>
-      propSessionId ||
-      `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-  );
+  const [sessionId] = useState(() => propSessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   const [isConnected, setIsConnected] = useState(false);
   const [hasUserStarted, setHasUserStarted] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -38,19 +28,17 @@ const LiveChat: React.FC<LiveChatProps> = ({
 
   // Fetch chat messages
   const { data: messages, isLoading } = useQuery({
-    queryKey: ["chat-messages", sessionId],
+    queryKey: ['chat-messages', sessionId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("live_chat_messages")
-        .select(
-          `
+        .from('live_chat_messages')
+        .select(`
           *,
           admin:profiles!live_chat_messages_admin_id_fkey(first_name, last_name)
-        `
-        )
-        .eq("session_id", sessionId)
-        .order("created_at", { ascending: true });
-
+        `)
+        .eq('session_id', sessionId)
+        .order('created_at', { ascending: true });
+      
       if (error) throw error;
       return data;
     },
@@ -65,23 +53,21 @@ const LiveChat: React.FC<LiveChatProps> = ({
   // Set up real-time subscription
   useEffect(() => {
     const channel = supabase
-      .channel("chat-messages")
+      .channel('chat-messages')
       .on(
-        "postgres_changes",
+        'postgres_changes',
         {
-          event: "INSERT",
-          schema: "public",
-          table: "live_chat_messages",
+          event: 'INSERT',
+          schema: 'public',
+          table: 'live_chat_messages',
           filter: `session_id=eq.${sessionId}`,
         },
         () => {
-          queryClient.invalidateQueries({
-            queryKey: ["chat-messages", sessionId],
-          });
+          queryClient.invalidateQueries({ queryKey: ['chat-messages', sessionId] });
         }
       )
       .subscribe((status) => {
-        if (status === "SUBSCRIBED") {
+        if (status === 'SUBSCRIBED') {
           setIsConnected(true);
         }
       });
@@ -109,47 +95,44 @@ const LiveChat: React.FC<LiveChatProps> = ({
         message: message.trim(),
         is_admin_reply: isAdmin || false,
         admin_id: isAdmin ? adminId : null,
-        ...(isAdmin
-          ? {
-              user_email: "admin",
-              user_name: "Admin",
-            }
-          : {
-              user_email: userEmail,
-              user_name: userName || "Anonymous User",
-            }),
+        ...(isAdmin ? {
+          user_email: 'admin',
+          user_name: 'Admin'
+        } : {
+          user_email: userEmail,
+          user_name: userName || 'Anonymous User'
+        })
       };
 
       const { error } = await supabase
-        .from("live_chat_messages")
+        .from('live_chat_messages')
         .insert(messageData);
 
       if (error) throw error;
 
       setMessage("");
-
+      
       // Show appropriate messages for first-time users
       if (!isAdmin && !hasUserStarted) {
         setHasUserStarted(true);
         // Add automatic response for new users
         setTimeout(async () => {
-          await supabase.from("live_chat_messages").insert({
+          await supabase.from('live_chat_messages').insert({
             session_id: sessionId,
-            message:
-              "Thank you for contacting us! Please describe your issue and one of our agents will connect to the chat shortly. If you cannot wait, we will contact you using the email you provided.",
+            message: "Thank you for contacting us! Please describe your issue and one of our agents will connect to the chat shortly. If you cannot wait, we will contact you using the email you provided.",
             is_admin_reply: true,
-            user_email: "system",
-            user_name: "System",
+            user_email: 'system',
+            user_name: 'System'
           });
         }, 1000);
       }
-
+      
       toast({
         title: "Message sent",
         description: "Your message has been sent",
       });
     } catch (error: any) {
-      console.error("Send message error:", error);
+      console.error('Send message error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to send message",
@@ -159,7 +142,7 @@ const LiveChat: React.FC<LiveChatProps> = ({
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
@@ -193,15 +176,13 @@ const LiveChat: React.FC<LiveChatProps> = ({
               messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`flex ${
-                    msg.is_admin_reply ? "justify-start" : "justify-end"
-                  }`}
+                  className={`flex ${msg.is_admin_reply ? 'justify-start' : 'justify-end'}`}
                 >
                   <div
                     className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
                       msg.is_admin_reply
-                        ? "bg-secondary text-secondary-foreground"
-                        : "bg-primary text-primary-foreground"
+                        ? 'bg-secondary text-secondary-foreground'
+                        : 'bg-primary text-primary-foreground'
                     }`}
                   >
                     <div className="flex items-center gap-2 mb-1">
@@ -211,20 +192,19 @@ const LiveChat: React.FC<LiveChatProps> = ({
                         <User className="h-4 w-4" />
                       )}
                       <span className="text-xs font-medium">
-                        {msg.is_admin_reply
-                          ? `${msg.admin?.first_name || "Admin"} ${
-                              msg.admin?.last_name || ""
-                            }`.trim()
-                          : msg.user_name}
+                        {msg.is_admin_reply 
+                          ? `${msg.admin?.first_name || 'Admin'} ${msg.admin?.last_name || ''}`.trim()
+                          : msg.user_name
+                        }
                       </span>
                     </div>
-                    <div
+                    <div 
                       className="text-sm"
                       dangerouslySetInnerHTML={{
                         __html: msg.message.replace(
                           /https?:\/\/[^\s<>"]+/g,
                           '<a href="$&" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline">$&</a>'
-                        ),
+                        )
                       }}
                     />
                     <div className="text-xs opacity-70 mt-1">
@@ -258,8 +238,7 @@ const LiveChat: React.FC<LiveChatProps> = ({
 
         {!isAdmin && (
           <div className="text-xs text-muted-foreground text-center">
-            Messages are monitored by our support team. We'll respond as soon as
-            possible.
+            Messages are monitored by our support team. We'll respond as soon as possible.
           </div>
         )}
       </CardContent>

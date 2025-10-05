@@ -11,7 +11,7 @@ import { Phone, MessageSquare, Shield, Building2 } from "lucide-react";
 
 interface ContactActionsProps {
   reportId: string;
-  reportType: 'person' | 'device' | 'vehicle' | 'household' | 'personal';
+  reportType: 'person' | 'device' | 'vehicle' | 'household' | 'personal' | 'reputation';
   reportData: any;
 }
 
@@ -82,7 +82,7 @@ const ContactActions = ({ reportId, reportType, reportData }: ContactActionsProp
 
       toast({
         title: "YaraCheck Contact",
-        description: "Email: report@yaracheck.com | Phone: +2347047906867 | Address: 5, Military Lane, Port Harcourt",
+        description: "Email: report@yaracheck.com | Phone: +447405672016 (WhatsApp) | Address: Stoke Park Mews, St Michaels Road, Coventry CV2 4NU",
         duration: 8000,
       });
     } catch (error) {

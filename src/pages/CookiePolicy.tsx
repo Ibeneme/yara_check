@@ -80,10 +80,12 @@ const CookiePolicy = () => {
                     We may also use third-party services that set cookies on your device. These include:
                   </p>
                   <ul className="list-disc pl-6 space-y-1 text-gray-700">
-                    <li>Payment processors (Stripe) for secure payment processing</li>
-                    <li>Analytics services to understand user behavior</li>
-                    <li>Social media platforms for content sharing</li>
-                    <li>Content delivery networks for improved performance</li>
+                    <li>Payment processors (Stripe, Paystack, Flutterwave) for secure payment processing</li>
+                    <li>Authentication services (Supabase) for user login and security</li>
+                    <li>Analytics services to understand user behavior and improve our platform</li>
+                    <li>Social media platforms (Facebook, Twitter, YouTube) for content sharing</li>
+                    <li>Content delivery networks for improved performance and global access</li>
+                    <li>Language detection services for automatic localization</li>
                   </ul>
                 </section>
 
@@ -150,9 +152,9 @@ const CookiePolicy = () => {
                     If you have any questions about our use of cookies or this Cookie Policy, please contact us at:
                   </p>
                   <div className="mt-3 text-gray-700">
-                    <p>Email: privacy@yaracheck.com</p>
-                    <p>Phone: +2347047906867</p>
-                    <p>Address: 5, Military Lane, Port Harcourt</p>
+                    <p>Email: info@yaracheck.com</p>
+                    <p>Phone: +447405672016 (WhatsApp)</p>
+                    <p>Address: Stoke Park Mews, St Michaels Road, Coventry CV2 4NU</p>
                   </div>
                 </section>
               </div>
