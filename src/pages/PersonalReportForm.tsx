@@ -7,15 +7,36 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { Briefcase, Upload, X } from "lucide-react";
-import { calculatePrice, formatPrice, formatFreePrice } from "@/utils/dynamicPricing";
-import { saveDeviceToSupabase, uploadImageToStorage, savePersonalToSupabase } from "@/utils/supabaseStorage";
+import {
+  calculatePrice,
+  formatPrice,
+  formatFreePrice,
+} from "@/utils/dynamicPricing";
+import {
+  saveDeviceToSupabase,
+  uploadImageToStorage,
+  savePersonalToSupabase,
+} from "@/utils/supabaseStorage";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 
 const formSchema = z.object({
@@ -29,7 +50,10 @@ const formSchema = z.object({
   description: z.string().min(1, "Description is required"),
   contact: z.string().min(1, "Contact information is required"),
   reporter_name: z.string().min(1, "Reporter name is required"),
-  reporter_email: z.string().email("Valid email is required").min(1, "Reporter email is required"),
+  reporter_email: z
+    .string()
+    .email("Valid email is required")
+    .min(1, "Reporter email is required"),
   reporter_phone: z.string().min(1, "Reporter phone is required"),
   reporter_address: z.string().optional(),
 });
@@ -65,11 +89,11 @@ const PersonalReportForm = () => {
 
   const watchedYear = form.watch("year");
   const watchedType = form.watch("type");
-  
-  const price = calculatePrice({ 
-    reportType: 'device', // Use device pricing logic
+
+  const price = calculatePrice({
+    reportType: "device", // Use device pricing logic
     deviceType: watchedType,
-    year: parseInt(watchedYear) || new Date().getFullYear()
+    year: parseInt(watchedYear) || new Date().getFullYear(),
   });
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,7 +103,7 @@ const PersonalReportForm = () => {
         toast.error("Image size should not exceed 5MB");
         return;
       }
-      
+
       setUploadedImage(file);
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -94,28 +118,31 @@ const PersonalReportForm = () => {
     setImagePreview(null);
   };
 
-  const handlePaymentMethod = async (method: 'stripe' | 'paystack' | 'flutterwave') => {
+  const handlePaymentMethod = async (
+    method: "stripe" | "paystack" | "flutterwave"
+  ) => {
     setIsProcessingPayment(true);
     try {
-      const functionName = method === 'stripe' 
-        ? 'create-device-payment' 
-        : method === 'paystack' 
-        ? 'create-paystack-personal-payment'
-        : 'create-flutterwave-personal-payment';
-      
+      const functionName =
+        method === "stripe"
+          ? "create-device-payment"
+          : method === "paystack"
+          ? "create-paystack-personal-payment"
+          : "create-flutterwave-personal-payment";
+
       const reportData = {
         ...form.getValues(),
-        year: parseInt(form.getValues().year) || new Date().getFullYear()
+        year: parseInt(form.getValues().year) || new Date().getFullYear(),
       };
-      
+
       const trackingCode = crypto.randomUUID();
-      
+
       const { data, error } = await supabase.functions.invoke(functionName, {
-        body: { 
-          amount: price, 
+        body: {
+          amount: price,
           reportData,
-          trackingCode 
-        }
+          trackingCode,
+        },
       });
 
       if (error) throw error;
@@ -125,7 +152,7 @@ const PersonalReportForm = () => {
         try {
           const formData = form.getValues();
           const { data: reportData, error: reportError } = await supabase
-            .from('personal_belongings')
+            .from("personal_belongings")
             .insert({
               type: formData.type,
               brand: formData.brand,
@@ -140,8 +167,8 @@ const PersonalReportForm = () => {
               reporter_email: formData.reporter_email,
               reporter_phone: formData.reporter_phone,
               reporter_address: formData.reporter_address,
-              status: 'pending',
-              visible: true
+              status: "pending",
+              visible: true,
             })
             .select()
             .single();
@@ -149,19 +176,21 @@ const PersonalReportForm = () => {
           if (reportError) throw reportError;
 
           // Store tracking code for payment success page
-          localStorage.setItem('trackingCode', reportData.id);
+          localStorage.setItem("trackingCode", reportData.id);
         } catch (error) {
-          console.error('Error saving personal report:', error);
+          console.error("Error saving personal report:", error);
           toast.error("Error saving report data");
           return;
         }
-        
-        window.open(data.url, '_blank');
-        toast.success("Payment window opened. Complete payment to proceed with personal belongings report.");
+
+        window.open(data.url, "_blank");
+        toast.success(
+          "Payment window opened. Complete payment to proceed with personal belongings report."
+        );
         setShowPaymentSelector(false);
       }
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error("Payment error:", error);
       toast.error("Payment processing failed. Please try again.");
     } finally {
       setIsProcessingPayment(false);
@@ -187,30 +216,37 @@ const PersonalReportForm = () => {
         reporter_address: data.reporter_address,
       };
 
-      console.log("Submitting personal belongings report:", { personalData, hasImage: !!uploadedImage });
-      
+      console.log("Submitting personal belongings report:", {
+        personalData,
+        hasImage: !!uploadedImage,
+      });
+
       // Generate UUID tracking code for consistency
       const trackingCode = crypto.randomUUID();
-      
-      const savedReport = await savePersonalToSupabase(personalData, uploadedImage || undefined, trackingCode);
-      
+
+      const savedReport = await savePersonalToSupabase(
+        personalData,
+        uploadedImage || undefined,
+        trackingCode
+      );
+
       if (savedReport) {
-        localStorage.setItem('lastTrackingCode', trackingCode);
-        localStorage.setItem('lastReportType', 'personal');
-        
+        localStorage.setItem("lastTrackingCode", trackingCode);
+        localStorage.setItem("lastReportType", "personal");
+
         toast.success("Personal belongings report submitted successfully!");
-        navigate("/report-confirmation", { 
-          state: { 
-            trackingCode, 
-            reportType: 'personal',
-            reportData: savedReport
-          }
+        navigate("/report-confirmation", {
+          state: {
+            trackingCode,
+            reportType: "personal",
+            reportData: savedReport,
+          },
         });
       } else {
         toast.error("Failed to submit report. Please try again.");
       }
     } catch (error) {
-      console.error('Submission error:', error);
+      console.error("Submission error:", error);
       toast.error("Failed to submit report. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -219,9 +255,11 @@ const PersonalReportForm = () => {
 
   const onSubmit = async (data: FormData) => {
     const confirmPayment = window.confirm(
-      `This personal belongings report requires a ${formatPrice(price)} fee. Would you like to proceed with payment?`
+      `This personal belongings report requires a ${formatPrice(
+        price
+      )} fee. Would you like to proceed with payment?`
     );
-    
+
     if (confirmPayment) {
       setShowPaymentSelector(true);
     }
@@ -230,28 +268,31 @@ const PersonalReportForm = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <div className="yaracheck-container py-8">
         <div className="max-w-2xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-2xl text-yaracheck-blue">
-                <Briefcase className="h-6 w-6" />
+              <CardTitle className="flex items-center gap-2 text-2xl text-slate-900">
+                <Briefcase className="h-6 w-6 text-yaracheck-blue" />
                 Report Stolen Personal Belongings
               </CardTitle>
             </CardHeader>
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
                   {/* Image Upload Section */}
                   <div className="space-y-4">
                     <FormLabel>Photo (Optional)</FormLabel>
                     <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-4">
                       {imagePreview ? (
                         <div className="relative">
-                          <img 
-                            src={imagePreview} 
-                            alt="Preview" 
+                          <img
+                            src={imagePreview}
+                            alt="Preview"
                             className="w-full h-48 object-cover rounded-lg"
                           />
                           <button
@@ -263,13 +304,17 @@ const PersonalReportForm = () => {
                           </button>
                         </div>
                       ) : (
-                        <label htmlFor="personal-image-upload" className="cursor-pointer block">
+                        <label
+                          htmlFor="personal-image-upload"
+                          className="cursor-pointer block"
+                        >
                           <div className="text-center">
                             <Upload className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-                            <p className="text-sm text-gray-600 mb-2">
-                              Click to upload a photo of the stolen personal item
+                            <p className="text-sm text-slate-600 mb-2">
+                              Click to upload a photo of the stolen personal
+                              item
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-slate-500">
                               PNG, JPG up to 5MB
                             </p>
                           </div>
@@ -291,7 +336,10 @@ const PersonalReportForm = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Item Type *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select item type" />
@@ -305,7 +353,9 @@ const PersonalReportForm = () => {
                             <SelectItem value="clothing">Clothing</SelectItem>
                             <SelectItem value="shoes">Shoes</SelectItem>
                             <SelectItem value="accessory">Accessory</SelectItem>
-                            <SelectItem value="glasses">Glasses/Sunglasses</SelectItem>
+                            <SelectItem value="glasses">
+                              Glasses/Sunglasses
+                            </SelectItem>
                             <SelectItem value="other">Other</SelectItem>
                           </SelectContent>
                         </Select>
@@ -322,7 +372,10 @@ const PersonalReportForm = () => {
                         <FormItem>
                           <FormLabel>Brand/Description *</FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g., Rolex, Gucci, or description" {...field} />
+                            <Input
+                              placeholder="e.g., Rolex, Gucci, or description"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -336,7 +389,10 @@ const PersonalReportForm = () => {
                         <FormItem>
                           <FormLabel>Model/Type *</FormLabel>
                           <FormControl>
-                            <Input placeholder="Model name or item type" {...field} />
+                            <Input
+                              placeholder="Model name or item type"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -352,7 +408,10 @@ const PersonalReportForm = () => {
                         <FormItem>
                           <FormLabel>Color *</FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g., Gold, Black, Silver" {...field} />
+                            <Input
+                              placeholder="e.g., Gold, Black, Silver"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -366,12 +425,12 @@ const PersonalReportForm = () => {
                         <FormItem>
                           <FormLabel>Year of Purchase *</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="number" 
-                              placeholder="e.g., 2020" 
-                              min="1950" 
-                              max={new Date().getFullYear()} 
-                              {...field} 
+                            <Input
+                              type="number"
+                              placeholder="e.g., 2020"
+                              min="1950"
+                              max={new Date().getFullYear()}
+                              {...field}
                             />
                           </FormControl>
                           <FormMessage />
@@ -387,7 +446,10 @@ const PersonalReportForm = () => {
                       <FormItem>
                         <FormLabel>Serial Number/Identifier *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Serial number, engraving, or unique identifier" {...field} />
+                          <Input
+                            placeholder="Serial number, engraving, or unique identifier"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -401,7 +463,10 @@ const PersonalReportForm = () => {
                       <FormItem>
                         <FormLabel>Location Where Stolen *</FormLabel>
                         <FormControl>
-                          <Input placeholder="City, address or general area" {...field} />
+                          <Input
+                            placeholder="City, address or general area"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -415,7 +480,7 @@ const PersonalReportForm = () => {
                       <FormItem>
                         <FormLabel>Description *</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Additional details about the item and theft incident"
                             {...field}
                           />
@@ -432,7 +497,10 @@ const PersonalReportForm = () => {
                       <FormItem>
                         <FormLabel>Contact Information *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Phone number or email for contact" {...field} />
+                          <Input
+                            placeholder="Phone number or email for contact"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -440,7 +508,7 @@ const PersonalReportForm = () => {
                   />
 
                   <div className="border-t pt-6">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-900">
+                    <h3 className="text-lg font-semibold mb-4 text-slate-900">
                       Reporter Information
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -465,7 +533,11 @@ const PersonalReportForm = () => {
                           <FormItem>
                             <FormLabel>Reporter Email *</FormLabel>
                             <FormControl>
-                              <Input type="email" placeholder="Your email" {...field} />
+                              <Input
+                                type="email"
+                                placeholder="Your email"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -481,7 +553,10 @@ const PersonalReportForm = () => {
                           <FormItem>
                             <FormLabel>Reporter Phone *</FormLabel>
                             <FormControl>
-                              <Input placeholder="Your phone number" {...field} />
+                              <Input
+                                placeholder="Your phone number"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -543,7 +618,13 @@ const PersonalReportForm = () => {
                             Processing Payment...
                           </>
                         ) : (
-                          <>Submit Report (Free <span className="line-through text-gray-400">{formatFreePrice(price)}</span>)</>
+                          <>
+                            Submit Report (Free{" "}
+                            <span className="line-through text-slate-400">
+                              {formatFreePrice(price)}
+                            </span>
+                            )
+                          </>
                         )}
                       </Button>
                     </div>
@@ -554,9 +635,9 @@ const PersonalReportForm = () => {
           </Card>
         </div>
       </div>
-      
+
       <Footer />
-      
+
       {showPaymentSelector && (
         <PaymentMethodSelector
           amount={price}

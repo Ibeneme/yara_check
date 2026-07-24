@@ -367,11 +367,11 @@ const PetReportForm = () => {
         <div className="max-w-2xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-2xl text-yaracheck-blue">
-                <Heart className="h-6 w-6" />
+              <CardTitle className="flex items-center gap-2 text-2xl text-slate-900">
+                <Heart className="h-6 w-6 text-yaracheck-blue" />
                 Report Missing Pet
               </CardTitle>
-              <p className="text-gray-600">
+              <p className="text-slate-600">
                 Help us reunite you with your beloved companion. Please provide
                 as much detail as possible.
               </p>
@@ -407,11 +407,11 @@ const PetReportForm = () => {
                           className="cursor-pointer block"
                         >
                           <div className="text-center">
-                            <Upload className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-                            <p className="text-sm text-gray-600 mb-2">
+                            <Upload className="h-12 w-12 mx-auto text-slate-400 mb-2" />
+                            <p className="text-sm text-slate-600 mb-2">
                               Click to upload a clear photo of your pet
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-slate-500">
                               PNG, JPG, WebP up to 5MB
                             </p>
                           </div>
@@ -429,7 +429,7 @@ const PetReportForm = () => {
 
                   {/* Pet Information */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-yaracheck-blue">
+                    <h3 className="text-lg font-semibold text-slate-900">
                       Pet Information
                     </h3>
 
@@ -578,7 +578,7 @@ const PetReportForm = () => {
 
                   {/* Location Information */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-yaracheck-blue">
+                    <h3 className="text-lg font-semibold text-slate-900">
                       Location & Date
                     </h3>
 
@@ -700,7 +700,7 @@ const PetReportForm = () => {
                         ) : (
                           <>
                             Submit Report (Free{" "}
-                            <span className="line-through text-gray-400">
+                            <span className="line-through text-slate-400">
                               {formatFreePrice(price)}
                             </span>
                             )

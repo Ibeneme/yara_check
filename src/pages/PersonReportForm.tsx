@@ -7,15 +7,35 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Upload, X } from "lucide-react";
-import { calculatePrice, formatPrice, formatFreePrice } from "@/utils/dynamicPricing";
-import { savePersonToSupabase, uploadImageToStorage } from "@/utils/supabaseStorage";
+import {
+  calculatePrice,
+  formatPrice,
+  formatFreePrice,
+} from "@/utils/dynamicPricing";
+import {
+  savePersonToSupabase,
+  uploadImageToStorage,
+} from "@/utils/supabaseStorage";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 
 const formSchema = z.object({
@@ -28,7 +48,10 @@ const formSchema = z.object({
   description: z.string().optional(),
   contact: z.string().min(1, "Contact information is required"),
   reporter_name: z.string().min(1, "Reporter name is required"),
-  reporter_email: z.string().email("Valid email is required").min(1, "Reporter email is required"),
+  reporter_email: z
+    .string()
+    .email("Valid email is required")
+    .min(1, "Reporter email is required"),
   reporter_phone: z.string().min(1, "Reporter phone is required"),
   reporter_address: z.string().optional(),
 });
@@ -62,25 +85,26 @@ const PersonReportForm = () => {
   });
 
   const watchedAge = form.watch("age");
-  const price = calculatePrice({ 
-    reportType: 'person', 
-    age: parseInt(watchedAge) || undefined 
+  const price = calculatePrice({
+    reportType: "person",
+    age: parseInt(watchedAge) || undefined,
   });
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      if (file.size > 5 * 1024 * 1024) {
+        // 5MB limit
         toast.error("Image size must be less than 5MB");
         return;
       }
-      
+
       // Check file type
-      if (!file.type.startsWith('image/')) {
+      if (!file.type.startsWith("image/")) {
         toast.error("Please select a valid image file");
         return;
       }
-      
+
       setUploadedImage(file);
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -96,7 +120,10 @@ const PersonReportForm = () => {
   };
 
   const generateTrackingCode = () => {
-    return `PC-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    return `PC-${Date.now()}-${Math.random()
+      .toString(36)
+      .substr(2, 9)
+      .toUpperCase()}`;
   };
 
   const handleFreeSubmission = async (data: FormData) => {
@@ -114,37 +141,43 @@ const PersonReportForm = () => {
         photoUrl: null,
       };
 
-      console.log("Submitting person report:", { 
-        personData, 
+      console.log("Submitting person report:", {
+        personData,
         hasImage: !!uploadedImage,
-        imageDetails: uploadedImage ? {
-          name: uploadedImage.name,
-          size: uploadedImage.size,
-          type: uploadedImage.type
-        } : null
+        imageDetails: uploadedImage
+          ? {
+              name: uploadedImage.name,
+              size: uploadedImage.size,
+              type: uploadedImage.type,
+            }
+          : null,
       });
-      
-      // Generate UUID tracking code for consistency  
+
+      // Generate UUID tracking code for consistency
       const trackingCode = crypto.randomUUID();
-      const savedPerson = await savePersonToSupabase(personData, uploadedImage || undefined, trackingCode);
-      
+      const savedPerson = await savePersonToSupabase(
+        personData,
+        uploadedImage || undefined,
+        trackingCode
+      );
+
       if (savedPerson) {
-        localStorage.setItem('lastTrackingCode', trackingCode);
-        localStorage.setItem('lastReportType', 'person');
-        
+        localStorage.setItem("lastTrackingCode", trackingCode);
+        localStorage.setItem("lastReportType", "person");
+
         toast.success("Person report submitted successfully!");
-        navigate("/report-confirmation", { 
-          state: { 
-            trackingCode, 
-            reportType: 'person',
-            reportData: savedPerson
-          }
+        navigate("/report-confirmation", {
+          state: {
+            trackingCode,
+            reportType: "person",
+            reportData: savedPerson,
+          },
         });
       } else {
         toast.error("Failed to submit report. Please try again.");
       }
     } catch (error) {
-      console.error('Submission error:', error);
+      console.error("Submission error:", error);
       toast.error("Failed to submit report. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -154,9 +187,12 @@ const PersonReportForm = () => {
   const handleStripePayment = async (data: FormData) => {
     setIsProcessingPayment(true);
     try {
-      const { data: paymentData, error } = await supabase.functions.invoke('create-person-payment', {
-        body: { amount: price }
-      });
+      const { data: paymentData, error } = await supabase.functions.invoke(
+        "create-person-payment",
+        {
+          body: { amount: price },
+        }
+      );
 
       if (error) throw error;
 
@@ -164,23 +200,27 @@ const PersonReportForm = () => {
         // Save complete report data including image for payment success processing
         const reportData = {
           ...data,
-          image: uploadedImage ? {
-            data: await new Promise<string>((resolve) => {
-              const reader = new FileReader();
-              reader.onload = () => resolve(reader.result as string);
-              reader.readAsDataURL(uploadedImage);
-            }),
-            name: uploadedImage.name,
-            type: uploadedImage.type
-          } : null
+          image: uploadedImage
+            ? {
+                data: await new Promise<string>((resolve) => {
+                  const reader = new FileReader();
+                  reader.onload = () => resolve(reader.result as string);
+                  reader.readAsDataURL(uploadedImage);
+                }),
+                name: uploadedImage.name,
+                type: uploadedImage.type,
+              }
+            : null,
         };
-        
-        localStorage.setItem('pendingPersonReport', JSON.stringify(reportData));
-        window.open(paymentData.url, '_blank');
-        toast.success("Payment window opened. Complete payment to proceed with person report.");
+
+        localStorage.setItem("pendingPersonReport", JSON.stringify(reportData));
+        window.open(paymentData.url, "_blank");
+        toast.success(
+          "Payment window opened. Complete payment to proceed with person report."
+        );
       }
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error("Payment error:", error);
       toast.error("Payment processing failed. Please try again.");
     } finally {
       setIsProcessingPayment(false);
@@ -192,15 +232,15 @@ const PersonReportForm = () => {
     try {
       // Generate tracking code for the transaction
       const trackingCode = crypto.randomUUID();
-      
+
       // Upload image first if present
       let imageUrl = null;
       if (uploadedImage) {
         console.log("Uploading image before payment...");
-        imageUrl = await uploadImageToStorage(uploadedImage, 'persons');
+        imageUrl = await uploadImageToStorage(uploadedImage, "persons");
         console.log("Image upload result:", imageUrl);
       }
-      
+
       // Prepare report data with image URL
       const reportData = {
         ...data,
@@ -208,16 +248,19 @@ const PersonReportForm = () => {
         reporter_name: data.reporter_name || data.name,
         reporter_phone: data.reporter_phone || data.contact,
         reporter_address: data.reporter_address || data.location,
-        image_url: imageUrl
+        image_url: imageUrl,
       };
 
-      const { data: paymentData, error } = await supabase.functions.invoke('create-paystack-person-payment', {
-        body: { 
-          amount: price,
-          reportData: reportData,
-          trackingCode: trackingCode
+      const { data: paymentData, error } = await supabase.functions.invoke(
+        "create-paystack-person-payment",
+        {
+          body: {
+            amount: price,
+            reportData: reportData,
+            trackingCode: trackingCode,
+          },
         }
-      });
+      );
 
       if (error) throw error;
 
@@ -226,15 +269,20 @@ const PersonReportForm = () => {
         const completePaystackReportData = {
           ...data,
           trackingCode: trackingCode,
-          image_url: imageUrl
+          image_url: imageUrl,
         };
-        
-        localStorage.setItem('pendingPersonReport', JSON.stringify(completePaystackReportData));
-        window.open(paymentData.url, '_blank');
-        toast.success("Payment window opened. Complete payment to proceed with person report.");
+
+        localStorage.setItem(
+          "pendingPersonReport",
+          JSON.stringify(completePaystackReportData)
+        );
+        window.open(paymentData.url, "_blank");
+        toast.success(
+          "Payment window opened. Complete payment to proceed with person report."
+        );
       }
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error("Payment error:", error);
       toast.error("Payment processing failed. Please try again.");
     } finally {
       setIsProcessingPayment(false);
@@ -246,15 +294,15 @@ const PersonReportForm = () => {
     try {
       // Generate tracking code for the transaction
       const trackingCode = crypto.randomUUID();
-      
+
       // Upload image first if present
       let imageUrl = null;
       if (uploadedImage) {
         console.log("Uploading image before payment...");
-        imageUrl = await uploadImageToStorage(uploadedImage, 'persons');
+        imageUrl = await uploadImageToStorage(uploadedImage, "persons");
         console.log("Image upload result:", imageUrl);
       }
-      
+
       // Prepare report data with image URL
       const reportData = {
         ...data,
@@ -262,16 +310,19 @@ const PersonReportForm = () => {
         reporter_name: data.reporter_name || data.name,
         reporter_phone: data.reporter_phone || data.contact,
         reporter_address: data.reporter_address || data.location,
-        image_url: imageUrl
+        image_url: imageUrl,
       };
 
-      const { data: paymentData, error } = await supabase.functions.invoke('create-flutterwave-person-payment', {
-        body: { 
-          amount: price,
-          reportData: reportData,
-          trackingCode: trackingCode
+      const { data: paymentData, error } = await supabase.functions.invoke(
+        "create-flutterwave-person-payment",
+        {
+          body: {
+            amount: price,
+            reportData: reportData,
+            trackingCode: trackingCode,
+          },
         }
-      });
+      );
 
       if (error) throw error;
 
@@ -280,49 +331,60 @@ const PersonReportForm = () => {
         const completeReportData = {
           ...data,
           trackingCode: trackingCode,
-          image_url: imageUrl
+          image_url: imageUrl,
         };
-        
-        localStorage.setItem('pendingPersonReport', JSON.stringify(completeReportData));
-        window.open(paymentData.url, '_blank');
-        toast.success("Payment window opened. Complete payment to proceed with person report.");
+
+        localStorage.setItem(
+          "pendingPersonReport",
+          JSON.stringify(completeReportData)
+        );
+        window.open(paymentData.url, "_blank");
+        toast.success(
+          "Payment window opened. Complete payment to proceed with person report."
+        );
       }
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error("Payment error:", error);
       toast.error("Payment processing failed. Please try again.");
     } finally {
       setIsProcessingPayment(false);
     }
   };
 
-  const handlePaymentMethodSelect = async (method: 'stripe' | 'paystack' | 'flutterwave', data: FormData) => {
-    if (method === 'stripe') {
+  const handlePaymentMethodSelect = async (
+    method: "stripe" | "paystack" | "flutterwave",
+    data: FormData
+  ) => {
+    if (method === "stripe") {
       await handleStripePayment(data);
-    } else if (method === 'paystack') {
+    } else if (method === "paystack") {
       await handlePaystackPayment(data);
-    } else if (method === 'flutterwave') {
+    } else if (method === "flutterwave") {
       await handleFlutterwavePayment(data);
     }
   };
 
   const onSubmit = async (data: FormData) => {
     const age = parseInt(data.age);
-    
+
     if (price === 0) {
-      const priceMessage = "This report is free of charge for children ages 1-7.";
+      const priceMessage =
+        "This report is free of charge for children ages 1-7.";
       const confirmSubmission = window.confirm(
         `${priceMessage} Would you like to proceed with submitting this report?`
       );
-      
+
       if (confirmSubmission) {
         await handleFreeSubmission(data);
       }
     } else {
-      const priceMessage = `This report requires a ${formatPrice(price)} fee to help maintain our verification systems.`;
+      const priceMessage = `This report requires a ${formatPrice(
+        price
+      )} fee to help maintain our verification systems.`;
       const confirmPayment = window.confirm(
         `${priceMessage} Would you like to proceed with payment?`
       );
-      
+
       if (confirmPayment) {
         setShowPaymentSelector(true);
       }
@@ -332,28 +394,31 @@ const PersonReportForm = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <div className="yaracheck-container py-8">
         <div className="max-w-2xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-2xl text-yaracheck-blue">
-                <User className="h-6 w-6" />
+              <CardTitle className="flex items-center gap-2 text-2xl text-slate-900">
+                <User className="h-6 w-6 text-yaracheck-blue" />
                 Report Missing Person
               </CardTitle>
             </CardHeader>
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
                   {/* Image Upload Section */}
                   <div className="space-y-4">
                     <FormLabel>Photo (Optional)</FormLabel>
                     <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-4">
                       {imagePreview ? (
                         <div className="relative">
-                          <img 
-                            src={imagePreview} 
-                            alt="Preview" 
+                          <img
+                            src={imagePreview}
+                            alt="Preview"
                             className="w-full h-48 object-cover rounded-lg"
                           />
                           <button
@@ -365,13 +430,16 @@ const PersonReportForm = () => {
                           </button>
                         </div>
                       ) : (
-                        <label htmlFor="person-image-upload" className="cursor-pointer block">
+                        <label
+                          htmlFor="person-image-upload"
+                          className="cursor-pointer block"
+                        >
                           <div className="text-center">
                             <Upload className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-                            <p className="text-sm text-gray-600 mb-2">
+                            <p className="text-sm text-slate-600 mb-2">
                               Click to upload a photo of the missing person
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-slate-500">
                               PNG, JPG, WebP up to 5MB
                             </p>
                           </div>
@@ -409,16 +477,19 @@ const PersonReportForm = () => {
                         <FormItem>
                           <FormLabel>Age</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="number" 
-                              placeholder="Enter age" 
+                            <Input
+                              type="number"
+                              placeholder="Enter age"
                               {...field}
                             />
                           </FormControl>
                           <FormMessage />
                           {watchedAge && (
-                            <p className="text-xs text-gray-600">
-                              Report fee: Free <span className="line-through text-gray-400">{formatFreePrice(price)}</span>
+                            <p className="text-xs text-slate-600">
+                              Report fee: Free{" "}
+                              <span className="line-through text-slate-400">
+                                {formatFreePrice(price)}
+                              </span>
                             </p>
                           )}
                         </FormItem>
@@ -432,7 +503,10 @@ const PersonReportForm = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Gender</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select gender" />
@@ -456,7 +530,10 @@ const PersonReportForm = () => {
                       <FormItem>
                         <FormLabel>Last Known Location</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter last known location" {...field} />
+                          <Input
+                            placeholder="Enter last known location"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -484,7 +561,7 @@ const PersonReportForm = () => {
                       <FormItem>
                         <FormLabel>Physical Attributes (Optional)</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Height, weight, hair color, distinguishing marks, etc."
                             {...field}
                           />
@@ -501,7 +578,7 @@ const PersonReportForm = () => {
                       <FormItem>
                         <FormLabel>Additional Description (Optional)</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Any additional information that might help"
                             {...field}
                           />
@@ -518,7 +595,10 @@ const PersonReportForm = () => {
                       <FormItem>
                         <FormLabel>Contact Information</FormLabel>
                         <FormControl>
-                          <Input placeholder="Phone number or email for contact" {...field} />
+                          <Input
+                            placeholder="Phone number or email for contact"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -526,7 +606,7 @@ const PersonReportForm = () => {
                   />
 
                   <div className="border-t pt-6">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-900">
+                    <h3 className="text-lg font-semibold mb-4 text-slate-900">
                       Reporter Information (Optional)
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -551,7 +631,11 @@ const PersonReportForm = () => {
                           <FormItem>
                             <FormLabel>Reporter Email</FormLabel>
                             <FormControl>
-                              <Input type="email" placeholder="Your email" {...field} />
+                              <Input
+                                type="email"
+                                placeholder="Your email"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -567,7 +651,10 @@ const PersonReportForm = () => {
                           <FormItem>
                             <FormLabel>Reporter Phone</FormLabel>
                             <FormControl>
-                              <Input placeholder="Your phone number" {...field} />
+                              <Input
+                                placeholder="Your phone number"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -594,13 +681,8 @@ const PersonReportForm = () => {
                     <Button
                       type="button"
                       onClick={() => {
-                        if (price === 0) {
-                          const formData = form.getValues();
-                          handleFreeSubmission(formData);
-                        } else {
-                          const formData = form.getValues();
-                          handleFreeSubmission(formData);  
-                        }
+                        const formData = form.getValues();
+                        handleFreeSubmission(formData);
                       }}
                       className="w-full bg-green-600 hover:bg-green-700 text-white"
                       disabled={isSubmitting}
@@ -639,7 +721,13 @@ const PersonReportForm = () => {
                             Submitting Report...
                           </>
                         ) : (
-                          <>Submit Report (Free <span className="line-through text-gray-400">{formatFreePrice(price)}</span>)</>
+                          <>
+                            Submit Report (Free{" "}
+                            <span className="line-through text-slate-400">
+                              {formatFreePrice(price)}
+                            </span>
+                            )
+                          </>
                         )}
                       </Button>
                     </div>
@@ -650,7 +738,7 @@ const PersonReportForm = () => {
           </Card>
         </div>
       </div>
-      
+
       <Footer />
 
       {showPaymentSelector && (

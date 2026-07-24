@@ -26,27 +26,36 @@ const PaymentSuccessPaystack = () => {
   useEffect(() => {
     const processPaymentSuccess = async () => {
       console.log("[PAYSTACK-SUCCESS] Payment confirmation handler triggered");
-      
-      const reference = searchParams.get('reference');
-      const trxref = searchParams.get('trxref');
+
+      const reference = searchParams.get("reference");
+      const trxref = searchParams.get("trxref");
       const paymentReference = reference || trxref;
-      
-      console.log("[PAYSTACK-SUCCESS] Payment reference received:", paymentReference);
-      
+
+      console.log(
+        "[PAYSTACK-SUCCESS] Payment reference received:",
+        paymentReference
+      );
+
       if (!paymentReference) {
         console.error("[PAYSTACK-SUCCESS] No payment reference found");
         toast.error("Invalid payment reference");
-        navigate('/submit-report');
+        navigate("/submit-report");
         return;
       }
 
       try {
-        console.log("[PAYSTACK-SUCCESS] Verifying payment with Paystack:", paymentReference);
-        
+        console.log(
+          "[PAYSTACK-SUCCESS] Verifying payment with Paystack:",
+          paymentReference
+        );
+
         // Use the verify-paystack-payment edge function instead of localStorage
-        const { data, error } = await supabase.functions.invoke('verify-paystack-payment', {
-          body: { reference: paymentReference }
-        });
+        const { data, error } = await supabase.functions.invoke(
+          "verify-paystack-payment",
+          {
+            body: { reference: paymentReference },
+          }
+        );
 
         if (error) {
           console.error("Paystack verification error:", error);
@@ -58,19 +67,19 @@ const PaymentSuccessPaystack = () => {
         if (data.success) {
           console.log("[PAYSTACK-SUCCESS] Payment verified successfully");
           setTrackingCode(data.trackingCode);
-          
+
           // Clean up any pending reports from localStorage
-          localStorage.removeItem('pendingPersonReport');
-          localStorage.removeItem('pendingDeviceReport');
-          localStorage.removeItem('pendingVehicleReport');
-          localStorage.removeItem('pendingHouseholdReport');
-          localStorage.removeItem('pendingPersonalReport');
-          localStorage.removeItem('pendingAccountReport');
-          localStorage.removeItem('pendingReputationReport');
-          localStorage.removeItem('trackingCode');
-          
+          localStorage.removeItem("pendingPersonReport");
+          localStorage.removeItem("pendingDeviceReport");
+          localStorage.removeItem("pendingVehicleReport");
+          localStorage.removeItem("pendingHouseholdReport");
+          localStorage.removeItem("pendingPersonalReport");
+          localStorage.removeItem("pendingAccountReport");
+          localStorage.removeItem("pendingReputationReport");
+          localStorage.removeItem("trackingCode");
+
           toast.success("Payment successful! Report submitted.");
-          
+
           // Try to close window and redirect parent, or navigate if in same window
           if (window.opener) {
             // If opened as popup, close and redirect parent
@@ -81,16 +90,19 @@ const PaymentSuccessPaystack = () => {
             navigate(`/payment-confirmation?code=${data.trackingCode}`);
           }
         } else {
-          console.error("[PAYSTACK-SUCCESS] Payment verification failed:", data.error);
+          console.error(
+            "[PAYSTACK-SUCCESS] Payment verification failed:",
+            data.error
+          );
           toast.error(data.error || "Payment verification failed");
           setIsProcessing(false);
         }
       } catch (error) {
-        console.error('[PAYSTACK-SUCCESS] Error processing payment:', error);
-        console.error('[PAYSTACK-SUCCESS] Error details:', {
+        console.error("[PAYSTACK-SUCCESS] Error processing payment:", error);
+        console.error("[PAYSTACK-SUCCESS] Error details:", {
           message: error.message,
           stack: error.stack,
-          paymentReference
+          paymentReference,
         });
         // Use Paystack verification instead
         await verifyPaystackPayment(paymentReference);
@@ -104,11 +116,17 @@ const PaymentSuccessPaystack = () => {
 
   const verifyPaystackPayment = async (reference: string) => {
     try {
-      console.log("[PAYSTACK-SUCCESS] Verifying payment with Paystack:", reference);
-      
-      const { data, error } = await supabase.functions.invoke('verify-paystack-payment', {
-        body: { reference }
-      });
+      console.log(
+        "[PAYSTACK-SUCCESS] Verifying payment with Paystack:",
+        reference
+      );
+
+      const { data, error } = await supabase.functions.invoke(
+        "verify-paystack-payment",
+        {
+          body: { reference },
+        }
+      );
 
       if (error) {
         console.error("Paystack verification error:", error);
@@ -117,11 +135,11 @@ const PaymentSuccessPaystack = () => {
 
       if (data.success) {
         setTrackingCode(data.trackingCode);
-        localStorage.setItem('lastTrackingCode', data.trackingCode);
-        localStorage.setItem('lastReportType', data.reportType);
-        
+        localStorage.setItem("lastTrackingCode", data.trackingCode);
+        localStorage.setItem("lastReportType", data.reportType);
+
         toast.success("Payment verified! Your report has been submitted.");
-        
+
         // Try to close window and redirect parent, or navigate if in same window
         if (window.opener) {
           // If opened as popup, close and redirect parent
@@ -137,79 +155,89 @@ const PaymentSuccessPaystack = () => {
     } catch (error: any) {
       console.error("[PAYSTACK-SUCCESS] Verification error:", error);
       toast.error("Payment verification failed. Please contact support.");
-      navigate('/support');
+      navigate("/support");
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <div className="container mx-auto py-12">
         <div className="max-w-md mx-auto">
           <Card>
             <CardContent className="p-8 text-center">
               {isProcessing ? (
                 <>
-                  <Loader2 className="h-16 w-16 mx-auto text-blue-600 animate-spin mb-4" />
-                  <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                  <Loader2 className="h-16 w-16 mx-auto text-yaracheck-blue animate-spin mb-4" />
+                  <h1 className="text-2xl font-bold text-slate-900 mb-2">
                     Processing Your Report
                   </h1>
-                  <p className="text-gray-600 mb-4">
-                    Paystack payment successful! We're now submitting your report...
+                  <p className="text-slate-600 mb-4">
+                    Paystack payment successful! We're now submitting your
+                    report...
                   </p>
                   <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
                     <p className="text-sm text-yellow-800">
-                      ⏳ <strong>Please wait:</strong> Do not close this page while your report is being processed.
+                      ⏳ <strong>Please wait:</strong> Do not close this page
+                      while your report is being processed.
                     </p>
                   </div>
                 </>
               ) : (
-                  <>
-                    <CheckCircle className="h-16 w-16 mx-auto text-green-600 mb-4" />
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                      Payment Successful!
-                    </h1>
-                    <p className="text-gray-600 mb-4">
-                      Your payment has been processed successfully via Paystack.
-                    </p>
-                    
-                    {trackingCode && (
-                      <div className="bg-green-50 p-4 rounded-lg border border-green-200 mb-4">
-                        <h3 className="font-semibold text-green-800 mb-2">
-                          Report Submitted Successfully
-                        </h3>
-                        <p className="text-green-700 mb-3">
-                          Your report has been submitted and is being processed.
-                        </p>
-                        <div className="bg-white p-3 rounded border mb-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <p className="text-sm font-medium">Tracking Code:</p>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                navigator.clipboard.writeText(trackingCode);
-                                toast.success("Tracking code copied to clipboard!");
-                              }}
-                            >
-                              Copy
-                            </Button>
-                          </div>
-                          <p className="text-lg font-mono text-primary">{trackingCode}</p>
-                        </div>
-                        <div className="p-3 bg-yellow-50 rounded border border-yellow-200">
-                          <p className="text-sm text-yellow-800">
-                            ⚠️ <strong>Important:</strong> Keep this tracking code safe! You'll need it to track your report status and make any updates.
+                <>
+                  <CheckCircle className="h-16 w-16 mx-auto text-green-600 mb-4" />
+                  <h1 className="text-2xl font-bold text-slate-900 mb-2">
+                    Payment Successful!
+                  </h1>
+                  <p className="text-slate-600 mb-4">
+                    Your payment has been processed successfully via Paystack.
+                  </p>
+
+                  {trackingCode && (
+                    <div className="bg-green-50 p-4 rounded-lg border border-green-200 mb-4">
+                      <h3 className="font-semibold text-green-800 mb-2">
+                        Report Submitted Successfully
+                      </h3>
+                      <p className="text-green-700 mb-3">
+                        Your report has been submitted and is being processed.
+                      </p>
+                      <div className="bg-white p-3 rounded border mb-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-sm font-medium text-slate-700">
+                            Tracking Code:
                           </p>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              navigator.clipboard.writeText(trackingCode);
+                              toast.success(
+                                "Tracking code copied to clipboard!"
+                              );
+                            }}
+                          >
+                            Copy
+                          </Button>
                         </div>
+                        <p className="text-lg font-mono text-yaracheck-blue">
+                          {trackingCode}
+                        </p>
                       </div>
-                    )}
-                    
-                    <p className="text-gray-600">
-                      Redirecting to confirmation page...
-                    </p>
-                  </>
+                      <div className="p-3 bg-yellow-50 rounded border border-yellow-200">
+                        <p className="text-sm text-yellow-800">
+                          ⚠️ <strong>Important:</strong> Keep this tracking code
+                          safe! You'll need it to track your report status and
+                          make any updates.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <p className="text-slate-600">
+                    Redirecting to confirmation page...
+                  </p>
+                </>
               )}
             </CardContent>
           </Card>

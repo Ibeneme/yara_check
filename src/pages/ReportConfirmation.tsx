@@ -10,20 +10,21 @@ const ReportConfirmation = () => {
   const [copied, setCopied] = useState(false);
   const [searchParams] = useSearchParams();
   const location = useLocation();
-  
+
   // Get the tracking code from URL parameters or location state - use consistent ID
-  const trackingCode = searchParams.get('trackingCode') || 
-                      location.state?.reportId || 
-                      location.state?.trackingCode ||
-                      localStorage.getItem('lastTrackingCode');
-  
+  const trackingCode =
+    searchParams.get("trackingCode") ||
+    location.state?.reportId ||
+    location.state?.trackingCode ||
+    localStorage.getItem("lastTrackingCode");
+
   // If no tracking code is available, show an error message
   if (!trackingCode) {
     return (
       <div className="flex flex-col min-h-screen">
         <Header />
         <main className="flex-grow bg-gray-50">
-          <div className="padiman-container py-12">
+          <div className="yaracheck-container py-12">
             <div className="max-w-2xl mx-auto text-center">
               <div className="flex justify-center mb-8">
                 <div className="rounded-full bg-red-100 p-4">
@@ -33,10 +34,14 @@ const ReportConfirmation = () => {
               <h1 className="text-3xl font-bold text-red-700 mb-4">
                 No Tracking Code Found
               </h1>
-              <p className="text-padiman-darkGray mb-8">
-                Unable to find your report tracking code. Please try submitting your report again.
+              <p className="text-slate-600 mb-8">
+                Unable to find your report tracking code. Please try submitting
+                your report again.
               </p>
-              <Button asChild className="bg-padiman-blue hover:bg-padiman-darkBlue">
+              <Button
+                asChild
+                className="bg-yaracheck-blue hover:bg-yaracheck-darkBlue"
+              >
                 <Link to="/submit-report">Submit New Report</Link>
               </Button>
             </div>
@@ -46,7 +51,7 @@ const ReportConfirmation = () => {
       </div>
     );
   }
-  
+
   const copyToClipboard = () => {
     navigator.clipboard.writeText(trackingCode);
     setCopied(true);
@@ -58,31 +63,33 @@ const ReportConfirmation = () => {
       <Header />
 
       <main className="flex-grow bg-gray-50">
-        <div className="padiman-container py-12">
+        <div className="yaracheck-container py-12">
           <div className="max-w-2xl mx-auto">
             <div className="flex justify-center mb-8">
               <div className="rounded-full bg-green-100 p-4">
                 <Check className="h-16 w-16 text-green-600" />
               </div>
             </div>
-            
+
             <h1 className="text-3xl font-bold text-center mb-2 text-green-700">
               Report Submitted Successfully!
             </h1>
-            <p className="text-center text-padiman-darkGray mb-8">
+            <p className="text-center text-slate-600 mb-8">
               Your report has been received and is now live in our database.
             </p>
 
             <Card className="shadow-md mb-8">
               <CardContent className="pt-6">
                 <div className="text-center mb-6">
-                  <h2 className="text-lg font-medium mb-2">Your Tracking Code</h2>
+                  <h2 className="text-lg font-medium mb-2 text-slate-900">
+                    Your Tracking Code
+                  </h2>
                   <div className="flex items-center justify-center">
-                    <div className="bg-padiman-lightBlue text-padiman-blue text-lg font-mono font-bold py-3 px-6 rounded-md break-all">
+                    <div className="bg-blue-50 text-yaracheck-blue text-lg font-mono font-bold py-3 px-6 rounded-md break-all">
                       {trackingCode}
                     </div>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       size="icon"
                       onClick={copyToClipboard}
                       className="ml-2"
@@ -95,8 +102,9 @@ const ReportConfirmation = () => {
                       <span className="sr-only">Copy to clipboard</span>
                     </Button>
                   </div>
-                  <p className="text-sm text-padiman-darkGray mt-2">
-                    Save this code. You'll need it to track and update your report.
+                  <p className="text-sm text-slate-600 mt-2">
+                    Save this code. You'll need it to track and update your
+                    report.
                   </p>
                   <p className="text-xs text-blue-600 mt-1">
                     This tracking code is unique and permanent for this report.
@@ -105,29 +113,46 @@ const ReportConfirmation = () => {
 
                 <div className="border-t pt-6 space-y-6">
                   <div>
-                    <h3 className="font-medium mb-2">What Happens Next?</h3>
-                    <ul className="space-y-2 text-sm text-padiman-darkGray">
+                    <h3 className="font-medium mb-2 text-slate-900">
+                      What Happens Next?
+                    </h3>
+                    <ul className="space-y-2 text-sm text-slate-600">
                       <li className="flex">
                         <span className="mr-2">1.</span>
-                        <span>Your report is now publicly searchable in our database.</span>
+                        <span>
+                          Your report is now publicly searchable in our
+                          database.
+                        </span>
                       </li>
                       <li className="flex">
                         <span className="mr-2">2.</span>
-                        <span>Anyone who attempts to verify the reported item will see your report details.</span>
+                        <span>
+                          Anyone who attempts to verify the reported item will
+                          see your report details.
+                        </span>
                       </li>
                       <li className="flex">
                         <span className="mr-2">3.</span>
-                        <span>You'll receive notifications when someone comments on your report or submits a tip.</span>
+                        <span>
+                          You'll receive notifications when someone comments on
+                          your report or submits a tip.
+                        </span>
                       </li>
                       <li className="flex">
                         <span className="mr-2">4.</span>
-                        <span>You can use your tracking code to view updates and manage your report.</span>
+                        <span>
+                          You can use your tracking code to view updates and
+                          manage your report.
+                        </span>
                       </li>
                     </ul>
                   </div>
-                  
+
                   <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                    <Button asChild className="bg-padiman-blue hover:bg-padiman-darkBlue">
+                    <Button
+                      asChild
+                      className="bg-yaracheck-blue hover:bg-yaracheck-darkBlue"
+                    >
                       <Link to="/my-reports">Go to My Reports</Link>
                     </Button>
                     <Button asChild variant="outline">
@@ -144,8 +169,8 @@ const ReportConfirmation = () => {
                 Important Note
               </h3>
               <p className="mt-2 text-amber-700">
-                If you have any updates or recover your item, please update or close your report
-                promptly to avoid false flags in our system.
+                If you have any updates or recover your item, please update or
+                close your report promptly to avoid false flags in our system.
               </p>
             </div>
           </div>

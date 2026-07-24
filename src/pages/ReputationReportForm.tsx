@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -8,14 +7,31 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { UserCheck } from "lucide-react";
-import { calculatePrice, formatPrice, formatFreePrice } from "@/utils/dynamicPricing";
+import {
+  calculatePrice,
+  formatPrice,
+  formatFreePrice,
+} from "@/utils/dynamicPricing";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 
 const formSchema = z.object({
@@ -59,26 +75,29 @@ const ReputationReportForm = () => {
     },
   });
 
-  const price = calculatePrice({ reportType: 'reputation' });
+  const price = calculatePrice({ reportType: "reputation" });
 
-  const handlePaymentMethod = async (method: 'stripe' | 'paystack' | 'flutterwave') => {
+  const handlePaymentMethod = async (
+    method: "stripe" | "paystack" | "flutterwave"
+  ) => {
     setIsProcessingPayment(true);
     try {
-      const functionName = method === 'stripe' 
-        ? 'create-vehicle-payment' 
-        : method === 'paystack' 
-        ? 'create-paystack-reputation-payment'
-        : 'create-flutterwave-reputation-payment';
-      
+      const functionName =
+        method === "stripe"
+          ? "create-vehicle-payment"
+          : method === "paystack"
+          ? "create-paystack-reputation-payment"
+          : "create-flutterwave-reputation-payment";
+
       const reportData = form.getValues();
       const trackingCode = crypto.randomUUID();
-      
+
       const { data, error } = await supabase.functions.invoke(functionName, {
-        body: { 
-          amount: price, 
+        body: {
+          amount: price,
           reportData,
-          trackingCode 
-        }
+          trackingCode,
+        },
       });
 
       if (error) throw error;
@@ -88,7 +107,7 @@ const ReputationReportForm = () => {
         try {
           const formData = form.getValues();
           const { data: reportData, error: reportError } = await supabase
-            .from('business_reputation_reports')
+            .from("business_reputation_reports")
             .insert({
               reported_person_name: formData.reported_person_name,
               reported_person_contact: formData.reported_person_contact,
@@ -102,8 +121,8 @@ const ReputationReportForm = () => {
               reporter_email: formData.reporter_email,
               reporter_phone: formData.reporter_phone,
               reporter_address: formData.reporter_address,
-              status: 'pending_verification',
-              visible: false // Will remain false until super admin verifies
+              status: "pending_verification",
+              visible: false, // Will remain false until super admin verifies
             })
             .select()
             .single();
@@ -111,19 +130,21 @@ const ReputationReportForm = () => {
           if (reportError) throw reportError;
 
           // Store tracking code for payment success page
-          localStorage.setItem('trackingCode', reportData.id);
-          
-          window.open(data.url, '_blank');
-          toast.success("Payment window opened. Complete payment to proceed with reputation report verification.");
+          localStorage.setItem("trackingCode", reportData.id);
+
+          window.open(data.url, "_blank");
+          toast.success(
+            "Payment window opened. Complete payment to proceed with reputation report verification."
+          );
           setShowPaymentSelector(false);
         } catch (error) {
-          console.error('Error saving reputation report:', error);
+          console.error("Error saving reputation report:", error);
           toast.error("Error saving report data");
           return;
         }
       }
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error("Payment error:", error);
       toast.error("Payment processing failed. Please try again.");
     } finally {
       setIsProcessingPayment(false);
@@ -136,7 +157,7 @@ const ReputationReportForm = () => {
       const trackingCode = crypto.randomUUID();
 
       const { error } = await supabase
-        .from('business_reputation_reports')
+        .from("business_reputation_reports")
         .insert({
           reported_person_name: data.reported_person_name,
           reported_person_contact: data.reported_person_contact,
@@ -151,22 +172,22 @@ const ReputationReportForm = () => {
           reporter_phone: data.reporter_phone,
           reporter_address: data.reporter_address,
           tracking_code: trackingCode,
-          status: 'pending_verification'
+          status: "pending_verification",
         });
 
       if (!error) {
         toast.success("Business reputation report submitted successfully!");
-        navigate("/report-confirmation", { 
-          state: { 
-            trackingCode, 
-            reportType: 'reputation'
-          }
+        navigate("/report-confirmation", {
+          state: {
+            trackingCode,
+            reportType: "reputation",
+          },
         });
       } else {
         toast.error("Failed to submit report. Please try again.");
       }
     } catch (error) {
-      console.error('Submission error:', error);
+      console.error("Submission error:", error);
       toast.error("Failed to submit report. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -175,9 +196,11 @@ const ReputationReportForm = () => {
 
   const onSubmit = async (data: FormData) => {
     const confirmPayment = window.confirm(
-      `This business reputation report requires a ${formatPrice(price)} fee. The report will be verified before going live. Would you like to proceed with payment?`
+      `This business reputation report requires a ${formatPrice(
+        price
+      )} fee. The report will be verified before going live. Would you like to proceed with payment?`
     );
-    
+
     if (confirmPayment) {
       setShowPaymentSelector(true);
     }
@@ -186,7 +209,7 @@ const ReputationReportForm = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <div className="yaracheck-container py-8">
         <div className="max-w-2xl mx-auto">
           <Card>
@@ -195,18 +218,22 @@ const ReputationReportForm = () => {
                 <UserCheck className="h-6 w-6" />
                 Report Business Reputation
               </CardTitle>
-              <p className="text-sm text-gray-600">
-                Report your business experience with someone. All reports are verified before going live.
+              <p className="text-sm text-slate-600">
+                Report your business experience with someone. All reports are
+                verified before going live.
               </p>
             </CardHeader>
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
                   <div className="border-b pb-6">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-900">
+                    <h3 className="text-lg font-semibold mb-4 text-slate-900">
                       About the Person
                     </h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
@@ -215,7 +242,10 @@ const ReputationReportForm = () => {
                           <FormItem>
                             <FormLabel>Full Name</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter person's full name" {...field} />
+                              <Input
+                                placeholder="Enter person's full name"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -229,7 +259,10 @@ const ReputationReportForm = () => {
                           <FormItem>
                             <FormLabel>Contact Info</FormLabel>
                             <FormControl>
-                              <Input placeholder="Phone number or email" {...field} />
+                              <Input
+                                placeholder="Phone number or email"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -239,10 +272,10 @@ const ReputationReportForm = () => {
                   </div>
 
                   <div className="border-b pb-6">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-900">
+                    <h3 className="text-lg font-semibold mb-4 text-slate-900">
                       Business Transaction Details
                     </h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <FormField
                         control={form.control}
@@ -250,18 +283,31 @@ const ReputationReportForm = () => {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Type of Business</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select business type" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="retail">Retail/Sales</SelectItem>
-                                <SelectItem value="service">Service Provider</SelectItem>
-                                <SelectItem value="rental">Rental/Lease</SelectItem>
-                                <SelectItem value="lending">Money Lending</SelectItem>
-                                <SelectItem value="online">Online Transaction</SelectItem>
+                                <SelectItem value="retail">
+                                  Retail/Sales
+                                </SelectItem>
+                                <SelectItem value="service">
+                                  Service Provider
+                                </SelectItem>
+                                <SelectItem value="rental">
+                                  Rental/Lease
+                                </SelectItem>
+                                <SelectItem value="lending">
+                                  Money Lending
+                                </SelectItem>
+                                <SelectItem value="online">
+                                  Online Transaction
+                                </SelectItem>
                                 <SelectItem value="other">Other</SelectItem>
                               </SelectContent>
                             </Select>
@@ -293,7 +339,10 @@ const ReputationReportForm = () => {
                           <FormItem>
                             <FormLabel>Transaction Amount</FormLabel>
                             <FormControl>
-                              <Input placeholder="e.g., $500 or $250,000" {...field} />
+                              <Input
+                                placeholder="e.g., $500 or $250,000"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -306,16 +355,25 @@ const ReputationReportForm = () => {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Your Experience</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
                               <FormControl>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Rate their honesty" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="honest">Honest & Trustworthy</SelectItem>
-                                <SelectItem value="dishonest">Dishonest & Untrustworthy</SelectItem>
-                                <SelectItem value="mixed">Mixed Experience</SelectItem>
+                                <SelectItem value="honest">
+                                  Honest & Trustworthy
+                                </SelectItem>
+                                <SelectItem value="dishonest">
+                                  Dishonest & Untrustworthy
+                                </SelectItem>
+                                <SelectItem value="mixed">
+                                  Mixed Experience
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -332,7 +390,7 @@ const ReputationReportForm = () => {
                       <FormItem>
                         <FormLabel>Detailed Description</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Describe your business experience with this person in detail. Include what happened, how they handled the transaction, etc."
                             rows={4}
                             {...field}
@@ -350,7 +408,7 @@ const ReputationReportForm = () => {
                       <FormItem>
                         <FormLabel>Supporting Evidence (Optional)</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Any receipts, messages, or other evidence you can provide"
                             {...field}
                           />
@@ -361,7 +419,7 @@ const ReputationReportForm = () => {
                   />
 
                   <div className="border-t pt-6">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-900">
+                    <h3 className="text-lg font-semibold mb-4 text-slate-900">
                       Your Information (Required)
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -386,7 +444,11 @@ const ReputationReportForm = () => {
                           <FormItem>
                             <FormLabel>Your Email</FormLabel>
                             <FormControl>
-                              <Input type="email" placeholder="Your email address" {...field} />
+                              <Input
+                                type="email"
+                                placeholder="Your email address"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -402,7 +464,10 @@ const ReputationReportForm = () => {
                           <FormItem>
                             <FormLabel>Your Phone</FormLabel>
                             <FormControl>
-                              <Input placeholder="Your phone number" {...field} />
+                              <Input
+                                placeholder="Your phone number"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -426,12 +491,23 @@ const ReputationReportForm = () => {
                   </div>
 
                   <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                    <h4 className="font-semibold text-yellow-800 mb-2">Important Notice</h4>
+                    <h4 className="font-semibold text-yellow-800 mb-2">
+                      Important Notice
+                    </h4>
                     <ul className="text-sm text-yellow-700 space-y-1">
-                      <li>• This report will be verified by our team before going live</li>
-                      <li>• The reported person will be contacted for their response</li>
+                      <li>
+                        • This report will be verified by our team before going
+                        live
+                      </li>
+                      <li>
+                        • The reported person will be contacted for their
+                        response
+                      </li>
                       <li>• False reports may result in legal action</li>
-                      <li>• Payment is required to prevent spam and ensure serious reports</li>
+                      <li>
+                        • Payment is required to prevent spam and ensure serious
+                        reports
+                      </li>
                     </ul>
                   </div>
 
@@ -474,7 +550,13 @@ const ReputationReportForm = () => {
                             Processing Payment...
                           </>
                         ) : (
-                          <>Submit Report (Free <span className="line-through text-gray-400">{formatFreePrice(price)}</span>)</>
+                          <>
+                            Submit Report (Free{" "}
+                            <span className="line-through text-slate-400">
+                              {formatFreePrice(price)}
+                            </span>
+                            )
+                          </>
                         )}
                       </Button>
                     </div>
@@ -485,9 +567,9 @@ const ReputationReportForm = () => {
           </Card>
         </div>
       </div>
-      
+
       <Footer />
-      
+
       {showPaymentSelector && (
         <PaymentMethodSelector
           amount={price}

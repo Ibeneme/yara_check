@@ -7,7 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { HelpCircle, Send } from "lucide-react";
@@ -21,13 +27,18 @@ const ContactSupport = () => {
     phone: "",
     subject: "",
     message: "",
-    priority: "medium"
+    priority: "medium",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.subject ||
+      !formData.message
+    ) {
       toast({
         title: "Missing fields",
         description: "Please fill in all required fields",
@@ -38,22 +49,21 @@ const ContactSupport = () => {
 
     setIsSubmitting(true);
     try {
-      const { error } = await supabase
-        .from('support_tickets')
-        .insert({
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone || null,
-          subject: formData.subject,
-          message: formData.message,
-          priority: formData.priority,
-        });
+      const { error } = await supabase.from("support_tickets").insert({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || null,
+        subject: formData.subject,
+        message: formData.message,
+        priority: formData.priority,
+      });
 
       if (error) throw error;
 
       toast({
         title: "Support ticket submitted",
-        description: "We've received your request and will get back to you soon.",
+        description:
+          "We've received your request and will get back to you soon.",
       });
 
       // Reset form
@@ -63,7 +73,7 @@ const ContactSupport = () => {
         phone: "",
         subject: "",
         message: "",
-        priority: "medium"
+        priority: "medium",
       });
 
       // Redirect to home page after a delay
@@ -82,16 +92,16 @@ const ContactSupport = () => {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      
+
       <main className="flex-grow py-8">
         <div className="yaracheck-container">
           <div className="max-w-2xl mx-auto">
@@ -100,8 +110,9 @@ const ContactSupport = () => {
               <h1 className="text-3xl font-bold text-yaracheck-darkBlue mb-4">
                 Contact Support
               </h1>
-              <p className="text-yaracheck-darkGray">
-                Need help? Submit a support ticket and our team will get back to you as soon as possible.
+              <p className="text-slate-600">
+                Need help? Submit a support ticket and our team will get back to
+                you as soon as possible.
               </p>
             </div>
 
@@ -118,7 +129,9 @@ const ContactSupport = () => {
                         id="name"
                         type="text"
                         value={formData.name}
-                        onChange={(e) => handleInputChange('name', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("name", e.target.value)
+                        }
                         placeholder="Enter your full name"
                         required
                       />
@@ -129,7 +142,9 @@ const ContactSupport = () => {
                         id="email"
                         type="email"
                         value={formData.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("email", e.target.value)
+                        }
                         placeholder="your.email@example.com"
                         required
                       />
@@ -143,13 +158,20 @@ const ContactSupport = () => {
                         id="phone"
                         type="tel"
                         value={formData.phone}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        onChange={(e) =>
+                          handleInputChange("phone", e.target.value)
+                        }
                         placeholder="+1 (555) 123-4567"
                       />
                     </div>
                     <div>
                       <Label htmlFor="priority">Priority</Label>
-                      <Select value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
+                      <Select
+                        value={formData.priority}
+                        onValueChange={(value) =>
+                          handleInputChange("priority", value)
+                        }
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select priority" />
                         </SelectTrigger>
@@ -169,7 +191,9 @@ const ContactSupport = () => {
                       id="subject"
                       type="text"
                       value={formData.subject}
-                      onChange={(e) => handleInputChange('subject', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("subject", e.target.value)
+                      }
                       placeholder="Brief description of your issue"
                       required
                     />
@@ -180,15 +204,17 @@ const ContactSupport = () => {
                     <Textarea
                       id="message"
                       value={formData.message}
-                      onChange={(e) => handleInputChange('message', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("message", e.target.value)
+                      }
                       placeholder="Please provide detailed information about your issue or question..."
                       rows={6}
                       required
                     />
                   </div>
 
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     disabled={isSubmitting}
                     className="w-full bg-yaracheck-blue hover:bg-yaracheck-darkBlue"
                   >
@@ -209,9 +235,12 @@ const ContactSupport = () => {
             </Card>
 
             <div className="mt-8 text-center">
-              <p className="text-sm text-yaracheck-darkGray">
+              <p className="text-sm text-slate-600">
                 You can also reach us via email at{" "}
-                <a href="mailto:support@yaracheck.com" className="text-yaracheck-blue hover:underline">
+                <a
+                  href="mailto:support@yaracheck.com"
+                  className="text-yaracheck-blue hover:underline"
+                >
                   support@yaracheck.com
                 </a>
               </p>

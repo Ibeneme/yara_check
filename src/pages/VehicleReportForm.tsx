@@ -7,29 +7,52 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import { supabase } from "@/integrations/supabase/client";
 import { Car, Upload, X } from "lucide-react";
-import { calculatePrice, formatPrice, formatFreePrice } from "@/utils/dynamicPricing";
+import {
+  calculatePrice,
+  formatPrice,
+  formatFreePrice,
+} from "@/utils/dynamicPricing";
 import { saveVehicleToSupabase } from "@/utils/supabaseStorage";
 
 const formSchema = z.object({
   type: z.string().min(1, "Vehicle type is required"),
   brand: z.string().min(1, "Brand is required"),
   model: z.string().min(1, "Model is required"),
-  year: z.number().min(1900, "Year must be valid").max(new Date().getFullYear() + 1),
+  year: z
+    .number()
+    .min(1900, "Year must be valid")
+    .max(new Date().getFullYear() + 1),
   color: z.string().min(1, "Color is required"),
   chassis: z.string().min(1, "Chassis/VIN number is required"),
   location: z.string().min(1, "Location is required"),
   description: z.string().optional(),
   contact: z.string().min(1, "Contact information is required"),
   reporter_name: z.string().min(1, "Reporter name is required"),
-  reporter_email: z.string().email("Valid email is required").min(1, "Reporter email is required"),
+  reporter_email: z
+    .string()
+    .email("Valid email is required")
+    .min(1, "Reporter email is required"),
   reporter_phone: z.string().min(1, "Reporter phone is required"),
   reporter_address: z.string().optional(),
 });
@@ -64,19 +87,20 @@ const VehicleReportForm = () => {
   });
 
   const watchedYear = form.watch("year");
-  const price = calculatePrice({ 
-    reportType: 'vehicle', 
-    year: watchedYear 
+  const price = calculatePrice({
+    reportType: "vehicle",
+    year: watchedYear,
   });
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      if (file.size > 5 * 1024 * 1024) {
+        // 5MB limit
         toast.error("Image size must be less than 5MB");
         return;
       }
-      
+
       setUploadedImage(file);
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -91,58 +115,73 @@ const VehicleReportForm = () => {
     setImagePreview(null);
   };
 
-  const handlePayment = async (paymentMethod: 'stripe' | 'paystack' | 'flutterwave' = 'stripe') => {
+  const handlePayment = async (
+    paymentMethod: "stripe" | "paystack" | "flutterwave" = "stripe"
+  ) => {
     setIsProcessingPayment(true);
     try {
-      const functionName = paymentMethod === 'stripe' 
-        ? 'create-vehicle-payment'
-        : paymentMethod === 'paystack' 
-        ? 'create-paystack-vehicle-payment'
-        : 'create-flutterwave-vehicle-payment';
+      const functionName =
+        paymentMethod === "stripe"
+          ? "create-vehicle-payment"
+          : paymentMethod === "paystack"
+          ? "create-paystack-vehicle-payment"
+          : "create-flutterwave-vehicle-payment";
       const reportData = {
         ...form.getValues(),
-        year: form.getValues().year || new Date().getFullYear()
+        year: form.getValues().year || new Date().getFullYear(),
       };
-      
+
       const trackingCode = crypto.randomUUID();
-      
+
       const { data, error } = await supabase.functions.invoke(functionName, {
-        body: { 
-          amount: price, 
+        body: {
+          amount: price,
           reportData,
-          trackingCode 
-        }
+          trackingCode,
+        },
       });
 
       if (error) throw error;
 
       if (data?.url || data?.link) {
         const paymentUrl = data.url || data.link;
-        
+
         // For Flutterwave, handle the redirect differently
-        if (paymentMethod === 'flutterwave') {
+        if (paymentMethod === "flutterwave") {
           window.location.href = paymentUrl;
         } else {
           // Store form data and image in localStorage to retrieve after payment
           const formDataWithImage = {
             ...form.getValues(),
-            image: uploadedImage ? {
-              name: uploadedImage.name,
-              size: uploadedImage.size,
-              type: uploadedImage.type,
-              data: imagePreview
-            } : null
+            image: uploadedImage
+              ? {
+                  name: uploadedImage.name,
+                  size: uploadedImage.size,
+                  type: uploadedImage.type,
+                  data: imagePreview,
+                }
+              : null,
           };
-          
-          localStorage.setItem('pendingVehicleReport', JSON.stringify(formDataWithImage));
-          window.open(paymentUrl, '_blank');
+
+          localStorage.setItem(
+            "pendingVehicleReport",
+            JSON.stringify(formDataWithImage)
+          );
+          window.open(paymentUrl, "_blank");
         }
-        
-        const paymentProvider = paymentMethod === 'flutterwave' ? 'Flutterwave' : paymentMethod === 'paystack' ? 'Paystack' : 'Stripe';
-        toast.success(`${paymentProvider} payment window opened. Complete payment to proceed with vehicle report.`);
+
+        const paymentProvider =
+          paymentMethod === "flutterwave"
+            ? "Flutterwave"
+            : paymentMethod === "paystack"
+            ? "Paystack"
+            : "Stripe";
+        toast.success(
+          `${paymentProvider} payment window opened. Complete payment to proceed with vehicle report.`
+        );
       }
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error("Payment error:", error);
       toast.error("Payment processing failed. Please try again.");
     } finally {
       setIsProcessingPayment(false);
@@ -164,29 +203,36 @@ const VehicleReportForm = () => {
         contact: data.contact,
       };
 
-      console.log("Submitting vehicle report:", { vehicleData, hasImage: !!uploadedImage });
-      
+      console.log("Submitting vehicle report:", {
+        vehicleData,
+        hasImage: !!uploadedImage,
+      });
+
       // Generate UUID tracking code for consistency
       const trackingCode = crypto.randomUUID();
-      const savedVehicle = await saveVehicleToSupabase(vehicleData, uploadedImage || undefined, trackingCode);
-      
+      const savedVehicle = await saveVehicleToSupabase(
+        vehicleData,
+        uploadedImage || undefined,
+        trackingCode
+      );
+
       if (savedVehicle) {
-        localStorage.setItem('lastTrackingCode', trackingCode);
-        localStorage.setItem('lastReportType', 'vehicle');
-        
+        localStorage.setItem("lastTrackingCode", trackingCode);
+        localStorage.setItem("lastReportType", "vehicle");
+
         toast.success("Vehicle report submitted successfully!");
-        navigate("/report-confirmation", { 
-          state: { 
-            trackingCode, 
-            reportType: 'vehicle',
-            reportData: savedVehicle
-          }
+        navigate("/report-confirmation", {
+          state: {
+            trackingCode,
+            reportType: "vehicle",
+            reportData: savedVehicle,
+          },
         });
       } else {
         toast.error("Failed to submit report. Please try again.");
       }
     } catch (error) {
-      console.error('Submission error:', error);
+      console.error("Submission error:", error);
       toast.error("Failed to submit report. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -202,7 +248,9 @@ const VehicleReportForm = () => {
     }
   };
 
-  const handlePaymentMethodSelect = async (method: 'stripe' | 'paystack' | 'flutterwave') => {
+  const handlePaymentMethodSelect = async (
+    method: "stripe" | "paystack" | "flutterwave"
+  ) => {
     setShowPaymentSelector(false);
     await handlePayment(method);
   };
@@ -210,7 +258,7 @@ const VehicleReportForm = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <div className="yaracheck-container py-8">
         <div className="max-w-2xl mx-auto">
           <Card>
@@ -222,16 +270,19 @@ const VehicleReportForm = () => {
             </CardHeader>
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
                   {/* Image Upload Section */}
                   <div className="space-y-4">
                     <FormLabel>Vehicle Photo (Optional)</FormLabel>
-                    <div className="relative border-2 border-dashed border-gray-300 rounded-lg p-4">
+                    <div className="relative border-2 border-dashed border-slate-300 rounded-lg p-4">
                       {imagePreview ? (
                         <div className="relative">
-                          <img 
-                            src={imagePreview} 
-                            alt="Vehicle preview" 
+                          <img
+                            src={imagePreview}
+                            alt="Vehicle preview"
                             className="w-full h-48 object-cover rounded-lg"
                           />
                           <button
@@ -243,13 +294,16 @@ const VehicleReportForm = () => {
                           </button>
                         </div>
                       ) : (
-                        <label htmlFor="vehicle-image-upload" className="cursor-pointer block">
+                        <label
+                          htmlFor="vehicle-image-upload"
+                          className="cursor-pointer block"
+                        >
                           <div className="text-center">
-                            <Upload className="h-12 w-12 mx-auto text-gray-400 mb-2" />
-                            <p className="text-sm text-gray-600 mb-2">
+                            <Upload className="h-12 w-12 mx-auto text-slate-400 mb-2" />
+                            <p className="text-sm text-slate-600 mb-2">
                               Click to upload a photo of the stolen vehicle
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-slate-500">
                               PNG, JPG up to 5MB
                             </p>
                           </div>
@@ -271,7 +325,10 @@ const VehicleReportForm = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Vehicle Type</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select vehicle type" />
@@ -279,7 +336,9 @@ const VehicleReportForm = () => {
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="car">Car</SelectItem>
-                            <SelectItem value="motorcycle">Motorcycle</SelectItem>
+                            <SelectItem value="motorcycle">
+                              Motorcycle
+                            </SelectItem>
                             <SelectItem value="truck">Truck</SelectItem>
                             <SelectItem value="van">Van</SelectItem>
                             <SelectItem value="bus">Bus</SelectItem>
@@ -299,7 +358,10 @@ const VehicleReportForm = () => {
                         <FormItem>
                           <FormLabel>Brand</FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g., Toyota, Honda, BMW" {...field} />
+                            <Input
+                              placeholder="e.g., Toyota, Honda, BMW"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -313,7 +375,10 @@ const VehicleReportForm = () => {
                         <FormItem>
                           <FormLabel>Model</FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g., Camry, Civic, X5" {...field} />
+                            <Input
+                              placeholder="e.g., Camry, Civic, X5"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -329,17 +394,25 @@ const VehicleReportForm = () => {
                         <FormItem>
                           <FormLabel>Year</FormLabel>
                           <FormControl>
-                            <Input 
-                              type="number" 
-                              placeholder="e.g., 2020" 
+                            <Input
+                              type="number"
+                              placeholder="e.g., 2020"
                               {...field}
-                              onChange={(e) => field.onChange(parseInt(e.target.value) || new Date().getFullYear())}
+                              onChange={(e) =>
+                                field.onChange(
+                                  parseInt(e.target.value) ||
+                                    new Date().getFullYear()
+                                )
+                              }
                             />
                           </FormControl>
                           <FormMessage />
                           {watchedYear && (
-                            <p className="text-xs text-gray-600">
-                              Report fee: Free <span className="line-through text-gray-400">{formatFreePrice(price)}</span>
+                            <p className="text-xs text-slate-600">
+                              Report fee: Free{" "}
+                              <span className="line-through text-slate-400">
+                                {formatFreePrice(price)}
+                              </span>
                             </p>
                           )}
                         </FormItem>
@@ -368,7 +441,10 @@ const VehicleReportForm = () => {
                       <FormItem>
                         <FormLabel>Chassis/VIN Number</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter chassis or VIN number" {...field} />
+                          <Input
+                            placeholder="Enter chassis or VIN number"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -382,7 +458,10 @@ const VehicleReportForm = () => {
                       <FormItem>
                         <FormLabel>Location Where Stolen</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter location where vehicle was stolen" {...field} />
+                          <Input
+                            placeholder="Enter location where vehicle was stolen"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -396,7 +475,7 @@ const VehicleReportForm = () => {
                       <FormItem>
                         <FormLabel>Additional Description (Optional)</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             placeholder="Any additional details about the vehicle or theft"
                             {...field}
                           />
@@ -413,7 +492,10 @@ const VehicleReportForm = () => {
                       <FormItem>
                         <FormLabel>Contact Information</FormLabel>
                         <FormControl>
-                          <Input placeholder="Phone number or email for contact" {...field} />
+                          <Input
+                            placeholder="Phone number or email for contact"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -421,7 +503,7 @@ const VehicleReportForm = () => {
                   />
 
                   <div className="border-t pt-6">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-900">
+                    <h3 className="text-lg font-semibold mb-4 text-slate-900">
                       Reporter Information (Optional)
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -446,7 +528,11 @@ const VehicleReportForm = () => {
                           <FormItem>
                             <FormLabel>Reporter Email</FormLabel>
                             <FormControl>
-                              <Input type="email" placeholder="Your email" {...field} />
+                              <Input
+                                type="email"
+                                placeholder="Your email"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -462,7 +548,10 @@ const VehicleReportForm = () => {
                           <FormItem>
                             <FormLabel>Reporter Phone</FormLabel>
                             <FormControl>
-                              <Input placeholder="Your phone number" {...field} />
+                              <Input
+                                placeholder="Your phone number"
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -524,7 +613,13 @@ const VehicleReportForm = () => {
                             Processing Payment...
                           </>
                         ) : (
-                          <>Submit Report (Free <span className="line-through text-gray-400">{formatFreePrice(price)}</span>)</>
+                          <>
+                            Submit Report (Free{" "}
+                            <span className="line-through text-slate-400">
+                              {formatFreePrice(price)}
+                            </span>
+                            )
+                          </>
                         )}
                       </Button>
                     </div>
@@ -544,7 +639,7 @@ const VehicleReportForm = () => {
           isProcessing={isProcessingPayment}
         />
       )}
-      
+
       <Footer />
     </div>
   );

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Lock, Eye, EyeOff } from "lucide-react";
+import { Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -42,19 +42,21 @@ const PasswordChangeForm = () => {
     setIsChangingPassword(true);
     try {
       const { error } = await supabase.auth.updateUser({
-        password: newPassword
+        password: newPassword,
       });
 
       if (error) throw error;
 
-      // Update the must_change_password flag if it exists
       const { error: updateError } = await supabase
         .from("profiles")
         .update({ must_change_password: false })
         .eq("id", user?.id);
 
       if (updateError) {
-        console.warn("Could not update must_change_password flag:", updateError);
+        console.warn(
+          "Could not update must_change_password flag:",
+          updateError
+        );
       }
 
       toast({
@@ -62,7 +64,6 @@ const PasswordChangeForm = () => {
         description: "Your password has been changed successfully.",
       });
 
-      // Clear form
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -78,17 +79,22 @@ const PasswordChangeForm = () => {
   };
 
   return (
-    <Card className="max-w-md">
+    <Card className="w-full max-w-md mx-auto border-slate-200 shadow-sm">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Lock className="h-5 w-5" />
-          Change Password
+        <CardTitle className="flex items-center gap-2 text-xl font-semibold text-slate-900">
+          <Lock className="h-5 w-5 text-yaracheck-blue shrink-0" />
+          <span>Change Password</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handlePasswordChange} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="new-password">New Password</Label>
+          <div className="space-y-1.5">
+            <Label
+              htmlFor="new-password"
+              className="text-sm font-medium text-slate-700"
+            >
+              New Password
+            </Label>
             <div className="relative">
               <Input
                 id="new-password"
@@ -98,12 +104,13 @@ const PasswordChangeForm = () => {
                 placeholder="Enter new password"
                 required
                 minLength={6}
+                className="bg-white border-slate-200 pr-10"
               />
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-slate-400 hover:text-slate-600"
                 onClick={() => setShowNewPassword(!showNewPassword)}
               >
                 {showNewPassword ? (
@@ -115,8 +122,13 @@ const PasswordChangeForm = () => {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="confirm-password">Confirm New Password</Label>
+          <div className="space-y-1.5">
+            <Label
+              htmlFor="confirm-password"
+              className="text-sm font-medium text-slate-700"
+            >
+              Confirm New Password
+            </Label>
             <div className="relative">
               <Input
                 id="confirm-password"
@@ -126,12 +138,13 @@ const PasswordChangeForm = () => {
                 placeholder="Confirm new password"
                 required
                 minLength={6}
+                className="bg-white border-slate-200 pr-10"
               />
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-slate-400 hover:text-slate-600"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
                 {showConfirmPassword ? (
@@ -146,9 +159,16 @@ const PasswordChangeForm = () => {
           <Button
             type="submit"
             disabled={isChangingPassword || !newPassword || !confirmPassword}
-            className="w-full"
+            className="w-full bg-yaracheck-blue hover:bg-yaracheck-darkBlue text-white"
           >
-            {isChangingPassword ? "Changing Password..." : "Change Password"}
+            {isChangingPassword ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin shrink-0" />
+                <span>Changing Password...</span>
+              </>
+            ) : (
+              "Change Password"
+            )}
           </Button>
         </form>
       </CardContent>

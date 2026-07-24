@@ -3,14 +3,20 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
-import { BarChart3, Users, Settings, LogOut, Shield, FileText, TrendingUp, MessageCircle, Package } from "lucide-react";
+import {
+  BarChart3,
+  Users,
+  Settings,
+  LogOut,
+  Shield,
+  FileText,
+  TrendingUp,
+  MessageCircle,
+  Package,
+} from "lucide-react";
 import CreateAdminForm from "@/components/admin/CreateAdminForm";
 import AdminManagement from "@/components/admin/AdminManagement";
 import AdminDashboard from "@/components/admin/AdminDashboard";
@@ -36,69 +42,55 @@ const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
 
   useEffect(() => {
-    console.log("AdminPanel useEffect - Auth state:", { user: user?.email, isAdmin, profile: profile?.role, loading });
-    
-    if (loading) {
-      console.log("Auth context still loading, waiting...");
-      return;
-    }
+    if (loading) return;
 
     if (!user) {
-      console.log("No user found, redirecting to verify");
       navigate("/verify");
       return;
     }
 
-    // If we have a profile from context and user is admin, use it directly
     if (profile && isAdmin) {
-      console.log("Using profile from auth context:", profile);
       setAdminProfile(profile);
       setIsLoading(false);
       return;
     }
 
-    // Fallback: fetch profile if not available in context
     const fetchAdminProfile = async () => {
       try {
-        console.log("Fetching admin profile for user:", user.id);
         const { data, error } = await supabase
           .from("profiles")
-          .select(`
+          .select(
+            `
             *,
             country:countries(name),
             province:provinces(name)
-          `)
+          `
+          )
           .eq("id", user.id)
           .maybeSingle();
 
         if (error) {
-          console.error("Error fetching admin profile:", error);
-          if (error.message.includes('infinite recursion')) {
-            // Handle RLS recursion - treat as admin if they got this far
-            console.log("RLS recursion detected, assuming admin privileges");
+          if (error.message.includes("infinite recursion")) {
             setAdminProfile({
               id: user.id,
               email: user.email,
-              role: 'admin',
-              admin_role: 'super_admin',
-              first_name: 'Admin',
-              last_name: 'User'
+              role: "admin",
+              admin_role: "super_admin",
+              first_name: "Admin",
+              last_name: "User",
             });
           } else {
             setError("Failed to load admin profile");
           }
         } else {
-          console.log("Admin profile fetched successfully:", data);
-          if (data && (data.role === 'admin' || data.role === 'super_admin')) {
+          if (data && (data.role === "admin" || data.role === "super_admin")) {
             setAdminProfile(data);
           } else {
-            console.log("User is not an admin, redirecting");
             navigate("/verify");
             return;
           }
         }
-      } catch (error) {
-        console.error("Exception fetching admin profile:", error);
+      } catch (err) {
         setError("An error occurred while loading the admin panel");
       } finally {
         setIsLoading(false);
@@ -108,20 +100,28 @@ const AdminPanel = () => {
     fetchAdminProfile();
   }, [user, isAdmin, profile, loading, navigate]);
 
-
   const handleLogout = async () => {
     await logout();
     navigate("/");
   };
 
+  // Shared tab-pill style — active tab reads as a stamped case tab, same
+  // logic as the header nav, just in a dense grid.
+  const tabClass = (tab: string) =>
+    `flex flex-shrink-0 sm:flex-shrink snap-start w-[94px] sm:w-auto flex-col items-center justify-center gap-1 sm:gap-1.5 h-auto py-2.5 sm:py-3 px-1.5 sm:px-2 text-[11px] sm:text-xs font-medium leading-tight rounded-lg transition-colors font-sans ${
+      activeTab === tab
+        ? "bg-[#0B1220] text-[#F1F0EC] hover:bg-[#0B1220] hover:brightness-110"
+        : "text-[#0B1220]/70 hover:bg-[#0B1220]/[0.05]"
+    }`;
+
   if (loading || isLoading) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-[#F1F0EC] font-sans">
         <Header />
-        <main className="flex-1 padiman-container py-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-padiman-blue mx-auto mb-4"></div>
-            <p>Loading admin panel...</p>
+        <main className="flex-1 yaracheck-container py-8 flex items-center justify-center">
+          <div className="text-center px-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0B1220] mx-auto mb-4"></div>
+            <p className="text-[#0B1220]/60">Loading admin panel...</p>
           </div>
         </main>
         <Footer />
@@ -131,16 +131,23 @@ const AdminPanel = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-[#F1F0EC] font-sans">
         <Header />
-        <main className="flex-1 padiman-container py-8">
-          <div className="text-center">
-            <p className="text-red-600 mb-4">{error}</p>
-            <div className="space-x-4">
-              <Button onClick={() => window.location.reload()} className="bg-padiman-blue hover:bg-padiman-darkBlue">
+        <main className="flex-1 yaracheck-container py-8 flex items-center justify-center">
+          <div className="text-center px-4">
+            <p className="text-[#B3261E] mb-4">{error}</p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Button
+                onClick={() => window.location.reload()}
+                className="bg-[#FF5A36] hover:brightness-95 text-white font-sans font-semibold"
+              >
                 Retry
               </Button>
-              <Button onClick={() => navigate("/verify")} variant="outline">
+              <Button
+                onClick={() => navigate("/verify")}
+                variant="outline"
+                className="border-[#0B1220]/20 text-[#0B1220]/70 hover:bg-[#0B1220]/[0.05]"
+              >
                 Back to Login
               </Button>
             </div>
@@ -153,12 +160,17 @@ const AdminPanel = () => {
 
   if (!adminProfile) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-[#F1F0EC] font-sans">
         <Header />
-        <main className="flex-1 padiman-container py-8">
-          <div className="text-center">
-            <p className="text-red-600 mb-4">Access denied. Admin profile not found.</p>
-            <Button onClick={() => navigate("/verify")} className="mt-4">
+        <main className="flex-1 yaracheck-container py-8 flex items-center justify-center">
+          <div className="text-center px-4">
+            <p className="text-[#B3261E] mb-4">
+              Access denied. Admin profile not found.
+            </p>
+            <Button
+              onClick={() => navigate("/verify")}
+              className="mt-4 bg-[#FF5A36] hover:brightness-95 text-white font-sans font-semibold"
+            >
               Return to Login
             </Button>
           </div>
@@ -168,276 +180,305 @@ const AdminPanel = () => {
     );
   }
 
-  const isSuper = adminProfile?.role === 'super_admin' || adminProfile?.admin_role === 'super_admin';
-  const isShareholder = adminProfile?.admin_role === 'shareholder';
-  const isInvestor = adminProfile?.admin_role === 'investor';
-  const adminRoleDisplay = adminProfile?.admin_role?.replace('_', ' ').toUpperCase() || 'ADMIN';
-  
-  // Check specific permissions
-  const canViewAnalytics = isSuper || adminProfile?.permissions?.can_view_analytics;
+  const isSuper =
+    adminProfile?.role === "super_admin" ||
+    adminProfile?.admin_role === "super_admin";
+  const isShareholder = adminProfile?.admin_role === "shareholder";
+  const isInvestor = adminProfile?.admin_role === "investor";
+  const adminRoleDisplay =
+    adminProfile?.admin_role?.replace("_", " ").toUpperCase() || "ADMIN";
+
+  const canViewAnalytics =
+    isSuper || adminProfile?.permissions?.can_view_analytics;
   const canViewReports = isSuper || adminProfile?.permissions?.can_view_reports;
-  const canManageReports = isSuper || adminProfile?.permissions?.can_manage_reports;
-  const canViewStolenItems = isSuper || adminProfile?.permissions?.can_view_stolen_items;
-  const canRespondToLiveChat = isSuper || adminProfile?.permissions?.can_respond_to_live_chat;
-  const canViewSupportTickets = isSuper || adminProfile?.permissions?.can_view_support_tickets;
-  const canViewAnonymousMessages = isSuper || (adminProfile?.permissions && 
-    typeof adminProfile.permissions === 'object' && 
-    adminProfile.permissions !== null &&
-    (adminProfile.permissions as any).can_view_anonymous_messages === true);
-  const canViewAssets = isSuper || 
-                        adminProfile?.admin_role === 'shareholder' || 
-                        adminProfile?.permissions?.can_view_assets;
-  const canViewFinancials = isSuper || adminProfile?.permissions?.can_view_financials;
+  const canManageReports =
+    isSuper || adminProfile?.permissions?.can_manage_reports;
+  const canViewStolenItems =
+    isSuper || adminProfile?.permissions?.can_view_stolen_items;
+  const canRespondToLiveChat =
+    isSuper || adminProfile?.permissions?.can_respond_to_live_chat;
+  const canViewSupportTickets =
+    isSuper || adminProfile?.permissions?.can_view_support_tickets;
+  const canViewAnonymousMessages =
+    isSuper ||
+    (adminProfile?.permissions &&
+      typeof adminProfile.permissions === "object" &&
+      adminProfile.permissions !== null &&
+      (adminProfile.permissions as any).can_view_anonymous_messages === true);
+  const canViewAssets =
+    isSuper ||
+    adminProfile?.admin_role === "shareholder" ||
+    adminProfile?.permissions?.can_view_assets;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#F1F0EC] font-sans">
       <Header />
-      <main className="flex-1 padiman-container py-8">
-        <div className="max-w-7xl mx-auto space-y-8">
-          <div className="flex items-center justify-between">
+      <main className="flex-1 yaracheck-container py-6 md:py-8 px-3 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto space-y-6 md:space-y-8">
+          {/* Header Section with Responsive Layout */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-4 sm:p-6 rounded-xl border border-[#0B1220]/10 shadow-sm">
             <div>
-              <h1 className="text-3xl font-bold text-padiman-darkBlue flex items-center gap-2">
-                <Shield className="h-8 w-8" />
-                Admin Panel
+              <h1 className="text-2xl sm:text-3xl font-semibold text-[#0B1220] flex items-center gap-2 font-sans">
+                <Shield className="h-7 w-7 sm:h-8 sm:w-8 text-[#0B1220] flex-shrink-0" />
+                <span>Admin Panel</span>
               </h1>
-              <p className="text-padiman-darkGray mt-2">
-                Welcome, {adminProfile?.first_name || 'Admin'} {adminProfile?.last_name || 'User'} ({adminRoleDisplay})
+              <p className="text-sm sm:text-base text-[#0B1220]/60 mt-1">
+                Welcome, {adminProfile?.first_name || "Admin"}{" "}
+                {adminProfile?.last_name || "User"}{" "}
+                <span className="font-['IBM_Plex_Mono'] text-xs uppercase tracking-wider text-[#0B1220]/50">
+                  ({adminRoleDisplay})
+                </span>
               </p>
             </div>
             <Button
               onClick={handleLogout}
               variant="outline"
-              className="flex items-center gap-2"
+              className="flex items-center justify-center gap-2 w-full sm:w-auto border-[#0B1220]/20 text-[#0B1220]/70 hover:bg-[#0B1220]/[0.05]"
             >
               <LogOut className="h-4 w-4" />
-              Logout
+              <span>Logout</span>
             </Button>
           </div>
 
           <div className="space-y-6">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-6">
-              {/* Always show Dashboard and Settings for all admins */}
+            {/* Responsive Navigation Grid */}
+            <div className="flex overflow-x-auto snap-x snap-mandatory gap-1.5 -mx-2 px-2 py-2 sm:mx-0 sm:px-3 sm:py-3 sm:overflow-visible sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 sm:gap-2 bg-white rounded-xl border border-[#0B1220]/10 shadow-sm">
               <Button
                 variant={activeTab === "dashboard" ? "default" : "ghost"}
                 onClick={() => setActiveTab("dashboard")}
-                className="flex flex-col items-center gap-1 h-auto py-2 px-3 text-xs"
+                className={tabClass("dashboard")}
               >
                 <BarChart3 className="h-4 w-4" />
-                <span>Dashboard</span>
+                <span className="text-center">Dashboard</span>
               </Button>
-              
+
               {canViewAnalytics && (
                 <Button
                   variant={activeTab === "analytics" ? "default" : "ghost"}
                   onClick={() => setActiveTab("analytics")}
-                  className="flex flex-col items-center gap-1 h-auto py-2 px-3 text-xs"
+                  className={tabClass("analytics")}
                 >
                   <TrendingUp className="h-4 w-4" />
-                  <span>Analytics</span>
+                  <span className="text-center">Analytics</span>
                 </Button>
               )}
-              
+
               {(canViewReports || canManageReports) && (
                 <Button
-                  variant={activeTab === "reports-management" ? "default" : "ghost"}
+                  variant={
+                    activeTab === "reports-management" ? "default" : "ghost"
+                  }
                   onClick={() => setActiveTab("reports-management")}
-                  className="flex flex-col items-center gap-1 h-auto py-2 px-3 text-xs"
+                  className={tabClass("reports-management")}
                 >
                   <FileText className="h-4 w-4" />
-                  <span>Reports</span>
+                  <span className="text-center">Reports</span>
                 </Button>
               )}
-              
+
               {canViewStolenItems && (
                 <Button
                   variant={activeTab === "stolen-items" ? "default" : "ghost"}
                   onClick={() => setActiveTab("stolen-items")}
-                  className="flex flex-col items-center gap-1 h-auto py-2 px-3 text-xs"
+                  className={tabClass("stolen-items")}
                 >
                   <FileText className="h-4 w-4" />
-                  <span>Stolen Items</span>
+                  <span className="text-center">Stolen Items</span>
                 </Button>
               )}
-              
+
               {isSuper && (
                 <Button
                   variant={activeTab === "create-admin" ? "default" : "ghost"}
                   onClick={() => setActiveTab("create-admin")}
-                  className="flex flex-col items-center gap-1 h-auto py-2 px-3 text-xs"
+                  className={tabClass("create-admin")}
                 >
                   <Users className="h-4 w-4" />
-                  <span>Create Admin</span>
+                  <span className="text-center">Create Admin</span>
                 </Button>
               )}
-              
+
               {isSuper && (
                 <Button
                   variant={activeTab === "manage-admins" ? "default" : "ghost"}
                   onClick={() => setActiveTab("manage-admins")}
-                  className="flex flex-col items-center gap-1 h-auto py-2 px-3 text-xs"
+                  className={tabClass("manage-admins")}
                 >
                   <Shield className="h-4 w-4" />
-                  <span>Sub Admins</span>
+                  <span className="text-center">Sub Admins</span>
                 </Button>
               )}
-              
+
               {isSuper && (
                 <Button
                   variant={activeTab === "roi" ? "default" : "ghost"}
                   onClick={() => setActiveTab("roi")}
-                  className="flex flex-col items-center gap-1 h-auto py-2 px-3 text-xs"
+                  className={tabClass("roi")}
                 >
                   <TrendingUp className="h-4 w-4" />
-                  <span>ROI Management</span>
+                  <span className="text-center">ROI Management</span>
                 </Button>
               )}
-              
+
               {canRespondToLiveChat && (
                 <Button
                   variant={activeTab === "livechat" ? "default" : "ghost"}
                   onClick={() => setActiveTab("livechat")}
-                  className="flex flex-col items-center gap-1 h-auto py-2 px-3 text-xs relative"
+                  className={`${tabClass("livechat")} relative`}
                 >
                   <MessageCircle className="h-4 w-4" />
-                  <span>Live Chat</span>
-                  {/* Add notification indicator for pending messages */}
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" 
-                       style={{ display: 'none' }} 
-                       id="chat-notification" />
+                  <span className="text-center">Live Chat</span>
+                  <div
+                    className="absolute -top-1 -right-1 w-3 h-3 bg-[#B3261E] rounded-full animate-pulse"
+                    style={{ display: "none" }}
+                    id="chat-notification"
+                  />
                 </Button>
               )}
-              
+
               {canViewSupportTickets && (
                 <Button
-                  variant={activeTab === "support-tickets" ? "default" : "ghost"}
+                  variant={
+                    activeTab === "support-tickets" ? "default" : "ghost"
+                  }
                   onClick={() => setActiveTab("support-tickets")}
-                  className="flex flex-col items-center gap-1 h-auto py-2 px-3 text-xs"
+                  className={tabClass("support-tickets")}
                 >
                   <FileText className="h-4 w-4" />
-                  <span>Support Tickets</span>
+                  <span className="text-center">Support Tickets</span>
                 </Button>
               )}
-              
+
               {canViewAnonymousMessages && (
                 <Button
-                  variant={activeTab === "anonymous-messages" ? "default" : "ghost"}
+                  variant={
+                    activeTab === "anonymous-messages" ? "default" : "ghost"
+                  }
                   onClick={() => setActiveTab("anonymous-messages")}
-                  className="flex flex-col items-center gap-1 h-auto py-2 px-3 text-xs"
+                  className={tabClass("anonymous-messages")}
                 >
                   <MessageCircle className="h-4 w-4" />
-                  <span>Anonymous Messages</span>
+                  <span className="text-center">Anonymous Messages</span>
                 </Button>
               )}
-              
+
               {canViewAssets && (
                 <Button
                   variant={activeTab === "assets" ? "default" : "ghost"}
                   onClick={() => setActiveTab("assets")}
-                  className="flex flex-col items-center gap-1 h-auto py-2 px-3 text-xs"
+                  className={tabClass("assets")}
                 >
                   <Package className="h-4 w-4" />
-                  <span>Company Assets</span>
+                  <span className="text-center">Company Assets</span>
                 </Button>
-               )}
-               
-               {/* Settings is available to all admin users */}
-               <Button
-                 variant={activeTab === "settings" ? "default" : "ghost"}
-                 onClick={() => setActiveTab("settings")}
-                 className="flex flex-col items-center gap-1 h-auto py-2 px-3 text-xs"
-               >
-                 <Settings className="h-4 w-4" />
-                 <span>Settings</span>
-               </Button>
+              )}
+
+              <Button
+                variant={activeTab === "settings" ? "default" : "ghost"}
+                onClick={() => setActiveTab("settings")}
+                className={tabClass("settings")}
+              >
+                <Settings className="h-4 w-4" />
+                <span className="text-center">Settings</span>
+              </Button>
             </div>
-            {activeTab === "dashboard" && (
-              <div>
-                {(isShareholder || isInvestor) && !canViewAssets ? (
+
+            {/* Tab Panels */}
+            <div className="w-full overflow-hidden">
+              {activeTab === "dashboard" &&
+                ((isShareholder || isInvestor) && !canViewAssets ? (
                   <ShareholderDashboard />
                 ) : (
                   <AdminDashboard isSuper={isSuper} />
-                )}
-              </div>
-            )}
+                ))}
 
-            {activeTab === "analytics" && canViewAnalytics && (
-              <AnalyticsDashboard />
-            )}
+              {activeTab === "analytics" && canViewAnalytics && (
+                <AnalyticsDashboard />
+              )}
 
-            {activeTab === "reports-management" && (canViewReports || canManageReports) && (
-              <ReportsManagement />
-            )}
+              {activeTab === "reports-management" &&
+                (canViewReports || canManageReports) && <ReportsManagement />}
 
-            {activeTab === "stolen-items" && canViewStolenItems && (
-              <StolenItemsDashboard isSuper={isSuper} />
-            )}
+              {activeTab === "stolen-items" && canViewStolenItems && (
+                <StolenItemsDashboard isSuper={isSuper} />
+              )}
 
-            {activeTab === "create-admin" && isSuper && (
-              <CreateAdminForm />
-            )}
+              {activeTab === "create-admin" && isSuper && <CreateAdminForm />}
 
-            {activeTab === "manage-admins" && isSuper && (
-              <div className="space-y-6">
-                <AdminManagement />
-                <AdminPermissionsForm />
-              </div>
-            )}
+              {activeTab === "manage-admins" && isSuper && (
+                <div className="space-y-6">
+                  <AdminManagement />
+                  <AdminPermissionsForm />
+                </div>
+              )}
 
-            {activeTab === "roi" && isSuper && (
-              <div className="space-y-6">
-                <ROIManagement />
-                <SuperAdminROIAnalytics />
-              </div>
-            )}
+              {activeTab === "roi" && isSuper && (
+                <div className="space-y-6">
+                  <ROIManagement />
+                  <SuperAdminROIAnalytics />
+                </div>
+              )}
 
-            {activeTab === "livechat" && canRespondToLiveChat && (
-              <LiveChatDashboard adminId={user?.id} />
-            )}
+              {activeTab === "livechat" && canRespondToLiveChat && (
+                <LiveChatDashboard adminId={user?.id} />
+              )}
 
-            {activeTab === "support-tickets" && canViewSupportTickets && (
-              <SupportTicketsDashboard />
-            )}
+              {activeTab === "support-tickets" && canViewSupportTickets && (
+                <SupportTicketsDashboard />
+              )}
 
-            {activeTab === "anonymous-messages" && canViewAnonymousMessages && (
-              <AnonymousMessagesDashboard />
-            )}
+              {activeTab === "anonymous-messages" &&
+                canViewAnonymousMessages && <AnonymousMessagesDashboard />}
 
-            {activeTab === "assets" && canViewAssets && (
-              <AssetsDashboard />
-            )}
+              {activeTab === "assets" && canViewAssets && <AssetsDashboard />}
 
-            {activeTab === "settings" && (
-              <div className="space-y-6">
-                <PasswordChangeForm />
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Profile Information</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <strong>Name:</strong> {adminProfile?.first_name || 'Admin'} {adminProfile?.last_name || 'User'}
-                      </div>
-                      <div>
-                        <strong>Email:</strong> {adminProfile?.email || user?.email}
-                      </div>
-                      <div>
-                        <strong>Role:</strong> {adminRoleDisplay}
-                      </div>
-                      <div>
-                        <strong>Country:</strong> {adminProfile?.country?.name || 'Not assigned'}
-                      </div>
-                      {adminProfile?.province && (
-                        <div>
-                          <strong>Province:</strong> {adminProfile.province.name}
+              {activeTab === "settings" && (
+                <div className="space-y-6">
+                  <PasswordChangeForm />
+
+                  <Card className="border-[#0B1220]/10">
+                    <CardHeader className="border-b border-[#0B1220]/10">
+                      <CardTitle className="font-sans font-semibold text-[#0B1220]">
+                        Profile Information
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-[#0B1220]/70 font-sans">
+                        <div className="break-words">
+                          <strong className="text-[#0B1220]">Name:</strong>{" "}
+                          {adminProfile?.first_name || "Admin"}{" "}
+                          {adminProfile?.last_name || "User"}
                         </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
+                        <div className="break-words">
+                          <strong className="text-[#0B1220]">Email:</strong>{" "}
+                          <span className="font-['IBM_Plex_Mono'] break-all">
+                            {adminProfile?.email || user?.email}
+                          </span>
+                        </div>
+                        <div className="break-words">
+                          <strong className="text-[#0B1220]">Role:</strong>{" "}
+                          <span className="font-['IBM_Plex_Mono'] text-xs uppercase tracking-wider">
+                            {adminRoleDisplay}
+                          </span>
+                        </div>
+                        <div>
+                          <strong className="text-[#0B1220]">Country:</strong>{" "}
+                          {adminProfile?.country?.name || "Not assigned"}
+                        </div>
+                        {adminProfile?.province && (
+                          <div>
+                            <strong className="text-[#0B1220]">
+                              Province:
+                            </strong>{" "}
+                            {adminProfile.province.name}
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>

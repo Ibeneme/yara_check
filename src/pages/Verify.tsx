@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -14,11 +13,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { Shield, Key, AlertCircle, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Shield, AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const loginFormSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -29,7 +28,7 @@ type LoginFormValues = z.infer<typeof loginFormSchema>;
 
 const Verify = () => {
   const navigate = useNavigate();
-  const { user, isAdmin, profile, loading, adminLogin } = useAuth();
+  const { user, loading, adminLogin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState("");
   
@@ -66,11 +65,15 @@ const Verify = () => {
   // Show loading while auth context is still loading
   if (loading) {
     return (
-      <div className="container max-w-md mx-auto py-12 px-4">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p>Loading...</p>
-        </div>
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow flex items-center justify-center bg-[#F1F0EC] py-16">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-[#FF5A36]" />
+            <p className="font-mono text-xs uppercase tracking-widest text-[#0B1220]/60">Loading...</p>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
@@ -78,103 +81,144 @@ const Verify = () => {
   // If user is authenticated, show redirecting message
   if (user) {
     return (
-      <div className="container max-w-md mx-auto py-12 px-4">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p>Redirecting to admin panel...</p>
-        </div>
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow flex items-center justify-center bg-[#F1F0EC] py-16">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-[#FF5A36]" />
+            <p className="font-mono text-xs uppercase tracking-widest text-[#0B1220]/60">Redirecting to admin panel...</p>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="container max-w-md mx-auto py-12 px-4">
-      <h1 className="text-2xl font-bold text-center mb-2">
-        Administrator Access
-      </h1>
-      <p className="text-center text-gray-600 mb-8">
-        This area is restricted to authorized personnel only
-      </p>
-      
-      <div className="bg-white p-6 rounded-lg shadow">
-        <div className="flex justify-center mb-6">
-          <div className="bg-padiman-lightBlue p-3 rounded-full">
-            <Shield className="h-8 w-8 text-padiman-blue" />
+    <div className="flex flex-col min-h-screen">
+      <Header />
+
+      <main className="flex-grow bg-[#F1F0EC] text-[#0B1220] font-sans pb-24">
+        {/* HERO SECTION / HEADER */}
+        <section className="relative overflow-hidden noise pt-16 pb-8">
+          <div className="absolute inset-0 -z-0 opacity-40">
+            <div
+              className="diamond w-64 h-64 -top-10 left-[15%]"
+              style={
+                { "--d1": "#CFE0FF", "--d2": "#9FC1FF" } as React.CSSProperties
+              }
+            />
+            <div
+              className="diamond w-48 h-48 top-10 right-[20%]"
+              style={
+                { "--d1": "#FFD9CC", "--d2": "#FFB199" } as React.CSSProperties
+              }
+            />
           </div>
-        </div>
 
-        {loginError && (
-          <Alert className="mb-4 bg-red-50 border-red-200">
-            <AlertCircle className="h-4 w-4 text-red-600" />
-            <AlertTitle className="text-red-800">Login Error</AlertTitle>
-            <AlertDescription className="text-red-700">
-              {loginError}
-            </AlertDescription>
-          </Alert>
-        )}
-        
-        <Form {...loginForm}>
-          <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
-            <FormField
-              control={loginForm.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="admin@example.com" 
-                      {...field} 
-                      onChange={(e) => field.onChange(e.target.value.trim().toLowerCase())}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <div className="relative max-w-md mx-auto px-6 text-center">
+            <div className="w-16 h-16 rounded-3xl bg-[#CFE0FF] flex items-center justify-center mx-auto mb-6 shadow-sm border border-[#0B1220]/5">
+              <Shield className="h-8 w-8 text-[#2158D9]" />
+            </div>
+
+            <span className="font-mono text-[11px] uppercase tracking-[0.2em] bg-white/70 border border-[#0B1220]/10 rounded-full px-4 py-1.5 inline-block mb-4">
+              Restricted Access
+            </span>
+
+            <h1 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight mb-3">
+              Administrator Access
+            </h1>
+            <p className="text-[#0B1220]/70 text-base">
+              This area is restricted to authorized personnel only.
+            </p>
+          </div>
+        </section>
+
+        {/* LOGIN FORM CONTAINER */}
+        <section className="max-w-md mx-auto px-6 relative z-10">
+          <div className="bg-white p-8 sm:p-10 rounded-3xl border border-[#0B1220]/5 shadow-sm">
+            {loginError && (
+              <Alert className="mb-6 bg-[#FFE9E2] border-[#FF5A36]/20 rounded-2xl p-4">
+                <AlertCircle className="h-4 w-4 text-[#FF5A36]" />
+                <AlertTitle className="font-semibold text-[#FF5A36] ml-2">Login Error</AlertTitle>
+                <AlertDescription className="text-sm text-[#0B1220]/75 mt-1">
+                  {loginError}
+                </AlertDescription>
+              </Alert>
+            )}
             
-            <FormField
-              control={loginForm.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <Form {...loginForm}>
+              <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
+                <FormField
+                  control={loginForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-mono text-xs uppercase tracking-wider text-[#0B1220]/60">Email</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="admin@example.com" 
+                          className="rounded-xl bg-[#F8F8F7] border-[#0B1220]/10 py-3 font-mono text-sm"
+                          {...field} 
+                          onChange={(e) => field.onChange(e.target.value.trim().toLowerCase())}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={loginForm.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-mono text-xs uppercase tracking-wider text-[#0B1220]/60">Password</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="password" 
+                          placeholder="••••••••" 
+                          className="rounded-xl bg-[#F8F8F7] border-[#0B1220]/10 py-3"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <Button 
-              type="submit" 
-              className="w-full bg-padiman-blue hover:bg-padiman-darkBlue"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Authenticating...
-                </>
-              ) : "Admin Login"}
-            </Button>
-          </form>
-        </Form>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-[#0B1220] hover:bg-[#FF5A36] text-white rounded-xl py-6 font-semibold transition-colors duration-300"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Authenticating...
+                    </>
+                  ) : "Admin Login"}
+                </Button>
+              </form>
+            </Form>
 
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <p className="text-sm text-center text-gray-600">
-            For reporting lost or found items, no login is required. 
-            <Button 
-              variant="link" 
-              onClick={() => navigate("/")} 
-              className="pl-1 text-padiman-blue"
-            >
-              Return to homepage
-            </Button>
-          </p>
-        </div>
-      </div>
+            <div className="mt-8 pt-6 border-t border-[#0B1220]/5 text-center">
+              <p className="text-sm text-[#0B1220]/60">
+                For reporting lost or found items, no login is required.{" "}
+                <Button 
+                  variant="link" 
+                  onClick={() => navigate("/")} 
+                  className="p-0 h-auto font-semibold text-[#FF5A36] hover:underline"
+                >
+                  Return to homepage
+                </Button>
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <Footer />
     </div>
   );
 };
