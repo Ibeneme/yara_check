@@ -116,7 +116,7 @@ const AdminPanel = () => {
 
   if (loading || isLoading) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#F1F0EC] font-sans">
+      <div className="min-h-screen flex flex-col bg-[#F1F0EC] font-sans overflow-x-hidden">
         <Header />
         <main className="flex-1 yaracheck-container py-8 flex items-center justify-center">
           <div className="text-center px-4">
@@ -131,7 +131,7 @@ const AdminPanel = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#F1F0EC] font-sans">
+      <div className="min-h-screen flex flex-col bg-[#F1F0EC] font-sans overflow-x-hidden">
         <Header />
         <main className="flex-1 yaracheck-container py-8 flex items-center justify-center">
           <div className="text-center px-4">
@@ -160,7 +160,7 @@ const AdminPanel = () => {
 
   if (!adminProfile) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#F1F0EC] font-sans">
+      <div className="min-h-screen flex flex-col bg-[#F1F0EC] font-sans overflow-x-hidden">
         <Header />
         <main className="flex-1 yaracheck-container py-8 flex items-center justify-center">
           <div className="text-center px-4">
@@ -211,18 +211,18 @@ const AdminPanel = () => {
     adminProfile?.permissions?.can_view_assets;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F1F0EC] font-sans">
+    <div className="min-h-screen flex flex-col bg-[#F1F0EC] font-sans overflow-x-hidden w-full">
       <Header />
-      <main className="flex-1 yaracheck-container py-6 md:py-8 px-3 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto space-y-6 md:space-y-8">
+      <main className="flex-1 yaracheck-container py-6 md:py-8 px-3 sm:px-6 lg:px-8 w-full max-w-full overflow-x-hidden">
+        <div className="max-w-5xl mx-auto space-y-6 md:space-y-8 w-full min-w-0">
           {/* Header Section with Responsive Layout */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-4 sm:p-6 rounded-xl border border-[#0B1220]/10 shadow-sm">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-semibold text-[#0B1220] flex items-center gap-2 font-sans">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-4 sm:p-6 rounded-xl border border-[#0B1220]/10 shadow-sm w-full min-w-0 overflow-hidden">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl sm:text-3xl font-semibold text-[#0B1220] flex items-center gap-2 font-sans truncate">
                 <Shield className="h-7 w-7 sm:h-8 sm:w-8 text-[#0B1220] flex-shrink-0" />
-                <span>Admin Panel</span>
+                <span className="truncate">Admin Panel</span>
               </h1>
-              <p className="text-sm sm:text-base text-[#0B1220]/60 mt-1">
+              <p className="text-sm sm:text-base text-[#0B1220]/60 mt-1 truncate">
                 Welcome, {adminProfile?.first_name || "Admin"}{" "}
                 {adminProfile?.last_name || "User"}{" "}
                 <span className="font-['IBM_Plex_Mono'] text-xs uppercase tracking-wider text-[#0B1220]/50">
@@ -233,23 +233,23 @@ const AdminPanel = () => {
             <Button
               onClick={handleLogout}
               variant="outline"
-              className="flex items-center justify-center gap-2 w-full sm:w-auto border-[#0B1220]/20 text-[#0B1220]/70 hover:bg-[#0B1220]/[0.05]"
+              className="flex items-center justify-center gap-2 w-full sm:w-auto border-[#0B1220]/20 text-[#0B1220]/70 hover:bg-[#0B1220]/[0.05] shrink-0"
             >
-              <LogOut className="h-4 w-4" />
+              <LogOut className="h-4 w-4 shrink-0" />
               <span>Logout</span>
             </Button>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-6 w-full min-w-0">
             {/* Responsive Navigation Grid */}
-            <div className="flex overflow-x-auto snap-x snap-mandatory gap-1.5 -mx-2 px-2 py-2 sm:mx-0 sm:px-3 sm:py-3 sm:overflow-visible sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 sm:gap-2 bg-white rounded-xl border border-[#0B1220]/10 shadow-sm">
+            <div className="flex overflow-x-auto snap-x snap-mandatory gap-1.5 -mx-2 px-2 py-2 sm:mx-0 sm:px-3 sm:py-3 sm:overflow-visible sm:grid sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 sm:gap-2 bg-white rounded-xl border border-[#0B1220]/10 shadow-sm w-full max-w-full">
               <Button
                 variant={activeTab === "dashboard" ? "default" : "ghost"}
                 onClick={() => setActiveTab("dashboard")}
                 className={tabClass("dashboard")}
               >
-                <BarChart3 className="h-4 w-4" />
-                <span className="text-center">Dashboard</span>
+                <BarChart3 className="h-4 w-4 shrink-0" />
+                <span className="text-center truncate">Dashboard</span>
               </Button>
 
               {canViewAnalytics && (
@@ -258,8 +258,8 @@ const AdminPanel = () => {
                   onClick={() => setActiveTab("analytics")}
                   className={tabClass("analytics")}
                 >
-                  <TrendingUp className="h-4 w-4" />
-                  <span className="text-center">Analytics</span>
+                  <TrendingUp className="h-4 w-4 shrink-0" />
+                  <span className="text-center truncate">Analytics</span>
                 </Button>
               )}
 
@@ -271,8 +271,8 @@ const AdminPanel = () => {
                   onClick={() => setActiveTab("reports-management")}
                   className={tabClass("reports-management")}
                 >
-                  <FileText className="h-4 w-4" />
-                  <span className="text-center">Reports</span>
+                  <FileText className="h-4 w-4 shrink-0" />
+                  <span className="text-center truncate">Reports</span>
                 </Button>
               )}
 
@@ -282,8 +282,8 @@ const AdminPanel = () => {
                   onClick={() => setActiveTab("stolen-items")}
                   className={tabClass("stolen-items")}
                 >
-                  <FileText className="h-4 w-4" />
-                  <span className="text-center">Stolen Items</span>
+                  <FileText className="h-4 w-4 shrink-0" />
+                  <span className="text-center truncate">Stolen Items</span>
                 </Button>
               )}
 
@@ -293,8 +293,8 @@ const AdminPanel = () => {
                   onClick={() => setActiveTab("create-admin")}
                   className={tabClass("create-admin")}
                 >
-                  <Users className="h-4 w-4" />
-                  <span className="text-center">Create Admin</span>
+                  <Users className="h-4 w-4 shrink-0" />
+                  <span className="text-center truncate">Create Admin</span>
                 </Button>
               )}
 
@@ -304,8 +304,8 @@ const AdminPanel = () => {
                   onClick={() => setActiveTab("manage-admins")}
                   className={tabClass("manage-admins")}
                 >
-                  <Shield className="h-4 w-4" />
-                  <span className="text-center">Sub Admins</span>
+                  <Shield className="h-4 w-4 shrink-0" />
+                  <span className="text-center truncate">Sub Admins</span>
                 </Button>
               )}
 
@@ -315,8 +315,8 @@ const AdminPanel = () => {
                   onClick={() => setActiveTab("roi")}
                   className={tabClass("roi")}
                 >
-                  <TrendingUp className="h-4 w-4" />
-                  <span className="text-center">ROI Management</span>
+                  <TrendingUp className="h-4 w-4 shrink-0" />
+                  <span className="text-center truncate">ROI Management</span>
                 </Button>
               )}
 
@@ -326,8 +326,8 @@ const AdminPanel = () => {
                   onClick={() => setActiveTab("livechat")}
                   className={`${tabClass("livechat")} relative`}
                 >
-                  <MessageCircle className="h-4 w-4" />
-                  <span className="text-center">Live Chat</span>
+                  <MessageCircle className="h-4 w-4 shrink-0" />
+                  <span className="text-center truncate">Live Chat</span>
                   <div
                     className="absolute -top-1 -right-1 w-3 h-3 bg-[#B3261E] rounded-full animate-pulse"
                     style={{ display: "none" }}
@@ -344,8 +344,8 @@ const AdminPanel = () => {
                   onClick={() => setActiveTab("support-tickets")}
                   className={tabClass("support-tickets")}
                 >
-                  <FileText className="h-4 w-4" />
-                  <span className="text-center">Support Tickets</span>
+                  <FileText className="h-4 w-4 shrink-0" />
+                  <span className="text-center truncate">Support Tickets</span>
                 </Button>
               )}
 
@@ -357,8 +357,10 @@ const AdminPanel = () => {
                   onClick={() => setActiveTab("anonymous-messages")}
                   className={tabClass("anonymous-messages")}
                 >
-                  <MessageCircle className="h-4 w-4" />
-                  <span className="text-center">Anonymous Messages</span>
+                  <MessageCircle className="h-4 w-4 shrink-0" />
+                  <span className="text-center truncate">
+                    Anonymous Messages
+                  </span>
                 </Button>
               )}
 
@@ -368,8 +370,8 @@ const AdminPanel = () => {
                   onClick={() => setActiveTab("assets")}
                   className={tabClass("assets")}
                 >
-                  <Package className="h-4 w-4" />
-                  <span className="text-center">Company Assets</span>
+                  <Package className="h-4 w-4 shrink-0" />
+                  <span className="text-center truncate">Company Assets</span>
                 </Button>
               )}
 
@@ -378,13 +380,13 @@ const AdminPanel = () => {
                 onClick={() => setActiveTab("settings")}
                 className={tabClass("settings")}
               >
-                <Settings className="h-4 w-4" />
-                <span className="text-center">Settings</span>
+                <Settings className="h-4 w-4 shrink-0" />
+                <span className="text-center truncate">Settings</span>
               </Button>
             </div>
 
             {/* Tab Panels */}
-            <div className="w-full overflow-hidden">
+            <div className="w-full overflow-hidden min-w-0">
               {activeTab === "dashboard" &&
                 ((isShareholder || isInvestor) && !canViewAssets ? (
                   <ShareholderDashboard />
@@ -406,14 +408,14 @@ const AdminPanel = () => {
               {activeTab === "create-admin" && isSuper && <CreateAdminForm />}
 
               {activeTab === "manage-admins" && isSuper && (
-                <div className="space-y-6">
+                <div className="space-y-6 w-full min-w-0">
                   <AdminManagement />
                   <AdminPermissionsForm />
                 </div>
               )}
 
               {activeTab === "roi" && isSuper && (
-                <div className="space-y-6">
+                <div className="space-y-6 w-full min-w-0">
                   <ROIManagement />
                   <SuperAdminROIAnalytics />
                 </div>
@@ -433,17 +435,17 @@ const AdminPanel = () => {
               {activeTab === "assets" && canViewAssets && <AssetsDashboard />}
 
               {activeTab === "settings" && (
-                <div className="space-y-6">
+                <div className="space-y-6 w-full min-w-0">
                   <PasswordChangeForm />
 
-                  <Card className="border-[#0B1220]/10">
+                  <Card className="border-[#0B1220]/10 w-full overflow-hidden">
                     <CardHeader className="border-b border-[#0B1220]/10">
                       <CardTitle className="font-sans font-semibold text-[#0B1220]">
                         Profile Information
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-[#0B1220]/70 font-sans">
+                    <CardContent className="overflow-hidden">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-[#0B1220]/70 font-sans min-w-0">
                         <div className="break-words">
                           <strong className="text-[#0B1220]">Name:</strong>{" "}
                           {adminProfile?.first_name || "Admin"}{" "}
@@ -461,12 +463,12 @@ const AdminPanel = () => {
                             {adminRoleDisplay}
                           </span>
                         </div>
-                        <div>
+                        <div className="break-words">
                           <strong className="text-[#0B1220]">Country:</strong>{" "}
                           {adminProfile?.country?.name || "Not assigned"}
                         </div>
                         {adminProfile?.province && (
-                          <div>
+                          <div className="break-words">
                             <strong className="text-[#0B1220]">
                               Province:
                             </strong>{" "}

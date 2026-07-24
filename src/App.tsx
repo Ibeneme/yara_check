@@ -1,4 +1,3 @@
-
 import React from "react";
 import './i18n';
 import { Toaster } from "@/components/ui/toaster";
@@ -48,38 +47,42 @@ const App = () => (
     <TooltipProvider>
       <BrowserRouter>
         <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/verify-item" element={<ItemVerification />} />
-            <Route path="/admin-login" element={<Verify />} />
-            <Route path="/verify" element={<Verify />} />
-            <Route path="/user-auth" element={<UserAuth />} />
-            <Route path="/submit-report" element={<SubmitReport />} />
-            <Route path="/submit-report/person" element={<PersonReportForm />} />
-            <Route path="/submit-report/device" element={<DeviceReportForm />} />
-            <Route path="/submit-report/household" element={<HouseholdReportForm />} />
-            <Route path="/submit-report/personal" element={<PersonalReportForm />} />
-            <Route path="/submit-report/vehicle" element={<VehicleReportForm />} />
-            <Route path="/submit-report/account" element={<AccountReportForm />} />
-            <Route path="/submit-report/reputation" element={<ReputationReportForm />} />
-            <Route path="/submit-report/pet" element={<PetReportForm />} />
-            <Route path="/report-confirmation" element={<ReportConfirmation />} />
-            <Route path="/confirmation" element={<PaymentConfirmation />} />
-            <Route path="/payment-confirmation" element={<PaymentConfirmation />} />
-            <Route path="/payment-success" element={<PaymentSuccess />} />
-            <Route path="/payment-success-paystack" element={<PaymentSuccessPaystack />} />
-            <Route path="/payment-success-flutterwave" element={<PaymentSuccessFlutterwave />} />
-            <Route path="/my-reports" element={<MyReports />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="/contact-support" element={<ContactSupport />} />
-            <Route path="/admin" element={<AdminPanel />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/cookies" element={<CookiePolicy />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <div className="min-h-[100dvh] w-full overflow-x-hidden flex flex-col bg-[#F1F0EC] text-[#0B1220] selection:bg-[#0B1220] selection:text-[#F1F0EC]">
+            <Toaster />
+            <Sonner />
+            <div className="w-full flex-1 flex flex-col min-w-0">
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/verify-item" element={<ItemVerification />} />
+                <Route path="/admin-login" element={<Verify />} />
+                <Route path="/verify" element={<Verify />} />
+                <Route path="/user-auth" element={<UserAuth />} />
+                <Route path="/submit-report" element={<SubmitReport />} />
+                <Route path="/submit-report/person" element={<PersonReportForm />} />
+                <Route path="/submit-report/device" element={<DeviceReportForm />} />
+                <Route path="/submit-report/household" element={<HouseholdReportForm />} />
+                <Route path="/submit-report/personal" element={<PersonalReportForm />} />
+                <Route path="/submit-report/vehicle" element={<VehicleReportForm />} />
+                <Route path="/submit-report/account" element={<AccountReportForm />} />
+                <Route path="/submit-report/reputation" element={<ReputationReportForm />} />
+                <Route path="/submit-report/pet" element={<PetReportForm />} />
+                <Route path="/report-confirmation" element={<ReportConfirmation />} />
+                <Route path="/confirmation" element={<PaymentConfirmation />} />
+                <Route path="/payment-confirmation" element={<PaymentConfirmation />} />
+                <Route path="/payment-success" element={<PaymentSuccess />} />
+                <Route path="/payment-success-paystack" element={<PaymentSuccessPaystack />} />
+                <Route path="/payment-success-flutterwave" element={<PaymentSuccessFlutterwave />} />
+                <Route path="/my-reports" element={<MyReports />} />
+                <Route path="/support" element={<Support />} />
+                <Route path="/contact-support" element={<ContactSupport />} />
+                <Route path="/admin" element={<AdminPanel />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/cookies" element={<CookiePolicy />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </div>
+          </div>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
