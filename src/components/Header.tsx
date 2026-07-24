@@ -23,10 +23,12 @@ const Header = () => {
   const { user, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
 
-  // Add subtle shadow/border only when scrolled
+  // Add subtle shadow/border only when scrolled and prevent horizontal overflow drift
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handleScroll);
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -71,16 +73,16 @@ const Header = () => {
 
   return (
     <header
-      className={`font-sans sticky top-0 z-[100] transition-all duration-300 ${
+      className={`font-sans fixed top-0 left-0 right-0 w-full z-[100] transition-all duration-300 max-w-full overflow-x-hidden ${
         isScrolled
-          ? "bg-[#F1F0EC]/90 backdrop-blur-xl border-b border-[#0B1220]/10 shadow-sm"
+          ? "bg-[#F1F0EC]/95 backdrop-blur-xl border-b border-[#0B1220]/10 shadow-sm"
           : "bg-[#F1F0EC] border-b border-transparent"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full min-w-0">
+        <div className="flex justify-between items-center h-20 w-full min-w-0">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group min-w-0">
+          <Link to="/" className="flex items-center gap-3 group min-w-0 shrink-0">
             <div className="relative overflow-hidden rounded-xl shrink-0">
               <img
                 src={yaraimage}
@@ -99,7 +101,7 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-x-1 xl:gap-x-2">
+          <nav className="hidden lg:flex items-center gap-x-1 xl:gap-x-2 shrink-0">
             <NavLink to="/submit-report" className={navLinkClass}>
               <FileText className="h-4 w-4 shrink-0" />
               <span className="truncate">{t("header.submitReport")}</span>
@@ -180,34 +182,34 @@ const Header = () => {
 
       {/* Mobile Drawer Tray Overlay with Solid Aesthetic Background */}
       <div
-        className={`lg:hidden fixed inset-0 z-[105] bg-[#F1F0EC] transition-all duration-300 ease-in-out ${
+        className={`lg:hidden fixed inset-0 z-[105] bg-[#F1F0EC] transition-all duration-300 ease-in-out w-full max-w-full overflow-x-hidden ${
           isOpen
             ? "opacity-100 pointer-events-auto translate-x-0"
             : "opacity-0 pointer-events-none translate-x-full"
         }`}
       >
-        <div className="flex flex-col h-[100dvh] max-w-md mx-auto bg-[#F1F0EC] shadow-2xl">
+        <div className="flex flex-col h-[100dvh] w-full max-w-md mx-auto bg-[#F1F0EC] shadow-2xl overflow-x-hidden">
           {/* Mobile Tray Header */}
-          <div className="flex justify-between items-center px-6 h-20 border-b border-[#0B1220]/10 bg-[#F1F0EC] shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="relative overflow-hidden rounded-xl bg-white p-1 border border-[#0B1220]/10 shadow-sm">
+          <div className="flex justify-between items-center px-6 h-20 border-b border-[#0B1220]/10 bg-[#F1F0EC] shrink-0 w-full min-w-0">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="relative overflow-hidden rounded-xl bg-white p-1 border border-[#0B1220]/10 shadow-sm shrink-0">
                 <img src={yaraimage} alt="YaraCheck" className="h-8 w-auto" />
               </div>
-              <span className="font-sans font-semibold text-lg text-[#0B1220] tracking-tight">
+              <span className="font-sans font-semibold text-lg text-[#0B1220] tracking-tight truncate">
                 Navigation
               </span>
             </div>
           </div>
 
           {/* Scrollable Mobile Tray Links Container */}
-          <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-6 space-y-3 bg-[#F1F0EC]">
+          <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-6 space-y-3 bg-[#F1F0EC] w-full min-w-0">
             <NavLink
               to="/submit-report"
               className={mobileNavLinkClass}
               onClick={() => setIsOpen(false)}
             >
               <FileText className="h-5 w-5 opacity-70 shrink-0" />
-              <span className="text-base font-medium">
+              <span className="text-base font-medium truncate">
                 {t("header.submitReport")}
               </span>
             </NavLink>
@@ -218,7 +220,7 @@ const Header = () => {
               onClick={() => setIsOpen(false)}
             >
               <ShieldCheck className="h-5 w-5 opacity-70 shrink-0" />
-              <span className="text-base font-medium">
+              <span className="text-base font-medium truncate">
                 {t("header.verifyItem")}
               </span>
             </NavLink>
@@ -245,14 +247,14 @@ const Header = () => {
               onClick={() => setIsOpen(false)}
             >
               <HelpCircle className="h-5 w-5 opacity-70 shrink-0" />
-              <span className="text-base font-medium">
+              <span className="text-base font-medium truncate">
                 {t("header.support")}
               </span>
             </NavLink>
           </div>
 
           {/* Mobile Auth Actions Tray Bottom Footer */}
-          <div className="p-6 border-t border-[#0B1220]/10 bg-white/60 space-y-3 shrink-0 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+          <div className="p-6 border-t border-[#0B1220]/10 bg-white/60 space-y-3 shrink-0 pb-[max(1.5rem,env(safe-area-inset-bottom))] w-full">
             {user && isAdmin ? (
               <>
                 <Button
