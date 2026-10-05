@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,8 +13,20 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
-import { SUPABASE_URL, supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { UserPlus, Loader2 } from "lucide-react";
+
+type Country = {
+  id: string;
+  name: string;
+  code?: string | null;
+};
+
+type Province = {
+  id: string;
+  name: string;
+  country_id: string | null;
+};
 
 const CreateAdminForm = () => {
   const [formData, setFormData] = useState({
@@ -33,57 +45,117 @@ const CreateAdminForm = () => {
   });
   const queryClient = useQueryClient();
 
-  const { data: countries } = useQuery({
+  // ── Fetch countries ──────────────────────────────────────────────
+  const {
+    data: countries = [],
+    isLoading: loadingCountries,
+    error: countriesError,
+  } = useQuery({
     queryKey: ["countries"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("countries").select("*");
+      const { data, error } = await supabase
+        .from("countries")
+        .select("id, name, code")
+        .order("name");
       if (error) throw error;
-      return data;
+      return (data ?? []) as Country[];
     },
   });
 
-  const { data: provinces } = useQuery({
+  // ── Fetch provinces ──────────────────────────────────────────────
+  const {
+    data: provinces = [],
+    isLoading: loadingProvinces,
+    error: provincesError,
+  } = useQuery({
     queryKey: ["provinces"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("provinces").select("*");
+      const { data, error } = await supabase
+        .from("provinces")
+        .select("id, name, country_id")
+        .order("name");
       if (error) throw error;
-      return data;
+      return (data ?? []) as Province[];
     },
   });
 
+  // Provinces filtered by selected country
+  const filteredProvinces = useMemo(() => {
+    if (!formData.countryId) return [];
+    return provinces.filter((p) => p.country_id === formData.countryId);
+  }, [provinces, formData.countryId]);
+
+  // ── Create admin mutation ────────────────────────────────────────
   const createAdminMutation = useMutation({
     mutationFn: async (
       adminData: typeof formData & { geographicAccess: typeof geographicAccess }
     ) => {
-      console.log("Starting admin creation process...");
+      console.log("Starting admin creation process...", adminData);
 
-      try {
-        // Use Supabase client's native function invocation
-        const { data: result, error } = await supabase.functions.invoke(
-          "create-admin-user",
-          {
-            body: {
-              email: adminData.email,
-              firstName: adminData.firstName,
-              lastName: adminData.lastName,
-              phone: adminData.phone,
-              adminRole: adminData.adminRole,
-              countryId: adminData.countryId,
-              provinceId: adminData.provinceId,
-              geographicAccess: adminData.geographicAccess,
-            },
+      const { data: result, error } = await supabase.functions.invoke(
+        "create-admin-user",
+        {
+          body: {
+            email: adminData.email,
+            firstName: adminData.firstName,
+            lastName: adminData.lastName,
+            phone: adminData.phone || null,
+            adminRole: adminData.adminRole,
+            countryId: adminData.countryId || null,
+            provinceId: adminData.provinceId || null,
+            geographicAccess: adminData.geographicAccess,
+          },
+        }
+      );
+
+      // Debug: see exactly what came back
+      console.log("Edge function result:", result);
+      console.log("Edge function error:", error);
+
+      // Prefer the error message returned by the function body
+      if (result && result.success === false && result.error) {
+        throw new Error(result.error);
+      }
+
+      if (error) {
+        const msg = error.message || "";
+
+        // Try to pull server message from FunctionsHttpError context
+        let serverMsg = "";
+        try {
+          const ctx = (error as any)?.context;
+          if (ctx && typeof ctx.json === "function") {
+            const body = await ctx.json();
+            serverMsg = body?.error || body?.message || "";
+          } else if (ctx && typeof ctx === "object") {
+            serverMsg = ctx?.error || ctx?.message || "";
           }
-        );
-
-        if (error || !result?.success) {
-          throw new Error(error?.message || result?.error || "Failed to create admin user");
+        } catch {
+          // ignore parse errors
         }
 
-        return { tempPassword: result.tempPassword, email: result.email };
-      } catch (error: any) {
-        console.error("Admin creation failed:", error);
-        throw error;
+        if (serverMsg) {
+          throw new Error(serverMsg);
+        }
+
+        if (
+          msg.includes("Failed to send") ||
+          msg.includes("not found") ||
+          msg.includes("CORS")
+        ) {
+          throw new Error(
+            "Edge Function 'create-admin-user' is not deployed. Deploy it or create the admin via SQL."
+          );
+        }
+
+        throw new Error(msg || "Edge Function returned a non-2xx status code");
       }
+
+      if (!result?.success) {
+        throw new Error(result?.error || "Failed to create admin user");
+      }
+
+      return { tempPassword: result.tempPassword, email: result.email };
     },
     onSuccess: (data) => {
       toast({
@@ -102,6 +174,7 @@ const CreateAdminForm = () => {
                   {data.tempPassword}
                 </span>
                 <button
+                  type="button"
                   onClick={() =>
                     navigator.clipboard.writeText(data.tempPassword)
                   }
@@ -118,7 +191,7 @@ const CreateAdminForm = () => {
             </div>
           </div>
         ),
-        duration: 10000,
+        duration: 12000,
       });
       setFormData({
         firstName: "",
@@ -175,10 +248,14 @@ const CreateAdminForm = () => {
       return;
     }
 
-    if (formData.adminRole === "country_rep" && !formData.countryId) {
+    if (
+      (formData.adminRole === "country_rep" ||
+        formData.adminRole === "province_manager") &&
+      !formData.countryId
+    ) {
       toast({
         title: "Country Required",
-        description: "Please select a country for the Country Representative",
+        description: "Please select a country",
         variant: "destructive",
       });
       return;
@@ -193,7 +270,6 @@ const CreateAdminForm = () => {
       return;
     }
 
-    console.log("Submitting admin creation form:", formData);
     createAdminMutation.mutate({ ...formData, geographicAccess });
   };
 
@@ -215,6 +291,13 @@ const CreateAdminForm = () => {
         </CardTitle>
       </CardHeader>
       <CardContent>
+        {(countriesError || provincesError) && (
+          <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            Could not load countries/provinces. Check RLS policies or run the
+            seed SQL.
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
@@ -305,7 +388,12 @@ const CreateAdminForm = () => {
             <Select
               value={formData.adminRole}
               onValueChange={(value) =>
-                setFormData((prev) => ({ ...prev, adminRole: value }))
+                setFormData((prev) => ({
+                  ...prev,
+                  adminRole: value,
+                  countryId: "",
+                  provinceId: "",
+                }))
               }
             >
               <SelectTrigger className="bg-white border-slate-200">
@@ -328,7 +416,9 @@ const CreateAdminForm = () => {
             </Select>
           </div>
 
-          {formData.adminRole === "country_rep" && (
+          {/* Country */}
+          {(formData.adminRole === "country_rep" ||
+            formData.adminRole === "province_manager") && (
             <div className="space-y-1.5">
               <Label
                 htmlFor="country"
@@ -339,23 +429,44 @@ const CreateAdminForm = () => {
               <Select
                 value={formData.countryId}
                 onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, countryId: value }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    countryId: value,
+                    provinceId: "",
+                  }))
                 }
+                disabled={loadingCountries}
               >
                 <SelectTrigger className="bg-white border-slate-200">
-                  <SelectValue placeholder="Select country" />
+                  <SelectValue
+                    placeholder={
+                      loadingCountries
+                        ? "Loading countries..."
+                        : countries.length === 0
+                          ? "No countries found – run seed SQL"
+                          : "Select country"
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
-                  {countries?.map((country) => (
+                  {countries.map((country) => (
                     <SelectItem key={country.id} value={country.id}>
                       {country.name}
+                      {country.code ? ` (${country.code})` : ""}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {!loadingCountries && countries.length === 0 && (
+                <p className="text-xs text-amber-600">
+                  No countries in the database. Run the countries seed SQL in
+                  Supabase.
+                </p>
+              )}
             </div>
           )}
 
+          {/* Province */}
           {formData.adminRole === "province_manager" && (
             <div className="space-y-1.5">
               <Label
@@ -369,12 +480,23 @@ const CreateAdminForm = () => {
                 onValueChange={(value) =>
                   setFormData((prev) => ({ ...prev, provinceId: value }))
                 }
+                disabled={!formData.countryId || loadingProvinces}
               >
                 <SelectTrigger className="bg-white border-slate-200">
-                  <SelectValue placeholder="Select province" />
+                  <SelectValue
+                    placeholder={
+                      !formData.countryId
+                        ? "Select a country first"
+                        : loadingProvinces
+                          ? "Loading provinces..."
+                          : filteredProvinces.length === 0
+                            ? "No provinces for this country"
+                            : "Select province"
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
-                  {provinces?.map((province) => (
+                  {filteredProvinces.map((province) => (
                     <SelectItem key={province.id} value={province.id}>
                       {province.name}
                     </SelectItem>
@@ -384,7 +506,9 @@ const CreateAdminForm = () => {
             </div>
           )}
 
-          {formData.adminRole !== "shareholder" &&
+          {/* Geographic access */}
+          {formData.adminRole !== "" &&
+            formData.adminRole !== "shareholder" &&
             formData.adminRole !== "investor" && (
               <div className="space-y-3 pt-2 border-t border-slate-100">
                 <Label className="text-sm font-medium text-slate-700">
@@ -415,30 +539,38 @@ const CreateAdminForm = () => {
                     <Label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                       Select Countries to Grant Access To:
                     </Label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto p-3 bg-slate-50 border border-slate-200 rounded-lg">
-                      {countries?.map((country) => (
-                        <div
-                          key={country.id}
-                          className="flex items-center space-x-2"
-                        >
-                          <Checkbox
-                            id={`country-${country.id}`}
-                            checked={geographicAccess.allowedCountries.includes(
-                              country.id
-                            )}
-                            onCheckedChange={() =>
-                              toggleCountryAccess(country.id)
-                            }
-                          />
-                          <Label
-                            htmlFor={`country-${country.id}`}
-                            className="text-sm text-slate-700 font-normal cursor-pointer truncate"
+                    {loadingCountries ? (
+                      <p className="text-sm text-slate-500">Loading...</p>
+                    ) : countries.length === 0 ? (
+                      <p className="text-sm text-amber-600">
+                        No countries available
+                      </p>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-40 overflow-y-auto p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                        {countries.map((country) => (
+                          <div
+                            key={country.id}
+                            className="flex items-center space-x-2"
                           >
-                            {country.name}
-                          </Label>
-                        </div>
-                      ))}
-                    </div>
+                            <Checkbox
+                              id={`country-${country.id}`}
+                              checked={geographicAccess.allowedCountries.includes(
+                                country.id
+                              )}
+                              onCheckedChange={() =>
+                                toggleCountryAccess(country.id)
+                              }
+                            />
+                            <Label
+                              htmlFor={`country-${country.id}`}
+                              className="text-sm text-slate-700 font-normal cursor-pointer truncate"
+                            >
+                              {country.name}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

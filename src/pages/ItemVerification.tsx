@@ -6,8 +6,9 @@ import {
   Search,
   AlertTriangle,
   CheckCircle,
-  XCircle,
   User,
+  ShieldAlert,
+  X,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslation } from "react-i18next";
@@ -26,15 +27,20 @@ const ItemVerification = () => {
     item?: any;
     type?: string;
   } | null>(null);
+  const [modalImage, setModalImage] = useState<string | null>(null);
   const { t } = useTranslation();
 
-  // Auto scroll to main content when page loads
   useEffect(() => {
     const mainContent = document.querySelector("main");
     if (mainContent) {
       mainContent.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, []);
+
+  const handleTabChange = () => {
+    setSearchQuery("");
+    setSearchResult(null);
+  };
 
   const handleItemSearch = async () => {
     if (!searchQuery.trim()) {
@@ -50,9 +56,6 @@ const ItemVerification = () => {
     setSearchResult(null);
 
     try {
-      console.log("Searching for item:", searchQuery.trim());
-
-      // First check if any reports exist (including hidden ones)
       const { data: allDeviceResults, error: allDeviceError } = await supabase
         .from("devices")
         .select("*")
@@ -61,7 +64,6 @@ const ItemVerification = () => {
       if (allDeviceError) throw allDeviceError;
 
       if (allDeviceResults && allDeviceResults.length > 0) {
-        // Check if any visible reports exist
         const visibleReports = allDeviceResults.filter(
           (device) => device.visible !== false
         );
@@ -73,7 +75,6 @@ const ItemVerification = () => {
             type: "device",
           });
         } else {
-          // All reports are hidden
           setSearchResult({
             found: true,
             hidden: true,
@@ -82,9 +83,7 @@ const ItemVerification = () => {
           });
         }
       } else {
-        setSearchResult({
-          found: false,
-        });
+        setSearchResult({ found: false });
       }
     } catch (error: any) {
       console.error("Search error:", error);
@@ -112,9 +111,6 @@ const ItemVerification = () => {
     setSearchResult(null);
 
     try {
-      console.log("Searching for vehicle:", searchQuery.trim());
-
-      // First check if any reports exist (including hidden ones)
       const { data: allVehicleResults, error: allVehicleError } = await supabase
         .from("vehicles")
         .select("*")
@@ -123,7 +119,6 @@ const ItemVerification = () => {
       if (allVehicleError) throw allVehicleError;
 
       if (allVehicleResults && allVehicleResults.length > 0) {
-        // Check if any visible reports exist
         const visibleReports = allVehicleResults.filter(
           (vehicle) => vehicle.visible !== false
         );
@@ -135,7 +130,6 @@ const ItemVerification = () => {
             type: "vehicle",
           });
         } else {
-          // All reports are hidden
           setSearchResult({
             found: true,
             hidden: true,
@@ -144,9 +138,7 @@ const ItemVerification = () => {
           });
         }
       } else {
-        setSearchResult({
-          found: false,
-        });
+        setSearchResult({ found: false });
       }
     } catch (error: any) {
       console.error("Search error:", error);
@@ -174,9 +166,6 @@ const ItemVerification = () => {
     setSearchResult(null);
 
     try {
-      console.log("Searching for person:", searchQuery.trim());
-
-      // First check if any reports exist (including hidden ones)
       const { data: allPersonResults, error: allPersonError } = await supabase
         .from("persons")
         .select("*")
@@ -187,7 +176,6 @@ const ItemVerification = () => {
       if (allPersonError) throw allPersonError;
 
       if (allPersonResults && allPersonResults.length > 0) {
-        // Check if any visible reports exist
         const visibleReports = allPersonResults.filter(
           (person) => person.visible !== false
         );
@@ -199,7 +187,6 @@ const ItemVerification = () => {
             type: "person",
           });
         } else {
-          // All reports are hidden
           setSearchResult({
             found: true,
             hidden: true,
@@ -208,9 +195,7 @@ const ItemVerification = () => {
           });
         }
       } else {
-        setSearchResult({
-          found: false,
-        });
+        setSearchResult({ found: false });
       }
     } catch (error: any) {
       console.error("Search error:", error);
@@ -238,9 +223,6 @@ const ItemVerification = () => {
     setSearchResult(null);
 
     try {
-      console.log("Searching for account:", searchQuery.trim());
-
-      // First check if any reports exist (including hidden ones)
       const { data: allAccountResults, error: allAccountError } = await supabase
         .from("hacked_accounts")
         .select("*")
@@ -249,7 +231,6 @@ const ItemVerification = () => {
       if (allAccountError) throw allAccountError;
 
       if (allAccountResults && allAccountResults.length > 0) {
-        // Check if any visible reports exist
         const visibleReports = allAccountResults.filter(
           (account) => account.visible !== false
         );
@@ -261,7 +242,6 @@ const ItemVerification = () => {
             type: "account",
           });
         } else {
-          // All reports are hidden
           setSearchResult({
             found: true,
             hidden: true,
@@ -270,9 +250,7 @@ const ItemVerification = () => {
           });
         }
       } else {
-        setSearchResult({
-          found: false,
-        });
+        setSearchResult({ found: false });
       }
     } catch (error: any) {
       console.error("Search error:", error);
@@ -300,9 +278,6 @@ const ItemVerification = () => {
     setSearchResult(null);
 
     try {
-      console.log("Searching for business reputation:", searchQuery.trim());
-
-      // Search business reputation reports
       const { data: allReputationResults, error: allReputationError } =
         await supabase
           .from("business_reputation_reports")
@@ -314,7 +289,6 @@ const ItemVerification = () => {
       if (allReputationError) throw allReputationError;
 
       if (allReputationResults && allReputationResults.length > 0) {
-        // Check if any visible reports exist
         const visibleReports = allReputationResults.filter(
           (report) => report.visible !== false
         );
@@ -326,7 +300,6 @@ const ItemVerification = () => {
             type: "reputation",
           });
         } else {
-          // All reports are hidden
           setSearchResult({
             found: true,
             hidden: true,
@@ -335,9 +308,7 @@ const ItemVerification = () => {
           });
         }
       } else {
-        setSearchResult({
-          found: false,
-        });
+        setSearchResult({ found: false });
       }
     } catch (error: any) {
       console.error("Search error:", error);
@@ -365,10 +336,7 @@ const ItemVerification = () => {
     setSearchResult(null);
 
     try {
-      console.log("Searching for household item:", searchQuery.trim());
-
       let allHouseholdResults = [];
-
       const { data: imeiResults, error: imeiError } = await supabase
         .from("household_items")
         .select("*")
@@ -410,9 +378,7 @@ const ItemVerification = () => {
           });
         }
       } else {
-        setSearchResult({
-          found: false,
-        });
+        setSearchResult({ found: false });
       }
     } catch (error: any) {
       console.error("Search error:", error);
@@ -440,10 +406,7 @@ const ItemVerification = () => {
     setSearchResult(null);
 
     try {
-      console.log("Searching for personal belonging:", searchQuery.trim());
-
       let allPersonalResults = [];
-
       const { data: imeiResults, error: imeiError } = await supabase
         .from("personal_belongings")
         .select("*")
@@ -485,9 +448,7 @@ const ItemVerification = () => {
           });
         }
       } else {
-        setSearchResult({
-          found: false,
-        });
+        setSearchResult({ found: false });
       }
     } catch (error: any) {
       console.error("Search error:", error);
@@ -502,197 +463,86 @@ const ItemVerification = () => {
   };
 
   const tabTriggerClass =
-    "bg-transparent border border-[#0B1220]/15 hover:bg-[#0B1220]/[0.04] data-[state=active]:bg-[#0B1220] data-[state=active]:text-[#F1F0EC] data-[state=active]:border-[#0B1220] text-sm px-4 py-4 h-14 flex items-center justify-center text-center leading-tight rounded-lg transition-all font-sans";
-  const tabTriggerClassMd =
-    "bg-transparent border border-[#0B1220]/15 hover:bg-[#0B1220]/[0.04] data-[state=active]:bg-[#0B1220] data-[state=active]:text-[#F1F0EC] data-[state=active]:border-[#0B1220] text-sm px-4 py-4 h-12 flex items-center justify-center text-center rounded-lg transition-all font-sans";
-  const tabTriggerClassSm =
-    "bg-transparent border border-[#0B1220]/15 hover:bg-[#0B1220]/[0.04] data-[state=active]:bg-[#0B1220] data-[state=active]:text-[#F1F0EC] data-[state=active]:border-[#0B1220] text-xs px-3 py-3 h-11 flex items-center justify-center text-center leading-tight rounded-lg transition-all font-sans";
+    "bg-white text-slate-700 border-2 border-slate-100 data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-600 data-[state=active]:via-purple-600 data-[state=active]:to-pink-500 data-[state=active]:bg-[length:200%_200%] data-[state=active]:animate-gradient data-[state=active]:text-white data-[state=active]:border-transparent text-xs sm:text-sm px-3 py-3 sm:py-3.5 h-12 sm:h-14 flex items-center justify-center text-center leading-tight rounded-xl transition-all font-semibold font-sans whitespace-normal";
 
   const primaryButtonClass =
-    "w-full bg-[#FF5A36] hover:brightness-95 text-white transition-all font-sans font-semibold";
+    "w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 bg-[length:200%_200%] animate-gradient hover:opacity-95 text-white transition-all font-sans font-semibold h-12 rounded-xl text-sm border-0";
 
-  const inputClass = "border-[#0B1220]/15 focus:border-[#0B1220] font-sans";
+  const inputClass =
+    "bg-white border-2 border-slate-200 focus-visible:ring-0 focus-visible:border-indigo-600 font-sans h-12 rounded-xl text-slate-900 ";
 
-  const labelClass = "block text-sm font-medium mb-2 text-[#0B1220] font-sans";
+  const labelClass =
+    "block text-xs font-bold uppercase tracking-wider mb-2 text-indigo-600 font-sans";
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F1F0EC] font-sans">
+    <div className="flex flex-col min-h-screen  relative">
+      <style>{`
+        @keyframes gradientAnimation {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animate-gradient {
+          animation: gradientAnimation 6s ease infinite;
+        }
+      `}</style>
 
-
-      <main className="flex-grow py-12">
-        <div className="container max-w-4xl mx-auto px-4">
-          <div className="text-center mb-8">
-            <span className="font-sans text-[11px] uppercase tracking-[0.2em] text-[#0B1220]/40">
-              Case lookup
+      <main className="flex-grow py-8 sm:py-12">
+        <div className="container max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="text-left mb-8 border-b-2 border-indigo-100 pb-6">
+            <span className="inline-block text-[11px] uppercase tracking-[0.2em] bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 bg-[length:200%_200%] animate-gradient text-white font-bold px-3 py-1 rounded-full mb-3 ">
+              Secure System Registry
             </span>
-            <h1 className="font-sans text-3xl font-semibold text-[#0B1220] mt-2 mb-4">
-              Verify
+            <h1 className="font-sans text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
+              Verification Portal
             </h1>
-            <p className="text-lg text-[#0B1220]/60">
-              {t("verification.subtitle")}
-            </p>
           </div>
 
-          <Card className="mb-8 border-[#0B1220]/10 ">
-            <CardHeader className="bg-[#0B1220]/[0.03] border-b border-[#0B1220]/10">
-              <CardTitle className="flex items-center gap-2 text-[#0B1220] font-sans font-semibold">
-                <div className="bg-[#0B1220] p-2 rounded-full">
-                  <Search className="h-5 w-5 text-white" />
+          <Card className="mb-8 border-2 border-slate-100 rounded-2xl bg-white ">
+            <CardHeader className="border-b border-slate-100 py-4 px-6 bg-slate-50/50 rounded-t-2xl">
+              <CardTitle className="flex items-center gap-2.5 text-slate-900 font-sans font-bold text-base sm:text-lg">
+                <div className="p-2 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 text-white">
+                  <Search className="h-4 w-4" />
                 </div>
                 {t("verification.searchTitle")}
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-6">
-              <Tabs defaultValue="items" className="w-full">
-                <TabsList className="w-full bg-transparent p-0 mb-8">
-                  <div className="hidden lg:block w-full">
-                    <div className="grid grid-cols-4 gap-4 mb-4">
-                      <TabsTrigger value="items" className={tabTriggerClass}>
-                        Stolen Devices
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="household"
-                        className={tabTriggerClass}
-                      >
-                        Household Items
-                      </TabsTrigger>
-                      <TabsTrigger value="personal" className={tabTriggerClass}>
-                        Personal Items
-                      </TabsTrigger>
-                      <TabsTrigger value="vehicles" className={tabTriggerClass}>
-                        {t("verification.vehicles")}
-                      </TabsTrigger>
-                    </div>
-                    <div className="grid grid-cols-4 gap-4">
-                      <TabsTrigger value="persons" className={tabTriggerClass}>
-                        {t("verification.missingPersons")}
-                      </TabsTrigger>
-                      <TabsTrigger value="accounts" className={tabTriggerClass}>
-                        Hacked Accounts
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="reputation"
-                        className={tabTriggerClass}
-                      >
-                        Business Reputation
-                      </TabsTrigger>
-                      <TabsTrigger value="photo" className={tabTriggerClass}>
-                        Photo Search
-                      </TabsTrigger>
-                    </div>
-                  </div>
-
-                  <div className="hidden md:block lg:hidden w-full space-y-3">
-                    <div className="grid grid-cols-2 gap-4">
-                      <TabsTrigger value="items" className={tabTriggerClassMd}>
-                        Stolen Devices
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="household"
-                        className={tabTriggerClassMd}
-                      >
-                        Household Items
-                      </TabsTrigger>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <TabsTrigger
-                        value="personal"
-                        className={tabTriggerClassMd}
-                      >
-                        Personal Items
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="vehicles"
-                        className={tabTriggerClassMd}
-                      >
-                        {t("verification.vehicles")}
-                      </TabsTrigger>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <TabsTrigger
-                        value="persons"
-                        className={tabTriggerClassMd}
-                      >
-                        {t("verification.missingPersons")}
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="accounts"
-                        className={tabTriggerClassMd}
-                      >
-                        Hacked Accounts
-                      </TabsTrigger>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <TabsTrigger
-                        value="reputation"
-                        className={tabTriggerClassMd}
-                      >
-                        Business Reputation
-                      </TabsTrigger>
-                      <TabsTrigger value="photo" className={tabTriggerClassMd}>
-                        Photo Search
-                      </TabsTrigger>
-                    </div>
-                  </div>
-
-                  <div className="block md:hidden w-full space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <TabsTrigger value="items" className={tabTriggerClassSm}>
-                        Stolen Devices
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="household"
-                        className={tabTriggerClassSm}
-                      >
-                        Household Items
-                      </TabsTrigger>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <TabsTrigger
-                        value="personal"
-                        className={tabTriggerClassSm}
-                      >
-                        Personal Items
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="vehicles"
-                        className={tabTriggerClassSm}
-                      >
-                        {t("verification.vehicles")}
-                      </TabsTrigger>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <TabsTrigger
-                        value="persons"
-                        className={tabTriggerClassSm}
-                      >
-                        {t("verification.missingPersons")}
-                      </TabsTrigger>
-                      <TabsTrigger
-                        value="accounts"
-                        className={tabTriggerClassSm}
-                      >
-                        Hacked Accounts
-                      </TabsTrigger>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <TabsTrigger
-                        value="reputation"
-                        className={tabTriggerClassSm}
-                      >
-                        Business Reputation
-                      </TabsTrigger>
-                      <TabsTrigger value="photo" className={tabTriggerClassSm}>
-                        Photo Search
-                      </TabsTrigger>
-                    </div>
+            <CardContent className="pt-6 px-6 pb-6">
+              <Tabs
+                defaultValue="items"
+                className="w-full"
+                onValueChange={handleTabChange}
+              >
+                <TabsList className="w-full bg-transparent p-0 h-auto mb-6 block">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
+                    <TabsTrigger value="items" className={tabTriggerClass}>
+                      Stolen Devices
+                    </TabsTrigger>
+                    <TabsTrigger value="household" className={tabTriggerClass}>
+                      Household Items
+                    </TabsTrigger>
+                    <TabsTrigger value="personal" className={tabTriggerClass}>
+                      Personal Items
+                    </TabsTrigger>
+                    <TabsTrigger value="vehicles" className={tabTriggerClass}>
+                      {t("verification.vehicles")}
+                    </TabsTrigger>
+                    <TabsTrigger value="persons" className={tabTriggerClass}>
+                      {t("verification.missingPersons")}
+                    </TabsTrigger>
+                    <TabsTrigger value="accounts" className={tabTriggerClass}>
+                      Hacked Accounts
+                    </TabsTrigger>
+                    <TabsTrigger value="reputation" className={tabTriggerClass}>
+                      Business Reputation
+                    </TabsTrigger>
+                    <TabsTrigger value="photo" className={tabTriggerClass}>
+                      Photo Search
+                    </TabsTrigger>
                   </div>
                 </TabsList>
 
-                <TabsContent
-                  value="items"
-                  className="space-y-4 pt-12 md:pt-10 lg:pt-8"
-                >
+                <TabsContent value="items" className="space-y-4 pt-1">
                   <div>
                     <label htmlFor="item-search" className={labelClass}>
                       Enter IMEI or Serial Number
@@ -700,128 +550,82 @@ const ItemVerification = () => {
                     <Input
                       id="item-search"
                       type="text"
-                      placeholder="e.g., 123456789012345"
+                      placeholder="e.g., 356987102345678"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          handleItemSearch();
-                        }
-                      }}
+                      onKeyDown={(e) => e.key === "Enter" && handleItemSearch()}
                       className={inputClass}
                     />
                   </div>
-
                   <Button
                     onClick={handleItemSearch}
                     disabled={isSearching || !searchQuery.trim()}
                     className={primaryButtonClass}
                   >
-                    {isSearching ? (
-                      <>
-                        <Search className="mr-2 h-4 w-4 animate-spin" />
-                        Searching...
-                      </>
-                    ) : (
-                      <>
-                        <Search className="mr-2 h-4 w-4" />
-                        Verify Device
-                      </>
-                    )}
+                    {isSearching ? "Searching registry..." : "Verify Device"}
                   </Button>
                 </TabsContent>
 
-                <TabsContent
-                  value="household"
-                  className="space-y-4 pt-12 md:pt-10 lg:pt-8"
-                >
+                <TabsContent value="household" className="space-y-4 pt-1">
                   <div>
                     <label htmlFor="household-search" className={labelClass}>
-                      Enter IMEI/Serial Number or Item Details
+                      Enter IMEI/Serial Number or Details
                     </label>
                     <Input
                       id="household-search"
                       type="text"
-                      placeholder="e.g., 123456789012345 or TV, Samsung, refrigerator"
+                      placeholder="e.g., Samsung TV, Refrigerator"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          handleHouseholdSearch();
-                        }
-                      }}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && handleHouseholdSearch()
+                      }
                       className={inputClass}
                     />
                   </div>
-
                   <Button
                     onClick={handleHouseholdSearch}
                     disabled={isSearching || !searchQuery.trim()}
                     className={primaryButtonClass}
                   >
-                    {isSearching ? (
-                      <>
-                        <Search className="mr-2 h-4 w-4 animate-spin" />
-                        Searching...
-                      </>
-                    ) : (
-                      <>
-                        <Search className="mr-2 h-4 w-4" />
-                        Verify Household Item
-                      </>
-                    )}
+                    {isSearching
+                      ? "Searching registry..."
+                      : "Verify Household Item"}
                   </Button>
                 </TabsContent>
 
-                <TabsContent
-                  value="personal"
-                  className="space-y-4 pt-12 md:pt-10 lg:pt-8"
-                >
+                <TabsContent value="personal" className="space-y-4 pt-1">
                   <div>
                     <label htmlFor="personal-search" className={labelClass}>
-                      Enter IMEI/Serial Number or Item Details
+                      Enter IMEI/Serial Number or Details
                     </label>
                     <Input
                       id="personal-search"
                       type="text"
-                      placeholder="e.g., 123456789012345 or watch, jewelry, laptop"
+                      placeholder="e.g., Smartwatch, Laptop"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          handlePersonalSearch();
-                        }
-                      }}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && handlePersonalSearch()
+                      }
                       className={inputClass}
                     />
                   </div>
-
                   <Button
                     onClick={handlePersonalSearch}
                     disabled={isSearching || !searchQuery.trim()}
                     className={primaryButtonClass}
                   >
-                    {isSearching ? (
-                      <>
-                        <Search className="mr-2 h-4 w-4 animate-spin" />
-                        Searching...
-                      </>
-                    ) : (
-                      <>
-                        <Search className="mr-2 h-4 w-4" />
-                        Verify Personal Item
-                      </>
-                    )}
+                    {isSearching
+                      ? "Searching registry..."
+                      : "Verify Personal Item"}
                   </Button>
                 </TabsContent>
 
-                <TabsContent
-                  value="vehicles"
-                  className="space-y-4 pt-12 md:pt-10 lg:pt-8"
-                >
+                <TabsContent value="vehicles" className="space-y-4 pt-1">
                   <div>
                     <label htmlFor="vehicle-search" className={labelClass}>
-                      Enter Chassis/VIN Number
+                      Enter Chassis / VIN Number
                     </label>
                     <Input
                       id="vehicle-search"
@@ -829,80 +633,50 @@ const ItemVerification = () => {
                       placeholder="e.g., WVWZZZ1JZYW123456"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          handleVehicleSearch();
-                        }
-                      }}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && handleVehicleSearch()
+                      }
                       className={inputClass}
                     />
                   </div>
-
                   <Button
                     onClick={handleVehicleSearch}
                     disabled={isSearching || !searchQuery.trim()}
                     className={primaryButtonClass}
                   >
-                    {isSearching ? (
-                      <>
-                        <Search className="mr-2 h-4 w-4 animate-spin" />
-                        Searching...
-                      </>
-                    ) : (
-                      <>
-                        <Search className="mr-2 h-4 w-4" />
-                        Verify Vehicle
-                      </>
-                    )}
+                    {isSearching ? "Searching registry..." : "Verify Vehicle"}
                   </Button>
                 </TabsContent>
 
-                <TabsContent
-                  value="persons"
-                  className="space-y-4 pt-12 md:pt-10 lg:pt-8"
-                >
+                <TabsContent value="persons" className="space-y-4 pt-1">
                   <div>
                     <label htmlFor="person-search" className={labelClass}>
-                      Enter Person's Name or Physical Description
+                      Enter Name or Description
                     </label>
                     <Input
                       id="person-search"
                       type="text"
-                      placeholder="e.g., John Doe or tall, brown hair, blue eyes, scar on left hand"
+                      placeholder="e.g., John Doe"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          handlePersonSearch();
-                        }
-                      }}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && handlePersonSearch()
+                      }
                       className={inputClass}
                     />
                   </div>
-
                   <Button
                     onClick={handlePersonSearch}
                     disabled={isSearching || !searchQuery.trim()}
                     className={primaryButtonClass}
                   >
-                    {isSearching ? (
-                      <>
-                        <User className="mr-2 h-4 w-4 animate-spin" />
-                        Searching...
-                      </>
-                    ) : (
-                      <>
-                        <User className="mr-2 h-4 w-4" />
-                        Search Missing Person
-                      </>
-                    )}
+                    {isSearching
+                      ? "Searching registry..."
+                      : "Search Missing Person"}
                   </Button>
                 </TabsContent>
 
-                <TabsContent
-                  value="accounts"
-                  className="space-y-4 pt-12 md:pt-10 lg:pt-8"
-                >
+                <TabsContent value="accounts" className="space-y-4 pt-1">
                   <div>
                     <label htmlFor="account-search" className={labelClass}>
                       Enter Account Identifier
@@ -913,41 +687,25 @@ const ItemVerification = () => {
                       placeholder="e.g., username, email, phone"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          handleAccountSearch();
-                        }
-                      }}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && handleAccountSearch()
+                      }
                       className={inputClass}
                     />
                   </div>
-
                   <Button
                     onClick={handleAccountSearch}
                     disabled={isSearching || !searchQuery.trim()}
                     className={primaryButtonClass}
                   >
-                    {isSearching ? (
-                      <>
-                        <Search className="mr-2 h-4 w-4 animate-spin" />
-                        Searching...
-                      </>
-                    ) : (
-                      <>
-                        <Search className="mr-2 h-4 w-4" />
-                        Check Account
-                      </>
-                    )}
+                    {isSearching ? "Searching registry..." : "Check Account"}
                   </Button>
                 </TabsContent>
 
-                <TabsContent
-                  value="reputation"
-                  className="space-y-4 pt-12 md:pt-10 lg:pt-8"
-                >
+                <TabsContent value="reputation" className="space-y-4 pt-1">
                   <div>
                     <label htmlFor="reputation-search" className={labelClass}>
-                      Enter Person's Name or Business Details
+                      Enter Name or Business Details
                     </label>
                     <Input
                       id="reputation-search"
@@ -955,391 +713,100 @@ const ItemVerification = () => {
                       placeholder="e.g., John Doe, ABC Company"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          handleReputationSearch();
-                        }
-                      }}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && handleReputationSearch()
+                      }
                       className={inputClass}
                     />
                   </div>
-
                   <Button
                     onClick={handleReputationSearch}
                     disabled={isSearching || !searchQuery.trim()}
                     className={primaryButtonClass}
                   >
-                    {isSearching ? (
-                      <>
-                        <Search className="mr-2 h-4 w-4 animate-spin" />
-                        Searching...
-                      </>
-                    ) : (
-                      <>
-                        <Search className="mr-2 h-4 w-4" />
-                        Check Reputation
-                      </>
-                    )}
+                    {isSearching ? "Searching registry..." : "Check Reputation"}
                   </Button>
                 </TabsContent>
 
-                <TabsContent
-                  value="photo"
-                  className="space-y-4 pt-12 md:pt-10 lg:pt-8"
-                >
+                <TabsContent value="photo" className="space-y-4 pt-1">
                   <PhotoSearch />
                 </TabsContent>
               </Tabs>
             </CardContent>
           </Card>
 
-          {/* Search Results */}
+          {/* Search Results Card */}
           {searchResult && (
             <Card
-              className={` ${
+              className={`rounded-2xl bg-white border-2  ${
                 searchResult.found && !searchResult.hidden
-                  ? "border-[#B3261E] border-2"
-                  : "border-[#0B1220]/10"
+                  ? "border-rose-500"
+                  : "border-emerald-500"
               }`}
             >
               <CardHeader
-                className={`border-b ${
+                className={`py-4 px-6 border-b rounded-t-2xl ${
                   searchResult.found && !searchResult.hidden
-                    ? "bg-[#FBE9E7] border-[#B3261E]/20"
-                    : "bg-[#0B1220]/[0.03] border-[#0B1220]/10"
+                    ? "bg-rose-50 border-rose-100 text-rose-700"
+                    : "bg-emerald-50 border-emerald-100 text-emerald-800"
                 }`}
               >
-                <CardTitle
-                  className={`font-sans font-semibold ${
-                    searchResult.found && !searchResult.hidden
-                      ? "text-[#B3261E]"
-                      : "text-[#0B1220]"
-                  }`}
-                >
-                  {searchResult.found && !searchResult.hidden
-                    ? "ALERT — REPORT FOUND"
-                    : "Search Results"}
+                <CardTitle className="font-sans font-bold text-sm sm:text-base flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    {searchResult.found && !searchResult.hidden ? (
+                      <>
+                        <ShieldAlert className="h-5 w-5 text-rose-600" />
+                        FLAGGED RECORD MATCHED
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="h-5 w-5 text-emerald-600" />
+                        Verification Result
+                      </>
+                    )}
+                  </span>
+                  <span
+                    className={`text-xs px-3 py-1 rounded-full font-semibold ${
+                      searchResult.found && !searchResult.hidden
+                        ? "bg-rose-200 text-rose-800"
+                        : "bg-emerald-200 text-emerald-900"
+                    }`}
+                  >
+                    {searchResult.found
+                      ? searchResult.hidden
+                        ? "Status: Confidential"
+                        : "Status: Active Flag"
+                      : "Status: Clear"}
+                  </span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-6">
+              <CardContent className="p-6">
                 {searchResult.found ? (
                   searchResult.hidden ? (
                     <HiddenReportMessage searchTerm={searchQuery} />
                   ) : (
-                    <div className="border border-[#B3261E]/30 bg-[#FBE9E7]/60 p-4 rounded-lg">
-                      <div className="flex items-start gap-6">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-4">
-                            {searchResult.type === "person" && (
-                              <div className="bg-[#B3261E]/10 p-3 rounded-full border border-[#B3261E]/30">
-                                <User className="h-8 w-8 text-[#B3261E]" />
-                              </div>
-                            )}
-                            {(searchResult.type === "device" ||
-                              searchResult.type === "vehicle" ||
-                              searchResult.type === "account" ||
-                              searchResult.type === "household" ||
-                              searchResult.type === "personal") && (
-                              <div className="bg-[#B3261E]/10 p-3 rounded-full border border-[#B3261E]/30">
-                                <AlertTriangle className="h-8 w-8 text-[#B3261E]" />
-                              </div>
-                            )}
-                            {searchResult.type === "reputation" && (
-                              <div className="bg-[#FF5A36]/10 p-3 rounded-full border border-[#FF5A36]/30">
-                                <AlertTriangle className="h-8 w-8 text-[#FF5A36]" />
-                              </div>
-                            )}
-                            <div>
-                              <h3 className="text-xl font-semibold text-[#B3261E] font-sans">
-                                {searchResult.type === "person"
-                                  ? "MISSING PERSON REPORTED"
-                                  : searchResult.type === "device"
-                                  ? "DEVICE REPORTED AS STOLEN"
-                                  : searchResult.type === "household"
-                                  ? "HOUSEHOLD ITEM REPORTED AS STOLEN"
-                                  : searchResult.type === "personal"
-                                  ? "PERSONAL ITEM REPORTED AS STOLEN"
-                                  : searchResult.type === "vehicle"
-                                  ? "VEHICLE REPORTED AS STOLEN"
-                                  : searchResult.type === "account"
-                                  ? "ACCOUNT REPORTED AS COMPROMISED"
-                                  : searchResult.type === "reputation"
-                                  ? "BUSINESS REPUTATION ALERT"
-                                  : "REPORT FOUND"}
-                              </h3>
-                              <p className="text-[#B3261E]/90 font-medium font-sans">
-                                This {searchResult.type} has been reported to
-                                our system.{" "}
-                                {searchResult.type === "person"
-                                  ? "Please contact authorities immediately if you have information."
-                                  : searchResult.type === "reputation"
-                                  ? "Be careful with this transaction and do your due diligence before proceeding."
-                                  : "Do not proceed with this transaction."}
-                              </p>
+                    <div className="space-y-6">
+                      <div className="flex flex-col md:flex-row items-start justify-between gap-6 pb-6 border-b-2 border-slate-100">
+                        <div className="flex items-start gap-3.5">
+                          {searchResult.type === "person" ? (
+                            <div className="bg-rose-100 p-3 rounded-xl text-rose-600 mt-0.5">
+                              <User className="h-6 w-6" />
                             </div>
-                          </div>
-
-                          <div className="bg-white border border-[#B3261E]/20 p-4 rounded-lg">
-                            <h4 className="font-medium text-[#B3261E] mb-2 font-sans">
-                              Report Details:
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm font-sans">
-                              {searchResult.type === "person" && (
-                                <>
-                                  <div>
-                                    <strong>Name:</strong>{" "}
-                                    {searchResult.item.name}
-                                  </div>
-                                  <div>
-                                    <strong>Age:</strong>{" "}
-                                    {searchResult.item.age}
-                                  </div>
-                                  <div>
-                                    <strong>Gender:</strong>{" "}
-                                    {searchResult.item.gender}
-                                  </div>
-                                  <div>
-                                    <strong>Location:</strong>{" "}
-                                    {searchResult.item.location}
-                                  </div>
-                                  <div>
-                                    <strong>Date Missing:</strong>{" "}
-                                    {new Date(
-                                      searchResult.item.date_missing
-                                    ).toLocaleDateString()}
-                                  </div>
-                                </>
-                              )}
-
-                              {searchResult.type === "device" && (
-                                <>
-                                  <div>
-                                    <strong>Type:</strong>{" "}
-                                    {searchResult.item.type}
-                                  </div>
-                                  <div>
-                                    <strong>Brand:</strong>{" "}
-                                    {searchResult.item.brand}
-                                  </div>
-                                  <div>
-                                    <strong>Model:</strong>{" "}
-                                    {searchResult.item.model}
-                                  </div>
-                                  <div>
-                                    <strong>IMEI:</strong>{" "}
-                                    <span className="font-sans">
-                                      {searchResult.item.imei}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <strong>Color:</strong>{" "}
-                                    {searchResult.item.color}
-                                  </div>
-                                  <div>
-                                    <strong>Location:</strong>{" "}
-                                    {searchResult.item.location}
-                                  </div>
-                                </>
-                              )}
-
-                              {searchResult.type === "household" && (
-                                <>
-                                  <div>
-                                    <strong>Type:</strong>{" "}
-                                    {searchResult.item.type}
-                                  </div>
-                                  <div>
-                                    <strong>Brand:</strong>{" "}
-                                    {searchResult.item.brand}
-                                  </div>
-                                  <div>
-                                    <strong>Model:</strong>{" "}
-                                    {searchResult.item.model}
-                                  </div>
-                                  <div>
-                                    <strong>IMEI/Serial:</strong>{" "}
-                                    <span className="font-sans">
-                                      {searchResult.item.imei}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <strong>Color:</strong>{" "}
-                                    {searchResult.item.color}
-                                  </div>
-                                  <div>
-                                    <strong>Year:</strong>{" "}
-                                    {searchResult.item.year}
-                                  </div>
-                                  <div>
-                                    <strong>Location:</strong>{" "}
-                                    {searchResult.item.location}
-                                  </div>
-                                </>
-                              )}
-
-                              {searchResult.type === "personal" && (
-                                <>
-                                  <div>
-                                    <strong>Type:</strong>{" "}
-                                    {searchResult.item.type}
-                                  </div>
-                                  <div>
-                                    <strong>Brand:</strong>{" "}
-                                    {searchResult.item.brand}
-                                  </div>
-                                  <div>
-                                    <strong>Model:</strong>{" "}
-                                    {searchResult.item.model}
-                                  </div>
-                                  <div>
-                                    <strong>IMEI/Serial:</strong>{" "}
-                                    <span className="font-sans">
-                                      {searchResult.item.imei}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <strong>Color:</strong>{" "}
-                                    {searchResult.item.color}
-                                  </div>
-                                  <div>
-                                    <strong>Year:</strong>{" "}
-                                    {searchResult.item.year}
-                                  </div>
-                                  <div>
-                                    <strong>Location:</strong>{" "}
-                                    {searchResult.item.location}
-                                  </div>
-                                </>
-                              )}
-
-                              {searchResult.type === "vehicle" && (
-                                <>
-                                  <div>
-                                    <strong>Type:</strong>{" "}
-                                    {searchResult.item.type}
-                                  </div>
-                                  <div>
-                                    <strong>Brand:</strong>{" "}
-                                    {searchResult.item.brand}
-                                  </div>
-                                  <div>
-                                    <strong>Model:</strong>{" "}
-                                    {searchResult.item.model}
-                                  </div>
-                                  <div>
-                                    <strong>Year:</strong>{" "}
-                                    {searchResult.item.year}
-                                  </div>
-                                  <div>
-                                    <strong>Chassis:</strong>{" "}
-                                    <span className="font-sans">
-                                      {searchResult.item.chassis}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <strong>Color:</strong>{" "}
-                                    {searchResult.item.color}
-                                  </div>
-                                  <div>
-                                    <strong>Location:</strong>{" "}
-                                    {searchResult.item.location}
-                                  </div>
-                                </>
-                              )}
-
-                              {searchResult.type === "account" && (
-                                <>
-                                  <div>
-                                    <strong>Account Type:</strong>{" "}
-                                    {searchResult.item.account_type}
-                                  </div>
-                                  <div>
-                                    <strong>Account ID:</strong>{" "}
-                                    <span className="font-sans">
-                                      {searchResult.item.account_identifier}
-                                    </span>
-                                  </div>
-                                  <div>
-                                    <strong>Date Compromised:</strong>{" "}
-                                    {new Date(
-                                      searchResult.item.date_compromised
-                                    ).toLocaleDateString()}
-                                  </div>
-                                  <div>
-                                    <strong>Description:</strong>{" "}
-                                    {searchResult.item.description}
-                                  </div>
-                                </>
-                              )}
-
-                              {searchResult.type === "reputation" && (
-                                <>
-                                  <div>
-                                    <strong>Person/Business:</strong>{" "}
-                                    {searchResult.item.reported_person_name}
-                                  </div>
-                                  <div>
-                                    <strong>Business Type:</strong>{" "}
-                                    {searchResult.item.business_type}
-                                  </div>
-                                  <div>
-                                    <strong>Contact:</strong>{" "}
-                                    {searchResult.item.reported_person_contact}
-                                  </div>
-                                  <div>
-                                    <strong>Reputation Status:</strong>{" "}
-                                    {searchResult.item.reputation_status}
-                                  </div>
-                                  <div>
-                                    <strong>Transaction Date:</strong>{" "}
-                                    {new Date(
-                                      searchResult.item.transaction_date
-                                    ).toLocaleDateString()}
-                                  </div>
-                                  <div>
-                                    <strong>Amount:</strong>{" "}
-                                    {searchResult.item.transaction_amount}
-                                  </div>
-                                  {searchResult.item.description && (
-                                    <div className="col-span-2">
-                                      <strong>Detailed Description:</strong>{" "}
-                                      {searchResult.item.description}
-                                    </div>
-                                  )}
-                                  {searchResult.item.evidence_urls && (
-                                    <div className="col-span-2">
-                                      <strong>Supporting Evidence:</strong>
-                                      <div className="mt-2 flex flex-wrap gap-2">
-                                        {searchResult.item.evidence_urls.map(
-                                          (url: string, index: number) => (
-                                            <a
-                                              key={index}
-                                              href={url}
-                                              target="_blank"
-                                              rel="noopener noreferrer"
-                                              className="text-[#2158D9] hover:text-[#0B1220] underline text-sm"
-                                            >
-                                              Evidence {index + 1}
-                                            </a>
-                                          )
-                                        )}
-                                      </div>
-                                    </div>
-                                  )}
-                                </>
-                              )}
-
-                              <div>
-                                <strong>Status:</strong>{" "}
-                                {searchResult.item.status}
-                              </div>
-                              <div>
-                                <strong>Report Date:</strong>{" "}
-                                {new Date(
-                                  searchResult.item.report_date
-                                ).toLocaleDateString()}
-                              </div>
+                          ) : (
+                            <div className="bg-rose-100 p-3 rounded-xl text-rose-600 mt-0.5">
+                              <AlertTriangle className="h-6 w-6" />
                             </div>
+                          )}
+                          <div>
+                            <h3 className="text-base font-bold text-slate-900">
+                              {searchResult.type === "person"
+                                ? "Missing Person Report Active"
+                                : "Item / Asset Reported Lost or Stolen"}
+                            </h3>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                              Exercise high caution before proceeding with any
+                              transaction or engagement.
+                            </p>
                           </div>
                         </div>
 
@@ -1347,67 +814,77 @@ const ItemVerification = () => {
                           <div className="flex-shrink-0">
                             <img
                               src={searchResult.item.image_url}
-                              alt={`${searchResult.type} image`}
-                              className="w-48 h-48 object-cover rounded-lg border-2 border-[#B3261E]/30 "
+                              alt="Evidence"
+                              onClick={() =>
+                                setModalImage(searchResult.item.image_url)
+                              }
+                              className="w-24 h-24 object-cover rounded-xl border-2 border-slate-200 cursor-pointer hover:opacity-90 transition-opacity"
                               onError={(e) => {
-                                console.error(
-                                  "Failed to load image:",
-                                  searchResult.item.image_url
-                                );
                                 e.currentTarget.style.display = "none";
                               }}
                             />
                           </div>
                         )}
                       </div>
+
+                      <div>
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-3">
+                          Attributes Registry Data
+                        </h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                          {Object.entries(searchResult.item).map(
+                            ([key, val]) => {
+                              if (
+                                ["id", "image_url", "visible"].includes(key) ||
+                                val === null ||
+                                val === undefined ||
+                                String(val).trim() === ""
+                              )
+                                return null;
+                              return (
+                                <div
+                                  key={key}
+                                  className="bg-slate-50 p-3.5 rounded-xl border-2 border-slate-100 flex flex-col"
+                                >
+                                  <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">
+                                    {key.replace(/_/g, " ")}
+                                  </span>
+                                  <span className="text-slate-900 font-semibold break-words">
+                                    {String(val)}
+                                  </span>
+                                </div>
+                              );
+                            }
+                          )}
+                        </div>
+                      </div>
                     </div>
                   )
                 ) : (
-                  <div className="text-center py-8">
-                    <div className="bg-[#1BA672]/10 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                      <CheckCircle className="h-8 w-8 text-[#1BA672]" />
+                  <div className="text-center py-6">
+                    <div className="bg-emerald-100 text-emerald-600 p-3.5 rounded-full w-14 h-14 mx-auto mb-3 flex items-center justify-center">
+                      <CheckCircle className="h-7 w-7" />
                     </div>
-                    <h3 className="text-xl font-semibold text-[#0B1220] mb-2 font-sans">
-                      No Reports Found
+                    <h3 className="text-base font-bold text-slate-900 mb-1">
+                      No Records Found
                     </h3>
-                    <p className="text-[#0B1220]/60 mb-4 font-sans">
-                      While no reports have been filed against this item/person
-                      on our platform, we advise you to still exercise caution
-                      and conduct your own due diligence.
+                    <p className="text-xs text-slate-500 max-w-xs mx-auto">
+                      No active listings or flags match this query string in the
+                      registry.
                     </p>
-                    <div className="bg-[#FFE7A8]/30 border border-[#B8860B]/30 p-3 rounded-lg text-sm text-[#0B1220]/80 font-sans">
-                      <strong>Disclaimer:</strong> YaraCheck's database contains
-                      only reports submitted to our platform. The absence of a
-                      report does not guarantee safety. Always verify through
-                      multiple sources and trust your instincts.
-                    </div>
                   </div>
                 )}
 
                 {searchResult.found &&
                   !searchResult.hidden &&
-                  searchResult.type &&
-                  [
-                    "person",
-                    "device",
-                    "vehicle",
-                    "household",
-                    "personal",
-                    "reputation",
-                  ].includes(searchResult.type) && (
-                    <ContactActions
-                      reportId={searchResult.item.id}
-                      reportType={
-                        searchResult.type as
-                          | "person"
-                          | "device"
-                          | "vehicle"
-                          | "household"
-                          | "personal"
-                          | "reputation"
-                      }
-                      reportData={searchResult.item}
-                    />
+                  searchResult.type && (
+                    <div className="mt-6 pt-5 border-t-2 border-slate-100">
+                      <ContactActions
+                        reportId={searchResult.item.id}
+                        reportType={searchResult.type as any}
+                        reportData={searchResult.item}
+                      />
+                    </div>
                   )}
               </CardContent>
             </Card>
@@ -1415,6 +892,30 @@ const ItemVerification = () => {
         </div>
       </main>
 
+      {/* Image Modal */}
+      {modalImage && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/80 flex items-center justify-center p-4 backdrop-blur-sm"
+          onClick={() => setModalImage(null)}
+        >
+          <div
+            className="relative max-w-3xl w-full bg-white rounded-2xl p-3 border-2 border-slate-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setModalImage(null)}
+              className="absolute -top-3 -right-3 bg-slate-900 text-white rounded-full p-2 hover:bg-slate-800 transition-colors border-2 border-white"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <img
+              src={modalImage}
+              alt="Enlarged Evidence"
+              className="w-full max-h-[80vh] object-contain rounded-xl"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

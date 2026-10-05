@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -14,13 +15,15 @@ import {
 } from "lucide-react";
 
 const Index = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+
 
       <main className="flex-grow bg-[#F1F0EC] text-[#0B1220] font-sans">
         {/* HERO - Beautiful Design */}
-        <section className="relative overflow-hidden noise pt-8">
+        <section className="relative overflow-hidden noise pt-2">
           {/* Soft diamond field */}
           <div className="absolute inset-0 -z-0 opacity-70">
             <div
@@ -54,15 +57,18 @@ const Index = () => {
           <div className="relative max-w-6xl mx-auto px-6 pt-12 pb-16">
             <div className="flex justify-center mb-6">
               <span className="font-mono text-[11px] uppercase tracking-[0.2em] bg-white/70 border border-[#0B1220]/10 rounded-full px-4 py-1.5">
-                Case #YC-2026-XXXX &nbsp;·&nbsp; open in 160+ countries
+                {t(
+                  "hero.badge",
+                  "Case #YC-2026-XXXX \u00a0·\u00a0 open in 160+ countries"
+                )}
               </span>
             </div>
 
             <h1 className="font-display text-center text-5xl sm:text-6xl md:text-7xl font-semibold tracking-tight leading-[0.98] max-w-4xl mx-auto">
-              Report it. Track it.
+              {t("hero.titlePart1", "Report it. Track it.")}
               <br />
               <span className="relative inline-block">
-                Get it back.
+                {t("hero.titlePart2", "Get it back.")}
                 <svg
                   className="absolute left-0 -bottom-2 w-full"
                   height="10"
@@ -81,9 +87,10 @@ const Index = () => {
             </h1>
 
             <p className="text-center max-w-xl mx-auto mt-6 text-base sm:text-lg text-[#0B1220]/70">
-              Every stolen phone, missing pet, and scam account gets a tracking
-              code the moment you report it — so the whole community can help
-              you close the case.
+              {t(
+                "hero.subtitle",
+                "Every stolen phone, missing pet, and scam account gets a tracking code the moment you report it — so the whole community can help you close the case."
+              )}
             </p>
 
             {/* TICKET SEARCH BAR */}
@@ -91,11 +98,14 @@ const Index = () => {
               <div className="ticket bg-[#0B1220] rounded-md md:rounded-[120px] text-[#F1F0EC] px-6 py-5 flex flex-col sm:flex-row gap-3 items-stretch shadow-2xl shadow-black/20">
                 <div className="flex-1 flex items-center gap-3 border border-white/15 rounded-xl px-4 py-3">
                   <span className="font-mono text-xs text-white/40">
-                   SN/IMEI
+                    {t("hero.searchLabel", "SN/IMEI")}
                   </span>
                   <input
                     type="text"
-                    placeholder="e.g. 356938035643809"
+                    placeholder={t(
+                      "hero.searchPlaceholder",
+                      "e.g. 356938035643809"
+                    )}
                     className="bg-transparent outline-none text-sm font-mono placeholder:text-white/30 w-full"
                   />
                 </div>
@@ -103,11 +113,16 @@ const Index = () => {
                   asChild
                   className="bg-[#FF5A36] hover:bg-[#FF5A36]/90 h-full text-white text-sm font-semibold rounded-xl px-8 py-3 whitespace-nowrap"
                 >
-                  <Link to="/verify-item">YaraCheck it</Link>
+                  <Link to="/verify-item">
+                    {t("hero.verifyButton", "YaraCheck it")}
+                  </Link>
                 </Button>
               </div>
               <p className="text-center font-mono text-[11px] text-[#0B1220]/40 mt-2 tracking-wide">
-                clean · flagged · stolen — results in under 2 seconds
+                {t(
+                  "hero.searchSubtext",
+                  "clean · flagged · stolen — results in under 2 seconds"
+                )}
               </p>
             </div>
 
@@ -117,7 +132,9 @@ const Index = () => {
                 size="lg"
                 className="bg-[#0B1220] hover:bg-black text-white rounded-full px-8"
               >
-                <Link to="/submit-report">Submit a report urgently</Link>
+                <Link to="/submit-report">
+                  {t("hero.primaryCta", "Submit a report urgently")}
+                </Link>
               </Button>
               <Button
                 asChild
@@ -125,7 +142,9 @@ const Index = () => {
                 variant="outline"
                 className="border-[#0B1220]/30 hover:bg-white/70 rounded-full px-8"
               >
-                <Link to="/verify-item">Verify Before Purchase</Link>
+                <Link to="/verify-item">
+                  {t("hero.secondaryCta", "Verify Before Purchase")}
+                </Link>
               </Button>
             </div>
           </div>
@@ -134,14 +153,20 @@ const Index = () => {
           <div className="relative border-y border-[#0B1220]/10 bg-white/50">
             <div className="max-w-6xl mx-auto px-6 py-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-[#0B1220]/50 text-sm">
               <span className="font-mono text-[11px] uppercase tracking-widest">
-                Trusted for
+                {t("trustStrip.label", "Trusted for")}
               </span>
-              <span className="font-display font-semibold">Stolen devices</span>
               <span className="font-display font-semibold">
-                Missing persons &amp; pets
+                {t("trustStrip.item1", "Stolen devices")}
               </span>
-              <span className="font-display font-semibold">Scam accounts</span>
-              <span className="font-display font-semibold">Fraud alerts</span>
+              <span className="font-display font-semibold">
+                {t("trustStrip.item2", "Missing persons & pets")}
+              </span>
+              <span className="font-display font-semibold">
+                {t("trustStrip.item3", "Scam accounts")}
+              </span>
+              <span className="font-display font-semibold">
+                {t("trustStrip.item4", "Fraud alerts")}
+              </span>
             </div>
           </div>
         </section>
@@ -151,11 +176,13 @@ const Index = () => {
           <div className="max-w-6xl mx-auto px-6">
             <div className="text-center mb-16">
               <h2 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight">
-                More than just missing phones
+                {t("categories.title", "More than just missing phones")}
               </h2>
               <p className="text-[#0B1220]/65 mt-4 max-w-2xl mx-auto">
-                Our global registry secures and connects information across four
-                major categories to stop theft and fraud before it spreads.
+                {t(
+                  "categories.subtitle",
+                  "Our global registry secures and connects information across four major categories to stop theft and fraud before it spreads."
+                )}
               </p>
             </div>
 
@@ -166,11 +193,13 @@ const Index = () => {
                   <Smartphone className="h-6 w-6 text-[#FF5A36]" />
                 </div>
                 <h3 className="font-display font-semibold text-xl mb-3">
-                  Stolen Devices
+                  {t("categories.devicesTitle", "Stolen Devices")}
                 </h3>
                 <p className="text-sm text-[#0B1220]/65 leading-relaxed">
-                  Phones, laptops, cars, and electronics. Register the IMEI or
-                  VIN so buyers can check before purchasing.
+                  {t(
+                    "categories.devicesDesc",
+                    "Phones, laptops, cars, and electronics. Register the IMEI or VIN so buyers can check before purchasing."
+                  )}
                 </p>
               </div>
 
@@ -180,11 +209,13 @@ const Index = () => {
                   <Users className="h-6 w-6 text-[#2158D9]" />
                 </div>
                 <h3 className="font-display font-semibold text-xl mb-3">
-                  Missing Persons & Pets
+                  {t("categories.missingTitle", "Missing Persons & Pets")}
                 </h3>
                 <p className="text-sm text-[#0B1220]/65 leading-relaxed">
-                  Mobilize the community instantly. Create actionable reports to
-                  rapidly broaden your search radius.
+                  {t(
+                    "categories.missingDesc",
+                    "Mobilize the community instantly. Create actionable reports to rapidly broaden your search radius."
+                  )}
                 </p>
               </div>
 
@@ -194,11 +225,13 @@ const Index = () => {
                   <ShieldAlert className="h-6 w-6 text-[#1BA672]" />
                 </div>
                 <h3 className="font-display font-semibold text-xl mb-3">
-                  Scam Accounts
+                  {t("categories.scamTitle", "Scam Accounts")}
                 </h3>
                 <p className="text-sm text-[#0B1220]/65 leading-relaxed">
-                  Flag fraudulent social media profiles, fake vendor accounts,
-                  and impersonators to protect others.
+                  {t(
+                    "categories.scamDesc",
+                    "Flag fraudulent social media profiles, fake vendor accounts, and impersonators to protect others."
+                  )}
                 </p>
               </div>
 
@@ -208,11 +241,13 @@ const Index = () => {
                   <BadgeAlert className="h-6 w-6 text-[#E5A910]" />
                 </div>
                 <h3 className="font-display font-semibold text-xl mb-3">
-                  Fraud Alerts
+                  {t("categories.fraudTitle", "Fraud Alerts")}
                 </h3>
                 <p className="text-sm text-[#0B1220]/65 leading-relaxed">
-                  Permanently log suspicious bank details, crypto wallets, and
-                  phishing links to warn the community.
+                  {t(
+                    "categories.fraudDesc",
+                    "Permanently log suspicious bank details, crypto wallets, and phishing links to warn the community."
+                  )}
                 </p>
               </div>
             </div>
@@ -224,10 +259,10 @@ const Index = () => {
           <div className="max-w-6xl mx-auto px-6">
             <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
               <h2 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight">
-                How a case moves
+                {t("howItWorks.title", "How a case moves")}
               </h2>
               <span className="font-mono text-xs uppercase tracking-widest text-[#0B1220]/40">
-                Report → Verify → Recover
+                {t("howItWorks.flow", "Report → Verify → Recover")}
               </span>
             </div>
 
@@ -237,11 +272,13 @@ const Index = () => {
                   <AlertTriangle className="h-6 w-6 text-[#FF5A36]" />
                 </div>
                 <h3 className="font-display font-semibold text-xl mb-2">
-                  Report
+                  {t("howItWorks.step1Title", "Report")}
                 </h3>
                 <p className="text-sm text-[#0B1220]/65 leading-relaxed">
-                  Submit details of your stolen item, missing person, pet, or
-                  hacked account. Get a unique tracking code.
+                  {t(
+                    "howItWorks.step1Desc",
+                    "Submit details of your stolen item, missing person, pet, or hacked account. Get a unique tracking code."
+                  )}
                 </p>
               </div>
 
@@ -250,11 +287,13 @@ const Index = () => {
                   <Search className="h-6 w-6 text-[#2158D9]" />
                 </div>
                 <h3 className="font-display font-semibold text-xl mb-2">
-                  Verify
+                  {t("howItWorks.step2Title", "Verify")}
                 </h3>
                 <p className="text-sm text-[#0B1220]/65 leading-relaxed">
-                  Before buying used items, check IMEI, serial number or chassis
-                  to avoid stolen goods.
+                  {t(
+                    "howItWorks.step2Desc",
+                    "Before buying used items, check IMEI, serial number or chassis to avoid stolen goods."
+                  )}
                 </p>
               </div>
 
@@ -263,10 +302,13 @@ const Index = () => {
                   <MessageSquare className="h-6 w-6 text-[#1BA672]" />
                 </div>
                 <h3 className="font-display font-semibold text-xl mb-2">
-                  Tip &amp; Recover
+                  {t("howItWorks.step3Title", "Tip & Recover")}
                 </h3>
                 <p className="text-sm text-[#0B1220]/65 leading-relaxed">
-                  Send anonymous tips and track your case until it’s resolved.
+                  {t(
+                    "howItWorks.step3Desc",
+                    "Send anonymous tips and track your case until it’s resolved."
+                  )}
                 </p>
               </div>
             </div>
@@ -278,14 +320,19 @@ const Index = () => {
           <div className="max-w-6xl mx-auto px-6">
             <div className="relative overflow-hidden rounded-3xl bg-[#0B1220] text-white px-8 py-16 text-center noise">
               <p className="font-mono text-xs uppercase tracking-widest text-white/40 mb-4">
-                Before you buy it or deal, YaraCheck
+                {t("cta.badge", "Before you buy it or deal, YaraCheck")}
               </p>
               <h2 className="font-display text-3xl sm:text-4xl font-semibold max-w-2xl mx-auto leading-tight">
-                Don&apos;t hand over cash for someone else&apos;s stolen phone.
+                {t(
+                  "cta.heading",
+                  "Don't hand over cash for someone else's stolen phone."
+                )}
               </h2>
               <p className="text-white/70 max-w-xl mx-auto mt-4 mb-8">
-                Lost something? Flag it in two minutes. Got a scam message?
-                Report the account so others don&apos;t fall victim.
+                {t(
+                  "cta.subheading",
+                  "Lost something? Flag it in two minutes. Got a scam message? Report the account so others don't fall victim."
+                )}
               </p>
 
               <div className="flex flex-wrap justify-center gap-4">
@@ -294,7 +341,9 @@ const Index = () => {
                   size="lg"
                   className="bg-[#FF5A36] hover:bg-amber-600 text-white rounded-full px-10"
                 >
-                  <Link to="/verify-item">Verify an Item Now</Link>
+                  <Link to="/verify-item">
+                    {t("cta.primaryButton", "Verify an Item Now")}
+                  </Link>
                 </Button>
                 <Button
                   asChild
@@ -302,7 +351,9 @@ const Index = () => {
                   variant="outline"
                   className="border-white/30 text-white bg-white/10 rounded-full px-10"
                 >
-                  <Link to="/submit-report">Submit a Report</Link>
+                  <Link to="/submit-report">
+                    {t("cta.secondaryButton", "Submit a Report")}
+                  </Link>
                 </Button>
               </div>
             </div>
@@ -310,7 +361,6 @@ const Index = () => {
         </section>
       </main>
 
-      <Footer />
     </div>
   );
 };

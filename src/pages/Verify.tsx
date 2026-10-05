@@ -29,13 +29,12 @@ const Verify = () => {
   const { user, loading, adminLogin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Simple navigation check - if user exists and we're not loading, go to admin
+  // Prevent infinite loops by verifying we aren't already on/going to admin page
   useEffect(() => {
-    if (user && !loading) {
-      console.log("User authenticated, navigating to admin panel");
-      navigate("/admin");
+    if (user && !loading && window.location.pathname !== "/admin") {
+      navigate("/admin", { replace: true });
     }
   }, [user, loading, navigate]);
 
@@ -51,20 +50,18 @@ const Verify = () => {
     setLoginError("");
     setIsLoading(true);
     try {
-      console.log(`Attempting admin login with email: ${data.email}`);
       await adminLogin(data.email, data.password);
     } catch (error: any) {
-      console.error("Authentication error:", error);
       setLoginError(error.message || "An error occurred during login");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Show loading while auth context is still loading
+  // Only show full loader if initial auth check is loading
   if (loading) {
     return (
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen pt-20">
         <main className="flex-grow flex items-center justify-center bg-[#F1F0EC] py-16">
           <div className="text-center">
             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-[#FF5A36]" />
@@ -77,28 +74,12 @@ const Verify = () => {
     );
   }
 
-  // If user is authenticated, show redirecting message
-  if (user) {
-    return (
-      <div className="flex flex-col min-h-screen">
-        <main className="flex-grow flex items-center justify-center bg-[#F1F0EC] py-16">
-          <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-[#FF5A36]" />
-            <p className="font-mono text-xs uppercase tracking-widest text-[#0B1220]/60">
-              Redirecting to admin panel...
-            </p>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col min-h-screen">
-      <main className="flex-grow bg-[#F1F0EC] text-[#0B1220] font-sans pb-24">
+    <div className="flex flex-col min-h-screen w-full max-w-full overflow-x-hidden">
+      <main className="flex-grow bg-[#F1F0EC] text-[#0B1220] font-sans pt-24 pb-24 w-full">
         {/* HERO SECTION / HEADER */}
-        <section className="relative overflow-hidden noise pt-16 pb-8">
-          <div className="absolute inset-0 -z-0 opacity-40">
+        <section className="relative overflow-hidden noise pt-6 pb-8">
+          <div className="absolute inset-0 -z-0 opacity-40 pointer-events-none">
             <div
               className="diamond w-64 h-64 -top-10 left-[15%]"
               style={
@@ -131,8 +112,7 @@ const Verify = () => {
           </div>
         </section>
 
-        {/* LOGIN FORM CONTAINER */}
-        <section className="max-w-md mx-auto px-6 relative z-10">
+        <section className="max-w-md mx-auto px-6 relative z-10 w-full">
           <div className="bg-white p-8 sm:p-10 rounded-3xl border border-[#0B1220]/5 shadow-sm">
             {loginError && (
               <Alert className="mb-6 bg-[#FFE9E2] border-[#FF5A36]/20 rounded-2xl p-4">

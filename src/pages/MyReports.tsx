@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Search, Loader2, FileText, Calendar, MapPin, X, Phone, ShieldCheck } from "lucide-react";
+import {
+  Search,
+  Loader2,
+  FileText,
+  Calendar,
+  MapPin,
+  X,
+  Phone,
+  ShieldCheck,
+} from "lucide-react";
 import {
   getAllReportsFromSupabase,
   searchReportsInSupabase,
@@ -13,6 +22,7 @@ const MyReports = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [modalImage, setModalImage] = useState<string | null>(null);
 
   // Fetch all reports on initial load
   useEffect(() => {
@@ -44,7 +54,16 @@ const MyReports = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-
+      <style>{`
+        @keyframes gradientAnimation {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animate-gradient {
+          animation: gradientAnimation 6s ease infinite;
+        }
+      `}</style>
 
       <main className="flex-grow bg-[#F1F0EC] text-[#0B1220] font-sans pb-24">
         {/* HERO SECTION */}
@@ -66,8 +85,8 @@ const MyReports = () => {
 
           <div className="relative max-w-4xl mx-auto px-6 text-center">
             <div className="flex justify-center mb-6">
-              <span className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] bg-white/70 border border-[#0B1220]/10 rounded-full px-4 py-1.5">
-                <Search className="w-3 h-3 text-[#2158D9]" />
+              <span className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-[length:200%_200%] animate-gradient text-white rounded-full px-4 py-1.5 shadow-sm">
+                <Search className="w-3 h-3 text-white" />
                 Case Tracking
               </span>
             </div>
@@ -172,7 +191,11 @@ const MyReports = () => {
                       <img
                         src={report.photoUrl}
                         alt="Report evidence"
-                        className="w-16 h-16 object-cover rounded-xl border border-[#0B1220]/10"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setModalImage(report.photoUrl!);
+                        }}
+                        className="w-16 h-16 object-cover rounded-xl border border-[#0B1220]/10 hover:opacity-90 transition-opacity cursor-zoom-in"
                       />
                     )}
                   </div>
@@ -193,7 +216,6 @@ const MyReports = () => {
       {selectedReport && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-white w-full max-w-xl rounded-3xl p-6 sm:p-8 shadow-2xl border border-[#0B1220]/10 relative max-h-[90vh] overflow-y-auto">
-            
             {/* Close Button */}
             <button
               onClick={() => setSelectedReport(null)}
@@ -228,11 +250,14 @@ const MyReports = () => {
 
             {/* Photo Preview if available */}
             {selectedReport.photoUrl && (
-              <div className="mb-6 rounded-2xl overflow-hidden border border-[#0B1220]/10 max-h-60 bg-black/5 flex justify-center">
+              <div
+                className="mb-6 rounded-2xl overflow-hidden border border-[#0B1220]/10 max-h-60 bg-black/5 flex justify-center cursor-zoom-in"
+                onClick={() => setModalImage(selectedReport.photoUrl!)}
+              >
                 <img
                   src={selectedReport.photoUrl}
                   alt="Report Evidence"
-                  className="w-full h-full object-contain max-h-60"
+                  className="w-full h-full object-contain max-h-60 hover:scale-105 transition-transform duration-300"
                 />
               </div>
             )}
@@ -241,11 +266,17 @@ const MyReports = () => {
             <div className="space-y-4 text-sm">
               <div className="grid grid-cols-2 gap-4 bg-[#F1F0EC]/60 p-4 rounded-2xl">
                 <div>
-                  <span className="block text-xs text-[#0B1220]/50 font-medium">Location</span>
-                  <span className="font-semibold text-[#0B1220]">{selectedReport.location}</span>
+                  <span className="block text-xs text-[#0B1220]/50 font-medium">
+                    Location
+                  </span>
+                  <span className="font-semibold text-[#0B1220]">
+                    {selectedReport.location}
+                  </span>
                 </div>
                 <div>
-                  <span className="block text-xs text-[#0B1220]/50 font-medium">Report Date</span>
+                  <span className="block text-xs text-[#0B1220]/50 font-medium">
+                    Report Date
+                  </span>
                   <span className="font-semibold text-[#0B1220]">
                     {new Date(selectedReport.reportDate).toLocaleDateString()}
                   </span>
@@ -253,62 +284,87 @@ const MyReports = () => {
               </div>
 
               {/* Specific Properties based on Type */}
-              {'age' in selectedReport && (
+              {"age" in selectedReport && (
                 <div className="grid grid-cols-2 gap-4 px-2">
                   <div>
-                    <span className="text-xs text-[#0B1220]/50">Age:</span> <span className="font-medium">{selectedReport.age}</span>
+                    <span className="text-xs text-[#0B1220]/50">Age:</span>{" "}
+                    <span className="font-medium">{selectedReport.age}</span>
                   </div>
                   <div>
-                    <span className="text-xs text-[#0B1220]/50">Gender:</span> <span className="font-medium">{selectedReport.gender}</span>
+                    <span className="text-xs text-[#0B1220]/50">Gender:</span>{" "}
+                    <span className="font-medium">{selectedReport.gender}</span>
                   </div>
                   <div>
-                    <span className="text-xs text-[#0B1220]/50">Date Missing:</span> <span className="font-medium">{selectedReport.dateMissing}</span>
+                    <span className="text-xs text-[#0B1220]/50">
+                      Date Missing:
+                    </span>{" "}
+                    <span className="font-medium">
+                      {selectedReport.dateMissing}
+                    </span>
                   </div>
                   <div>
-                    <span className="text-xs text-[#0B1220]/50">Outfit/Attributes:</span> <span className="font-medium">{selectedReport.outfit}</span>
+                    <span className="text-xs text-[#0B1220]/50">
+                      Outfit/Attributes:
+                    </span>{" "}
+                    <span className="font-medium">{selectedReport.outfit}</span>
                   </div>
                 </div>
               )}
 
-              {'chassis' in selectedReport && (
+              {"chassis" in selectedReport && (
                 <div className="grid grid-cols-2 gap-4 px-2">
                   <div>
-                    <span className="text-xs text-[#0B1220]/50">Chassis:</span> <span className="font-medium">{selectedReport.chassis}</span>
+                    <span className="text-xs text-[#0B1220]/50">Chassis:</span>{" "}
+                    <span className="font-medium">
+                      {selectedReport.chassis}
+                    </span>
                   </div>
                   <div>
-                    <span className="text-xs text-[#0B1220]/50">Color:</span> <span className="font-medium">{selectedReport.color}</span>
+                    <span className="text-xs text-[#0B1220]/50">Color:</span>{" "}
+                    <span className="font-medium">{selectedReport.color}</span>
                   </div>
                   <div>
-                    <span className="text-xs text-[#0B1220]/50">Year:</span> <span className="font-medium">{selectedReport.year}</span>
+                    <span className="text-xs text-[#0B1220]/50">Year:</span>{" "}
+                    <span className="font-medium">{selectedReport.year}</span>
                   </div>
                 </div>
               )}
 
-              {'imei' in selectedReport && (
+              {"imei" in selectedReport && (
                 <div className="grid grid-cols-2 gap-4 px-2">
                   <div>
-                    <span className="text-xs text-[#0B1220]/50">IMEI/Serial:</span> <span className="font-medium">{selectedReport.imei}</span>
+                    <span className="text-xs text-[#0B1220]/50">
+                      IMEI/Serial:
+                    </span>{" "}
+                    <span className="font-medium">{selectedReport.imei}</span>
                   </div>
                   <div>
-                    <span className="text-xs text-[#0B1220]/50">Color:</span> <span className="font-medium">{selectedReport.color}</span>
+                    <span className="text-xs text-[#0B1220]/50">Color:</span>{" "}
+                    <span className="font-medium">{selectedReport.color}</span>
                   </div>
                 </div>
               )}
 
               {/* Description */}
               <div className="bg-white border border-[#0B1220]/10 p-4 rounded-2xl space-y-1">
-                <span className="text-xs text-[#0B1220]/50 font-medium block">Description</span>
+                <span className="text-xs text-[#0B1220]/50 font-medium block">
+                  Description
+                </span>
                 <p className="text-[#0B1220]/80 text-sm leading-relaxed">
                   {selectedReport.description || "No description provided."}
                 </p>
               </div>
 
               {/* Contact Info */}
-              <div className="flex items-center gap-3 bg-[#2158D9]/5 border border-[#2158D9]/10 p-4 rounded-2xl text-[#2158D9]">
+              <div className="flex items-center gap-3 bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-purple-500/10 border border-[#2158D9]/10 p-4 rounded-2xl text-[#2158D9]">
                 <Phone className="w-5 h-5 shrink-0" />
                 <div>
-                  <span className="block text-xs font-semibold uppercase tracking-wider opacity-70">Contact Information</span>
-                  <span className="font-medium text-sm text-[#0B1220]">{selectedReport.contact || "N/A"}</span>
+                  <span className="block text-xs font-semibold uppercase tracking-wider opacity-70">
+                    Contact Information
+                  </span>
+                  <span className="font-medium text-sm text-[#0B1220]">
+                    {selectedReport.contact || "N/A"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -322,12 +378,34 @@ const MyReports = () => {
                 Close
               </button>
             </div>
-
           </div>
         </div>
       )}
 
-
+      {/* FULL-SIZE IMAGE PREVIEW MODAL */}
+      {modalImage && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/80 flex items-center justify-center p-4 backdrop-blur-sm"
+          onClick={() => setModalImage(null)}
+        >
+          <div
+            className="relative max-w-3xl w-full bg-white rounded-3xl p-3 border border-slate-200 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setModalImage(null)}
+              className="absolute -top-3 -right-3 bg-slate-900 text-white rounded-full p-2 hover:bg-slate-800 transition-colors border-2 border-white shadow-md z-10"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <img
+              src={modalImage}
+              alt="Enlarged Evidence"
+              className="w-full max-h-[80vh] object-contain rounded-2xl"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
