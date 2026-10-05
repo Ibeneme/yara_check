@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
@@ -39,7 +37,7 @@ const AdminPanel = () => {
   const [adminProfile, setAdminProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string>("");
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState("create-admin");
 
   useEffect(() => {
     if (loading) return;
@@ -59,13 +57,7 @@ const AdminPanel = () => {
       try {
         const { data, error } = await supabase
           .from("profiles")
-          .select(
-            `
-            *,
-            country:countries(name),
-            province:provinces(name)
-          `
-          )
+          .select("*") // <-- Removed the country and province joins causing the 400 error!
           .eq("id", user.id)
           .maybeSingle();
 
@@ -105,8 +97,7 @@ const AdminPanel = () => {
     navigate("/");
   };
 
-  // Shared tab-pill style — active tab reads as a stamped case tab, same
-  // logic as the header nav, just in a dense grid.
+
   const tabClass = (tab: string) =>
     `flex flex-shrink-0 sm:flex-shrink snap-start w-[94px] sm:w-auto flex-col items-center justify-center gap-1 sm:gap-1.5 h-auto py-2.5 sm:py-3 px-1.5 sm:px-2 text-[11px] sm:text-xs font-medium leading-tight rounded-lg transition-colors font-sans ${
       activeTab === tab
@@ -117,14 +108,13 @@ const AdminPanel = () => {
   if (loading || isLoading) {
     return (
       <div className="min-h-screen flex flex-col bg-[#F1F0EC] font-sans overflow-x-hidden">
-        <Header />
         <main className="flex-1 yaracheck-container py-8 flex items-center justify-center">
           <div className="text-center px-4">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0B1220] mx-auto mb-4"></div>
             <p className="text-[#0B1220]/60">Loading admin panel...</p>
           </div>
         </main>
-        <Footer />
+
       </div>
     );
   }
@@ -132,7 +122,6 @@ const AdminPanel = () => {
   if (error) {
     return (
       <div className="min-h-screen flex flex-col bg-[#F1F0EC] font-sans overflow-x-hidden">
-        <Header />
         <main className="flex-1 yaracheck-container py-8 flex items-center justify-center">
           <div className="text-center px-4">
             <p className="text-[#B3261E] mb-4">{error}</p>
@@ -153,7 +142,7 @@ const AdminPanel = () => {
             </div>
           </div>
         </main>
-        <Footer />
+       
       </div>
     );
   }
@@ -161,7 +150,6 @@ const AdminPanel = () => {
   if (!adminProfile) {
     return (
       <div className="min-h-screen flex flex-col bg-[#F1F0EC] font-sans overflow-x-hidden">
-        <Header />
         <main className="flex-1 yaracheck-container py-8 flex items-center justify-center">
           <div className="text-center px-4">
             <p className="text-[#B3261E] mb-4">
@@ -175,7 +163,7 @@ const AdminPanel = () => {
             </Button>
           </div>
         </main>
-        <Footer />
+       
       </div>
     );
   }
@@ -212,7 +200,6 @@ const AdminPanel = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F1F0EC] font-sans overflow-x-hidden w-full">
-      <Header />
       <main className="flex-1 yaracheck-container py-6 md:py-8 px-3 sm:px-6 lg:px-8 w-full max-w-full overflow-x-hidden">
         <div className="max-w-5xl mx-auto space-y-6 md:space-y-8 w-full min-w-0">
           {/* Header Section with Responsive Layout */}
@@ -405,7 +392,7 @@ const AdminPanel = () => {
                 <StolenItemsDashboard isSuper={isSuper} />
               )}
 
-              {activeTab === "create-admin" && isSuper && <CreateAdminForm />}
+              {activeTab === "create-admin" && <CreateAdminForm />}
 
               {activeTab === "manage-admins" && isSuper && (
                 <div className="space-y-6 w-full min-w-0">
@@ -484,7 +471,7 @@ const AdminPanel = () => {
           </div>
         </div>
       </main>
-      <Footer />
+     
     </div>
   );
 };

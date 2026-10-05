@@ -88,10 +88,10 @@ const Index = () => {
 
             {/* TICKET SEARCH BAR */}
             <div id="verify" className="mt-10 max-w-2xl mx-auto">
-              <div className="ticket bg-[#0B1220] text-[#F1F0EC] px-6 py-5 flex flex-col sm:flex-row gap-3 items-stretch shadow-2xl shadow-black/20">
+              <div className="ticket bg-[#0B1220] rounded-md md:rounded-[120px] text-[#F1F0EC] px-6 py-5 flex flex-col sm:flex-row gap-3 items-stretch shadow-2xl shadow-black/20">
                 <div className="flex-1 flex items-center gap-3 border border-white/15 rounded-xl px-4 py-3">
                   <span className="font-mono text-xs text-white/40">
-                    IMEI / S/N
+                   SN/IMEI
                   </span>
                   <input
                     type="text"
@@ -101,7 +101,7 @@ const Index = () => {
                 </div>
                 <Button
                   asChild
-                  className="bg-[#FF5A36] hover:bg-[#FF5A36]/90 text-white text-sm font-semibold rounded-xl px-8 py-3 whitespace-nowrap"
+                  className="bg-[#FF5A36] hover:bg-[#FF5A36]/90 h-full text-white text-sm font-semibold rounded-xl px-8 py-3 whitespace-nowrap"
                 >
                   <Link to="/verify-item">YaraCheck it</Link>
                 </Button>

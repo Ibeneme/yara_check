@@ -27,8 +27,6 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 
 const Support = () => {
@@ -127,7 +125,7 @@ const Support = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+
 
       <main className="flex-grow bg-[#F1F0EC] text-[#0B1220] font-sans pb-24">
         {/* HERO SECTION */}
@@ -472,7 +470,7 @@ const Support = () => {
         </div>
       </main>
 
-      <Footer />
+
     </div>
   );
 };

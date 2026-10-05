@@ -14,10 +14,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
-import { Shield, AlertCircle, Loader2 } from "lucide-react";
+import { Shield, AlertCircle, Loader2, Eye, EyeOff } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 
 const loginFormSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -31,7 +29,8 @@ const Verify = () => {
   const { user, loading, adminLogin } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState("");
-  
+  const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
+
   // Simple navigation check - if user exists and we're not loading, go to admin
   useEffect(() => {
     if (user && !loading) {
@@ -66,14 +65,14 @@ const Verify = () => {
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen">
-        <Header />
         <main className="flex-grow flex items-center justify-center bg-[#F1F0EC] py-16">
           <div className="text-center">
             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-[#FF5A36]" />
-            <p className="font-mono text-xs uppercase tracking-widest text-[#0B1220]/60">Loading...</p>
+            <p className="font-mono text-xs uppercase tracking-widest text-[#0B1220]/60">
+              Loading...
+            </p>
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -82,22 +81,20 @@ const Verify = () => {
   if (user) {
     return (
       <div className="flex flex-col min-h-screen">
-        <Header />
         <main className="flex-grow flex items-center justify-center bg-[#F1F0EC] py-16">
           <div className="text-center">
             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-[#FF5A36]" />
-            <p className="font-mono text-xs uppercase tracking-widest text-[#0B1220]/60">Redirecting to admin panel...</p>
+            <p className="font-mono text-xs uppercase tracking-widest text-[#0B1220]/60">
+              Redirecting to admin panel...
+            </p>
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
-
       <main className="flex-grow bg-[#F1F0EC] text-[#0B1220] font-sans pb-24">
         {/* HERO SECTION / HEADER */}
         <section className="relative overflow-hidden noise pt-16 pb-8">
@@ -140,46 +137,36 @@ const Verify = () => {
             {loginError && (
               <Alert className="mb-6 bg-[#FFE9E2] border-[#FF5A36]/20 rounded-2xl p-4">
                 <AlertCircle className="h-4 w-4 text-[#FF5A36]" />
-                <AlertTitle className="font-semibold text-[#FF5A36] ml-2">Login Error</AlertTitle>
+                <AlertTitle className="font-semibold text-[#FF5A36] ml-2">
+                  Login Error
+                </AlertTitle>
                 <AlertDescription className="text-sm text-[#0B1220]/75 mt-1">
                   {loginError}
                 </AlertDescription>
               </Alert>
             )}
-            
+
             <Form {...loginForm}>
-              <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
+              <form
+                onSubmit={loginForm.handleSubmit(onLoginSubmit)}
+                className="space-y-6"
+              >
                 <FormField
                   control={loginForm.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-mono text-xs uppercase tracking-wider text-[#0B1220]/60">Email</FormLabel>
+                      <FormLabel className="font-mono text-xs uppercase tracking-wider text-[#0B1220]/60">
+                        Email
+                      </FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="admin@example.com" 
+                        <Input
+                          placeholder="admin@example.com"
                           className="rounded-xl bg-[#F8F8F7] border-[#0B1220]/10 py-3 font-mono text-sm"
-                          {...field} 
-                          onChange={(e) => field.onChange(e.target.value.trim().toLowerCase())}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={loginForm.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-mono text-xs uppercase tracking-wider text-[#0B1220]/60">Password</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="password" 
-                          placeholder="••••••••" 
-                          className="rounded-xl bg-[#F8F8F7] border-[#0B1220]/10 py-3"
-                          {...field} 
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(e.target.value.trim().toLowerCase())
+                          }
                         />
                       </FormControl>
                       <FormMessage />
@@ -187,8 +174,45 @@ const Verify = () => {
                   )}
                 />
 
-                <Button 
-                  type="submit" 
+                <FormField
+                  control={loginForm.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-mono text-xs uppercase tracking-wider text-[#0B1220]/60">
+                        Password
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            className="rounded-xl bg-[#F8F8F7] border-[#0B1220]/10 py-3 pr-10"
+                            {...field}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0B1220]/50 hover:text-[#0B1220] focus:outline-none"
+                            aria-label={
+                              showPassword ? "Hide password" : "Show password"
+                            }
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  type="submit"
                   className="w-full bg-[#0B1220] hover:bg-[#FF5A36] text-white rounded-xl py-6 font-semibold transition-colors duration-300"
                   disabled={isLoading}
                 >
@@ -197,7 +221,9 @@ const Verify = () => {
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Authenticating...
                     </>
-                  ) : "Admin Login"}
+                  ) : (
+                    "Admin Login"
+                  )}
                 </Button>
               </form>
             </Form>
@@ -205,9 +231,9 @@ const Verify = () => {
             <div className="mt-8 pt-6 border-t border-[#0B1220]/5 text-center">
               <p className="text-sm text-[#0B1220]/60">
                 For reporting lost or found items, no login is required.{" "}
-                <Button 
-                  variant="link" 
-                  onClick={() => navigate("/")} 
+                <Button
+                  variant="link"
+                  onClick={() => navigate("/")}
                   className="p-0 h-auto font-semibold text-[#FF5A36] hover:underline"
                 >
                   Return to homepage
@@ -217,8 +243,6 @@ const Verify = () => {
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 };

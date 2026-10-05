@@ -32,6 +32,8 @@ import CookiePolicy from "./pages/CookiePolicy";
 import { AuthProvider } from "./contexts/AuthContext";
 import UserAuth from "./pages/UserAuth";
 import ContactSupport from "./pages/ContactSupport";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -50,7 +52,8 @@ const App = () => (
           <div className="min-h-[100dvh] w-full overflow-x-hidden flex flex-col bg-[#F1F0EC] text-[#0B1220] selection:bg-[#0B1220] selection:text-[#F1F0EC]">
             <Toaster />
             <Sonner />
-            <div className="w-full flex-1 flex flex-col min-w-0">
+            <Header />
+            <div className="w-full flex-1 flex flex-col min-w-0 pt-[120px]">
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/verify-item" element={<ItemVerification />} />
@@ -82,6 +85,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </div>
+            <Footer />
           </div>
         </AuthProvider>
       </BrowserRouter>

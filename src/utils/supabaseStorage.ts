@@ -1,10 +1,10 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import type { 
-  VehicleReport, 
-  DeviceReport, 
-  PersonReport, 
-  Report 
+import type {
+  VehicleReport,
+  DeviceReport,
+  PersonReport,
+  Report
 } from "./storage";
 
 // Helper function to handle errors
@@ -18,6 +18,35 @@ const handleError = (error: any) => {
   return null;
 };
 
+
+// ---------------------------------------------------------------------
+// Who is asking? Admins see every report; everyone else sees only the
+// reports they submitted (matched by user_id or by their account email).
+// ---------------------------------------------------------------------
+type OwnerScope = { userId: string; email: string | null; isAdmin: boolean } | null;
+
+const getOwnerScope = async (): Promise<OwnerScope> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null; // not logged in -> sees nothing
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, admin_role')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
+  return { userId: user.id, email: user.email ?? null, isAdmin };
+};
+
+// Adds the "only my reports" filter for non-admins (reporter_email exists on vehicles, devices, persons).
+const scopeToOwner = (query: any, scope: NonNullable<OwnerScope>) => {
+  if (scope.isAdmin) return query;
+  const parts = [`user_id.eq.${scope.userId}`];
+  if (scope.email) parts.push(`reporter_email.eq."${scope.email.replace(/"/g, '')}"`);
+  return query.or(parts.join(','));
+};
+
 // Helper function to upload image to storage
 export const uploadImageToStorage = async (file: File, folder: string): Promise<string | null> => {
   try {
@@ -27,17 +56,17 @@ export const uploadImageToStorage = async (file: File, folder: string): Promise<
       fileType: file.type,
       folder: folder
     });
-    
+
     const fileName = `${folder}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
     console.log("Generated file path:", fileName);
-    
+
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('reports')
+      .from('yaracheck')
       .upload(fileName, file, {
         cacheControl: '3600',
         upsert: false
       });
-    
+
     if (uploadError) {
       console.error('Image upload error:', uploadError);
       toast({
@@ -47,13 +76,13 @@ export const uploadImageToStorage = async (file: File, folder: string): Promise<
       });
       return null;
     }
-    
+
     console.log("Upload successful:", uploadData);
-    
+
     const { data: urlData } = supabase.storage
-      .from('reports')
+      .from('yaracheck')
       .getPublicUrl(fileName);
-    
+
     console.log("Generated public URL:", urlData.publicUrl);
     return urlData.publicUrl;
   } catch (error) {
@@ -70,12 +99,12 @@ export const uploadImageToStorage = async (file: File, folder: string): Promise<
 // Vehicle reports
 export const fetchVehicles = async (): Promise<VehicleReport[]> => {
   try {
-    const { data, error } = await supabase
-      .from('vehicles')
-      .select('*');
+    const scope = await getOwnerScope();
+    if (!scope) return [];
+    const { data, error } = await scopeToOwner(supabase.from('vehicles').select('*'), scope);
 
     if (error) throw error;
-    
+
     // Convert DB format to app format
     return data.map(vehicle => ({
       id: vehicle.id,
@@ -105,7 +134,7 @@ export const saveVehicleToSupabase = async (
 ): Promise<VehicleReport | null> => {
   try {
     let imageUrl = null;
-    
+
     if (imageFile) {
       imageUrl = await uploadImageToStorage(imageFile, 'vehicles');
     }
@@ -122,16 +151,16 @@ export const saveVehicleToSupabase = async (
         year: parseInt(vehicle.year),
         location: vehicle.location,
         description: vehicle.description,
-        contact: vehicle.contact, // Fixed: use proper contact field
+        contact: vehicle.contact,
         image_url: imageUrl,
         user_id: (await user).data.user?.id,
         tracking_code: trackingCode
       })
       .select()
       .single();
-    
+
     if (error) throw error;
-    
+
     return {
       id: data.id,
       type: data.type,
@@ -156,12 +185,12 @@ export const saveVehicleToSupabase = async (
 // Device reports
 export const fetchDevices = async (): Promise<DeviceReport[]> => {
   try {
-    const { data, error } = await supabase
-      .from('devices')
-      .select('*');
+    const scope = await getOwnerScope();
+    if (!scope) return [];
+    const { data, error } = await scopeToOwner(supabase.from('devices').select('*'), scope);
 
     if (error) throw error;
-    
+
     return data.map(device => ({
       id: device.id,
       type: device.type,
@@ -189,7 +218,7 @@ export const saveDeviceToSupabase = async (
 ): Promise<DeviceReport | null> => {
   try {
     let imageUrl = null;
-    
+
     if (imageFile) {
       imageUrl = await uploadImageToStorage(imageFile, 'devices');
     }
@@ -205,16 +234,16 @@ export const saveDeviceToSupabase = async (
         color: device.color,
         location: device.location,
         description: device.description,
-        contact: device.contact, // Fixed: use proper contact field
+        contact: device.contact,
         image_url: imageUrl,
         user_id: (await user).data.user?.id,
         tracking_code: trackingCode
       })
       .select()
       .single();
-    
+
     if (error) throw error;
-    
+
     return {
       id: data.id,
       type: data.type,
@@ -238,12 +267,12 @@ export const saveDeviceToSupabase = async (
 // Person reports
 export const fetchPersons = async (): Promise<PersonReport[]> => {
   try {
-    const { data, error } = await supabase
-      .from('persons')
-      .select('*');
+    const scope = await getOwnerScope();
+    if (!scope) return [];
+    const { data, error } = await scopeToOwner(supabase.from('persons').select('*'), scope);
 
     if (error) throw error;
-    
+
     return data.map(person => ({
       id: person.id,
       name: person.name,
@@ -270,53 +299,60 @@ export const savePersonToSupabase = async (
   trackingCode?: string
 ): Promise<PersonReport | null> => {
   try {
-    console.log("savePersonToSupabase called with:", { 
-      personName: person.name, 
-      hasImageFile: !!imageFile, 
+    console.log("savePersonToSupabase called with:", {
+      personName: person.name,
+      hasImageFile: !!imageFile,
       imageFileName: imageFile?.name,
       imageFileSize: imageFile?.size,
-      trackingCode 
+      trackingCode
     });
-    
+
     let imageUrl = person.photoUrl;
-    
+
     if (imageFile) {
       console.log("Attempting to upload person image:", imageFile.name);
       imageUrl = await uploadImageToStorage(imageFile, 'persons');
       console.log("Upload result:", imageUrl);
       if (!imageUrl) {
         console.log("Image upload failed, continuing without image");
-        // Note: toast not available in utility function, will be handled by component
       }
     }
 
-    const user = await supabase.auth.getUser();
+    // Safely get the user ID only if a user is logged in
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData?.user?.id || null;
+
+    const insertPayload: any = {
+      name: person.name,
+      age: parseInt(person.age),
+      gender: person.gender,
+      description: person.description,
+      physical_attributes: person.outfit,
+      location: person.location,
+      date_missing: person.dateMissing,
+      contact: person.contact,
+      image_url: imageUrl,
+      tracking_code: trackingCode,
+    };
+
+    // Only include user_id if the user is authenticated to avoid foreign key errors
+    if (userId) {
+      insertPayload.user_id = userId;
+    }
+
     const { data, error } = await supabase
       .from('persons')
-      .insert({
-        name: person.name,
-        age: parseInt(person.age),
-        gender: person.gender,
-        description: person.description,
-        physical_attributes: person.outfit,
-        location: person.location,
-        date_missing: person.dateMissing,
-        contact: person.contact,
-        image_url: imageUrl,
-        user_id: user.data.user?.id,
-        tracking_code: trackingCode
-      })
+      .insert(insertPayload)
       .select()
       .single();
-    
+
     if (error) {
       console.error("Database insert error:", error);
       throw error;
     }
-    
+
     console.log("Database insert successful:", data);
-    console.log(imageUrl ? "Person report saved successfully with photo!" : "Person report saved successfully!");
-    
+
     return {
       id: data.id,
       name: data.name,
@@ -340,14 +376,14 @@ export const savePersonToSupabase = async (
 
 // Update report status
 export const updateReportStatusInSupabase = async (
-  id: string, 
+  id: string,
   status: 'pending' | 'verified' | 'found' | 'missing',
   type: 'vehicle' | 'device' | 'person'
 ): Promise<boolean> => {
   try {
     let table;
     let statusField;
-    
+
     switch (type) {
       case 'vehicle':
         table = 'vehicles';
@@ -364,14 +400,14 @@ export const updateReportStatusInSupabase = async (
       default:
         throw new Error('Invalid report type');
     }
-    
+
     const { error } = await supabase
       .from(table)
       .update({ status: statusField })
       .eq('id', id);
-    
+
     if (error) throw error;
-    
+
     return true;
   } catch (error) {
     handleError(error);
@@ -386,7 +422,7 @@ export const deleteReportFromSupabase = async (
 ): Promise<boolean> => {
   try {
     let table;
-    
+
     switch (type) {
       case 'vehicle':
         table = 'vehicles';
@@ -400,14 +436,14 @@ export const deleteReportFromSupabase = async (
       default:
         throw new Error('Invalid report type');
     }
-    
+
     const { error } = await supabase
       .from(table)
       .delete()
       .eq('id', id);
-    
+
     if (error) throw error;
-    
+
     return true;
   } catch (error) {
     handleError(error);
@@ -418,33 +454,32 @@ export const deleteReportFromSupabase = async (
 // Search reports across all tables
 export const searchReportsInSupabase = async (query: string): Promise<Report[]> => {
   const normalizedQuery = query.toLowerCase().trim();
-  
+
   try {
-    // Search in vehicles
-    const { data: vehicles, error: vehiclesError } = await supabase
+    const scope = await getOwnerScope();
+    if (!scope) return [];
+
+    const { data: vehicles, error: vehiclesError } = await scopeToOwner(supabase
       .from('vehicles')
-      .select('*')
+      .select('*'), scope)
       .or(`id.ilike.%${normalizedQuery}%,chassis.ilike.%${normalizedQuery}%,brand.ilike.%${normalizedQuery}%,model.ilike.%${normalizedQuery}%`);
-    
+
     if (vehiclesError) throw vehiclesError;
-    
-    // Search in devices
-    const { data: devices, error: devicesError } = await supabase
+
+    const { data: devices, error: devicesError } = await scopeToOwner(supabase
       .from('devices')
-      .select('*')
+      .select('*'), scope)
       .or(`id.ilike.%${normalizedQuery}%,imei.ilike.%${normalizedQuery}%,brand.ilike.%${normalizedQuery}%,model.ilike.%${normalizedQuery}%`);
-    
+
     if (devicesError) throw devicesError;
-    
-    // Search in persons
-    const { data: persons, error: personsError } = await supabase
+
+    const { data: persons, error: personsError } = await scopeToOwner(supabase
       .from('persons')
-      .select('*')
+      .select('*'), scope)
       .or(`id.ilike.%${normalizedQuery}%,name.ilike.%${normalizedQuery}%`);
-    
+
     if (personsError) throw personsError;
-    
-    // Convert and combine results
+
     const vehicleReports = vehicles.map(v => ({
       id: v.id,
       type: v.type,
@@ -460,7 +495,7 @@ export const searchReportsInSupabase = async (query: string): Promise<Report[]> 
       status: v.status as 'pending' | 'verified' | 'found',
       photoUrl: v.image_url,
     })) as VehicleReport[];
-    
+
     const deviceReports = devices.map(d => ({
       id: d.id,
       type: d.type,
@@ -475,7 +510,7 @@ export const searchReportsInSupabase = async (query: string): Promise<Report[]> 
       status: d.status as 'pending' | 'verified' | 'found',
       photoUrl: d.image_url,
     })) as DeviceReport[];
-    
+
     const personReports = persons.map(p => ({
       id: p.id,
       name: p.name,
@@ -490,7 +525,7 @@ export const searchReportsInSupabase = async (query: string): Promise<Report[]> 
       status: p.status as 'missing' | 'found',
       photoUrl: p.image_url,
     })) as PersonReport[];
-    
+
     return [...vehicleReports, ...deviceReports, ...personReports];
   } catch (error) {
     handleError(error);
@@ -501,28 +536,21 @@ export const searchReportsInSupabase = async (query: string): Promise<Report[]> 
 // Fetch all reports from all tables
 export const getAllReportsFromSupabase = async (): Promise<Report[]> => {
   try {
-    // Fetch from vehicles
-    const { data: vehicles, error: vehiclesError } = await supabase
-      .from('vehicles')
-      .select('*');
-    
+    const scope = await getOwnerScope();
+    if (!scope) return [];
+
+    const { data: vehicles, error: vehiclesError } = await scopeToOwner(supabase.from('vehicles').select('*'), scope);
+
     if (vehiclesError) throw vehiclesError;
-    
-    // Fetch from devices
-    const { data: devices, error: devicesError } = await supabase
-      .from('devices')
-      .select('*');
-    
+
+    const { data: devices, error: devicesError } = await scopeToOwner(supabase.from('devices').select('*'), scope);
+
     if (devicesError) throw devicesError;
-    
-    // Fetch from persons
-    const { data: persons, error: personsError } = await supabase
-      .from('persons')
-      .select('*');
-    
+
+    const { data: persons, error: personsError } = await scopeToOwner(supabase.from('persons').select('*'), scope);
+
     if (personsError) throw personsError;
-    
-    // Convert and combine results
+
     const vehicleReports = vehicles.map(v => ({
       id: v.id,
       type: v.type,
@@ -538,7 +566,7 @@ export const getAllReportsFromSupabase = async (): Promise<Report[]> => {
       status: v.status as 'pending' | 'verified' | 'found',
       photoUrl: v.image_url,
     })) as VehicleReport[];
-    
+
     const deviceReports = devices.map(d => ({
       id: d.id,
       type: d.type,
@@ -553,7 +581,7 @@ export const getAllReportsFromSupabase = async (): Promise<Report[]> => {
       status: d.status as 'pending' | 'verified' | 'found',
       photoUrl: d.image_url,
     })) as DeviceReport[];
-    
+
     const personReports = persons.map(p => ({
       id: p.id,
       name: p.name,
@@ -568,7 +596,7 @@ export const getAllReportsFromSupabase = async (): Promise<Report[]> => {
       status: p.status as 'missing' | 'found',
       photoUrl: p.image_url,
     })) as PersonReport[];
-    
+
     return [...vehicleReports, ...deviceReports, ...personReports];
   } catch (error) {
     handleError(error);
@@ -584,7 +612,7 @@ export const saveHouseholdToSupabase = async (
 ): Promise<any> => {
   try {
     let imageUrl = null;
-    
+
     if (imageFile) {
       imageUrl = await uploadImageToStorage(imageFile, 'household');
     }
@@ -608,9 +636,9 @@ export const saveHouseholdToSupabase = async (
       })
       .select()
       .single();
-    
+
     if (error) throw error;
-    
+
     return data;
   } catch (error) {
     handleError(error);
@@ -626,7 +654,7 @@ export const savePersonalToSupabase = async (
 ): Promise<any> => {
   try {
     let imageUrl = null;
-    
+
     if (imageFile) {
       imageUrl = await uploadImageToStorage(imageFile, 'personal');
     }
@@ -650,9 +678,9 @@ export const savePersonalToSupabase = async (
       })
       .select()
       .single();
-    
+
     if (error) throw error;
-    
+
     return data;
   } catch (error) {
     handleError(error);
@@ -668,7 +696,7 @@ export const saveAccountToSupabase = async (
 ): Promise<any> => {
   try {
     let imageUrl = null;
-    
+
     if (imageFile) {
       imageUrl = await uploadImageToStorage(imageFile, 'accounts');
     }
@@ -688,9 +716,9 @@ export const saveAccountToSupabase = async (
       })
       .select()
       .single();
-    
+
     if (error) throw error;
-    
+
     return data;
   } catch (error) {
     handleError(error);
@@ -706,7 +734,7 @@ export const saveReputationToSupabase = async (
 ): Promise<any> => {
   try {
     let imageUrl = null;
-    
+
     if (imageFile) {
       imageUrl = await uploadImageToStorage(imageFile, 'reputation');
     }
@@ -731,9 +759,9 @@ export const saveReputationToSupabase = async (
       })
       .select()
       .single();
-    
+
     if (error) throw error;
-    
+
     return data;
   } catch (error) {
     handleError(error);
@@ -762,12 +790,12 @@ export const createTransactionRecord = async (
         status: 'paid',
         paid_at: new Date().toISOString(),
         user_id: user.data.user?.id,
-        report_data: {}, // Will be populated with actual report data
+        report_data: {},
         currency: 'usd'
       });
-    
+
     if (error) throw error;
-    
+
     return true;
   } catch (error) {
     handleError(error);
@@ -778,86 +806,76 @@ export const createTransactionRecord = async (
 // Get report by tracking code
 export const getReportByTrackingCode = async (trackingCode: string): Promise<any> => {
   try {
-    // Check each table individually for the tracking code
-    let result = null;
-    
-    // Check persons table
     const { data: personData } = await supabase
       .from('persons')
       .select('*')
       .eq('tracking_code', trackingCode)
       .maybeSingle();
-    
+
     if (personData) {
       return { ...personData, table: 'persons', reportType: 'person' };
     }
-    
-    // Check devices table
+
     const { data: deviceData } = await supabase
       .from('devices')
       .select('*')
       .eq('tracking_code', trackingCode)
       .maybeSingle();
-    
+
     if (deviceData) {
       return { ...deviceData, table: 'devices', reportType: 'device' };
     }
-    
-    // Check vehicles table
+
     const { data: vehicleData } = await supabase
       .from('vehicles')
       .select('*')
       .eq('tracking_code', trackingCode)
       .maybeSingle();
-    
+
     if (vehicleData) {
       return { ...vehicleData, table: 'vehicles', reportType: 'vehicle' };
     }
-    
-    // Check household_items table
+
     const { data: householdData } = await supabase
       .from('household_items')
       .select('*')
       .eq('tracking_code', trackingCode)
       .maybeSingle();
-    
+
     if (householdData) {
       return { ...householdData, table: 'household_items', reportType: 'household' };
     }
-    
-    // Check personal_belongings table
+
     const { data: personalData } = await supabase
       .from('personal_belongings')
       .select('*')
       .eq('tracking_code', trackingCode)
       .maybeSingle();
-    
+
     if (personalData) {
       return { ...personalData, table: 'personal_belongings', reportType: 'personal' };
     }
-    
-    // Check hacked_accounts table
+
     const { data: accountData } = await supabase
       .from('hacked_accounts')
       .select('*')
       .eq('tracking_code', trackingCode)
       .maybeSingle();
-    
+
     if (accountData) {
       return { ...accountData, table: 'hacked_accounts', reportType: 'account' };
     }
-    
-    // Check business_reputation_reports table
+
     const { data: reputationData } = await supabase
       .from('business_reputation_reports')
       .select('*')
       .eq('tracking_code', trackingCode)
       .maybeSingle();
-    
+
     if (reputationData) {
       return { ...reputationData, table: 'business_reputation_reports', reportType: 'reputation' };
     }
-    
+
     return null;
   } catch (error) {
     handleError(error);

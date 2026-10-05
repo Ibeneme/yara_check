@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { SUPABASE_URL, supabase } from "@/integrations/supabase/client";
 import { UserPlus, Loader2 } from "lucide-react";
 
 const CreateAdminForm = () => {
@@ -58,22 +58,11 @@ const CreateAdminForm = () => {
       console.log("Starting admin creation process...");
 
       try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        if (!session) {
-          throw new Error("You must be logged in to create admin users");
-        }
-
-        const response = await fetch(
-          `https://iuaysbxfqcuyzbtwttvu.supabase.co/functions/v1/create-admin-user`,
+        // Use Supabase client's native function invocation
+        const { data: result, error } = await supabase.functions.invoke(
+          "create-admin-user",
           {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${session.access_token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
+            body: {
               email: adminData.email,
               firstName: adminData.firstName,
               lastName: adminData.lastName,
@@ -82,14 +71,12 @@ const CreateAdminForm = () => {
               countryId: adminData.countryId,
               provinceId: adminData.provinceId,
               geographicAccess: adminData.geographicAccess,
-            }),
+            },
           }
         );
 
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
-          throw new Error(result.error || "Failed to create admin user");
+        if (error || !result?.success) {
+          throw new Error(error?.message || result?.error || "Failed to create admin user");
         }
 
         return { tempPassword: result.tempPassword, email: result.email };

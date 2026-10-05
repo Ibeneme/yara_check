@@ -5,8 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+
 
 const PaymentSuccessFlutterwave = () => {
   const [searchParams] = useSearchParams();
@@ -66,7 +65,7 @@ const PaymentSuccessFlutterwave = () => {
   if (isVerifying) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
+    
         <div className="flex items-center justify-center min-h-[80vh]">
           <Card className="w-full max-w-md mx-4">
             <CardContent className="flex flex-col items-center justify-center p-8 space-y-4">
@@ -80,14 +79,14 @@ const PaymentSuccessFlutterwave = () => {
             </CardContent>
           </Card>
         </div>
-        <Footer />
+
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           <Card className="shadow-lg">
@@ -255,7 +254,7 @@ const PaymentSuccessFlutterwave = () => {
           </Card>
         </div>
       </div>
-      <Footer />
+
     </div>
   );
 };

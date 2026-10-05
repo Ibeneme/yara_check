@@ -3,8 +3,6 @@ import { useSearchParams, Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Copy, ArrowRight, Loader2 } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getReportByTrackingCode } from "@/utils/supabaseStorage";
@@ -88,7 +86,7 @@ const PaymentConfirmation = () => {
   if (!trackingCode) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
+       
         <div className="container mx-auto py-12">
           <div className="max-w-md mx-auto text-center">
             <Card>
@@ -110,14 +108,14 @@ const PaymentConfirmation = () => {
             </Card>
           </div>
         </div>
-        <Footer />
+        
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+     
 
       <div className="container mx-auto py-12">
         <div className="max-w-2xl mx-auto">
@@ -262,7 +260,7 @@ const PaymentConfirmation = () => {
         </div>
       </div>
 
-      <Footer />
+      
     </div>
   );
 };

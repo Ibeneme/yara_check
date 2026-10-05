@@ -17,8 +17,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+
 
 const SubmitReport = () => {
   const navigate = useNavigate();
@@ -117,7 +116,7 @@ const SubmitReport = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      
 
       <main className="flex-grow bg-[#F1F0EC] text-[#0B1220] font-sans pb-24">
         {/* HERO SECTION */}
@@ -275,7 +274,6 @@ const SubmitReport = () => {
         </section>
       </main>
 
-      <Footer />
     </div>
   );
 };

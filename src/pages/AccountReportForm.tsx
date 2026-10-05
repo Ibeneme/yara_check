@@ -23,8 +23,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { Shield, Upload, X } from "lucide-react";
 import {
@@ -252,7 +250,7 @@ const AccountReportForm = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+
 
       <div className="yaracheck-container py-8">
         <div className="max-w-2xl mx-auto">
@@ -580,7 +578,7 @@ const AccountReportForm = () => {
         </div>
       </div>
 
-      <Footer />
+
 
       {showPaymentSelector && (
         <PaymentMethodSelector

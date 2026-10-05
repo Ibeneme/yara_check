@@ -73,7 +73,7 @@ const Header = () => {
 
   return (
     <header
-      className={`font-sans fixed top-0 left-0 right-0 w-full z-[100] transition-all duration-300 max-w-full overflow-x-hidden ${
+      className={`font-sans fixed top-0 left-0 right-0 w-full z-[10] transition-all duration-300 max-w-full overflow-x-hidden ${
         isScrolled
           ? "bg-[#F1F0EC]/95 backdrop-blur-xl border-b border-[#0B1220]/10 shadow-sm"
           : "bg-[#F1F0EC] border-b border-transparent"
@@ -167,7 +167,7 @@ const Header = () => {
               variant="ghost"
               size="icon"
               onClick={() => setIsOpen(!isOpen)}
-              className="text-[#0B1220] hover:bg-[#0B1220]/[0.06] rounded-full h-10 w-10 relative z-[110]"
+              className="text-[#0B1220] hover:bg-[#0B1220]/[0.06] rounded-full h-10 w-10 relative z-[10]"
               aria-label="Toggle Menu"
             >
               {isOpen ? (
@@ -182,7 +182,7 @@ const Header = () => {
 
       {/* Mobile Drawer Tray Overlay with Solid Aesthetic Background */}
       <div
-        className={`lg:hidden fixed inset-0 z-[105] bg-[#F1F0EC] transition-all duration-300 ease-in-out w-full max-w-full overflow-x-hidden ${
+        className={`lg:hidden fixed inset-0 z-[10] bg-[#F1F0EC] transition-all duration-300 ease-in-out w-full max-w-full overflow-x-hidden ${
           isOpen
             ? "opacity-100 pointer-events-auto translate-x-0"
             : "opacity-0 pointer-events-none translate-x-full"

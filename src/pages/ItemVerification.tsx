@@ -11,8 +11,6 @@ import {
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTranslation } from "react-i18next";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import PhotoSearch from "@/components/reports/PhotoSearch";
 import ContactActions from "@/components/reports/ContactActions";
 import HiddenReportMessage from "@/components/search/HiddenReportMessage";
@@ -519,7 +517,7 @@ const ItemVerification = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F1F0EC] font-sans">
-      <Header />
+
 
       <main className="flex-grow py-12">
         <div className="container max-w-4xl mx-auto px-4">
@@ -1417,7 +1415,6 @@ const ItemVerification = () => {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 };

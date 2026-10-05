@@ -3,8 +3,6 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { savePersonToSupabase } from "@/utils/supabaseStorage";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, Loader2 } from "lucide-react";
 
@@ -325,7 +323,6 @@ const PaymentSuccess = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
 
       <div className="container mx-auto py-12">
         <div className="max-w-md mx-auto">
@@ -364,8 +361,6 @@ const PaymentSuccess = () => {
           </Card>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 };
