@@ -67,7 +67,7 @@ const MyReports = () => {
 
       <main className="flex-grow bg-[#F1F0EC] text-[#0B1220] font-sans pb-24">
         {/* HERO SECTION */}
-        <section className="relative overflow-hidden noise pt-16 pb-12">
+        <section className="relative overflow-hidden noise pt-4 pb-12">
           <div className="absolute inset-0 -z-0 opacity-40">
             <div
               className="diamond w-64 h-64 -top-10 left-[15%]"

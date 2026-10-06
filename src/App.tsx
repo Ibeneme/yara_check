@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./i18n";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Verify from "./pages/Verify";
@@ -44,13 +44,28 @@ const queryClient = new QueryClient({
   },
 });
 
+// ScrollToTop helper component to reset scroll position on route change
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, [pathname]);
+
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <AuthProvider>
           <Header />
-          <div className=" w-full overflow-x-hidden flex flex-col bg-[#F1F0EC] text-[#0B1220] selection:bg-[#0B1220] selection:text-[#F1F0EC]">
+          <div className="w-full overflow-x-hidden flex flex-col bg-[#F1F0EC] text-[#0B1220] selection:bg-[#0B1220] selection:text-[#F1F0EC]">
             <Toaster />
             <Sonner />
             <div className="w-full flex-1 flex flex-col min-w-0 pt-[90px]">

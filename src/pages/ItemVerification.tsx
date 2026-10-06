@@ -487,7 +487,7 @@ const ItemVerification = () => {
         }
       `}</style>
 
-      <main className="flex-grow py-8 sm:py-12">
+      <main className="flex-grow py-8 sm:py-4">
         <div className="container max-w-4xl mx-auto px-4 sm:px-6">
           <div className="text-left mb-8 border-b-2 border-indigo-100 pb-6">
             <span className="inline-block text-[11px] uppercase tracking-[0.2em] bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 bg-[length:200%_200%] animate-gradient text-white font-bold px-3 py-1 rounded-full mb-3 ">

@@ -10,60 +10,65 @@ import {
   Youtube,
   Heart,
   ArrowRight,
+  ShieldCheck,
 } from "lucide-react";
+import yaraimage from "../../public/yara.png";
 
 const Footer = () => {
   const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative bg-[#0B1220] text-slate-300 pt-20 pb-12 overflow-hidden border-t border-white/10">
-      {/* Background accent */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-[#FF5A36]/10 rounded-full blur-[100px] pointer-events-none" />
-
-      <div className="relative max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8">
-          {/* Company Info */}
-          <div className="lg:col-span-4">
+    <footer className="w-full bg-[#0B1220] text-[#F1F0EC] border-t border-[#0B1220]/20 pt-12 sm:pt-16 pb-8 transition-all">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Top Grid Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12 pb-12 sm:pb-16 border-b border-white/10">
+          {/* Brand & Contact Info Column */}
+          <div className="lg:col-span-4 space-y-5">
             <Link
               to="/"
-              className="flex items-center gap-3 mb-6 group inline-flex"
+              className="inline-flex items-center gap-3 group focus:outline-none"
             >
-              <div className="w-12 h-12 bg-[#FF5A36] rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:scale-105 transition-all duration-300">
-                <span className="text-white font-bold text-3xl tracking-tighter">
-                  YC
-                </span>
-              </div>
-              <div>
-                <span className="text-3xl font-display font-semibold tracking-tight text-white">
+              <div className="flex flex-col">
+                <span className="font-display text-2xl font-bold text-white tracking-tight">
                   YaraCheck
+                </span>
+                <span className="font-mono text-[9px] font-bold tracking-widest text-[#FF5A36] uppercase">
+                  VERIFY • REPORT
                 </span>
               </div>
             </Link>
 
-            <p className="text-slate-400 leading-relaxed max-w-md mb-8">
+            <p className="text-sm text-[#F1F0EC]/70 leading-relaxed max-w-sm">
               A global community platform helping people report, verify, and
               recover stolen items, missing persons, pets, and scam accounts.
             </p>
 
-            <ul className="space-y-4 text-sm text-slate-400">
+            <ul className="space-y-3 pt-2 text-xs sm:text-sm text-[#F1F0EC]/80">
               <li className="flex items-start gap-3">
-                <MapPin className="h-5 w-5 text-[#FF5A36] flex-shrink-0 mt-0.5" />
-                <span className="leading-relaxed">
+                <MapPin className="w-4 h-4 text-[#FF5A36] shrink-0 mt-0.5" />
+                <span className="leading-snug">
                   Stoke Park Mews, St Michaels Road,
                   <br />
-                  Coventry CV2 4NU
+                  Coventry CV2 4NU, UK
                 </span>
               </li>
               <li className="flex items-center gap-3">
-                <Phone className="h-5 w-5 text-[#FF5A36] flex-shrink-0" />
-                <span>+44 7405 672016 (WhatsApp)</span>
+                <Phone className="w-4 h-4 text-[#FF5A36] shrink-0" />
+                <a
+                  href="https://wa.me/447405672016"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors"
+                >
+                  +44 7405 672016 (WhatsApp)
+                </a>
               </li>
               <li className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-[#FF5A36] flex-shrink-0" />
+                <Mail className="w-4 h-4 text-[#FF5A36] shrink-0" />
                 <a
                   href="mailto:info@yaracheck.com"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-white transition-colors underline decoration-white/20 underline-offset-4"
                 >
                   info@yaracheck.com
                 </a>
@@ -71,12 +76,12 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Quick Links */}
-          <div className="lg:col-span-2 lg:col-start-6">
-            <h4 className="font-display text-lg font-semibold mb-6 text-white tracking-wide">
+          {/* Quick Links Column */}
+          <div className="lg:col-span-2 space-y-4">
+            <h4 className="font-display text-base font-semibold text-white tracking-wide uppercase text-xs">
               Quick Links
             </h4>
-            <ul className="space-y-3.5 text-sm text-slate-400">
+            <ul className="space-y-2.5">
               {[
                 { name: "Home", path: "/" },
                 {
@@ -96,10 +101,10 @@ const Footer = () => {
                 <li key={index}>
                   <Link
                     to={item.path}
-                    className="inline-flex items-center group hover:text-white transition-all duration-200"
+                    className="group inline-flex items-center gap-2 text-xs sm:text-sm text-[#F1F0EC]/70 hover:text-white transition-colors"
                   >
-                    <ArrowRight className="h-3 w-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 mr-2 transition-all" />
-                    <span className="group-hover:translate-x-1 transition-transform duration-300">
+                    <ArrowRight className="w-3.5 h-3.5 text-[#FF5A36] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
+                    <span className="-ml-5 group-hover:ml-0 transition-all duration-200">
                       {item.name}
                     </span>
                   </Link>
@@ -108,12 +113,12 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Services */}
-          <div className="lg:col-span-2">
-            <h4 className="font-display text-lg font-semibold mb-6 text-white tracking-wide">
+          {/* Services Column */}
+          <div className="lg:col-span-3 space-y-4">
+            <h4 className="font-display text-base font-semibold text-white tracking-wide uppercase text-xs">
               Services
             </h4>
-            <ul className="space-y-3.5 text-sm text-slate-400">
+            <ul className="space-y-2.5 text-xs sm:text-sm text-[#F1F0EC]/70">
               {[
                 "Stolen Device Recovery",
                 "Missing Persons & Pets",
@@ -123,21 +128,23 @@ const Footer = () => {
               ].map((service, index) => (
                 <li
                   key={index}
-                  className="hover:text-slate-200 transition-colors"
+                  className="flex items-center gap-2 text-[#F1F0EC]/70"
                 >
-                  {service}
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#FF5A36]/60 shrink-0" />
+                  <span>{service}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Social & Trust */}
-          <div className="lg:col-span-3">
-            <h4 className="font-display text-lg font-semibold mb-6 text-white tracking-wide">
+          {/* Connect & Trust Badge Column */}
+          <div className="lg:col-span-3 space-y-5">
+            <h4 className="font-display text-base font-semibold text-white tracking-wide uppercase text-xs">
               Connect With Us
             </h4>
 
-            <div className="flex gap-3 mb-8">
+            {/* Social Icons */}
+            <div className="flex items-center gap-2.5">
               {[
                 {
                   icon: Facebook,
@@ -160,59 +167,54 @@ const Footer = () => {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-11 h-11 bg-white/5 hover:bg-[#FF5A36] border border-white/10 hover:border-[#FF5A36] text-slate-300 hover:text-white rounded-2xl flex items-center justify-center transition-all duration-300 hover:-translate-y-1"
                   aria-label={social.label}
+                  className="flex items-center justify-center w-10 h-10 rounded-full bg-white/5 border border-white/10 text-[#F1F0EC]/80 hover:bg-[#FF5A36] hover:text-white hover:border-[#FF5A36] transition-all duration-200 shadow-xs"
                 >
-                  <social.icon className="h-5 w-5" />
+                  <social.icon className="w-4 h-4" />
                 </a>
               ))}
             </div>
 
-            {/* Trust Card */}
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-6 backdrop-blur-sm">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                  <span className="text-emerald-400 text-xl">✓</span>
+            {/* Trust Badge Card */}
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="p-1 rounded-full bg-emerald-500/20 text-emerald-400">
+                  <ShieldCheck className="w-4 h-4" />
                 </div>
-                <p className="text-sm font-medium text-white">
+                <p className="font-semibold text-xs sm:text-sm text-white">
                   Trusted Globally
                 </p>
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <p className="text-xs text-[#F1F0EC]/60 leading-relaxed">
                 Operating in 160+ countries • Helping recover lost items and
-                protect communities.
+                protect communities worldwide.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-slate-500">
-          <p>© {currentYear} YaraCheck. All Rights Reserved.</p>
+        {/* Bottom Bar Section */}
+        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#F1F0EC]/60">
+          <p className="text-center md:text-left">
+            © {currentYear} YaraCheck. All Rights Reserved.
+          </p>
 
-          <div className="flex flex-wrap gap-x-6 gap-y-2 justify-center">
-            <Link
-              to="/privacy"
-              className="hover:text-slate-300 transition-colors"
-            >
+          <div className="flex items-center gap-6">
+            <Link to="/privacy" className="hover:text-white transition-colors">
               Privacy Policy
             </Link>
-            <Link
-              to="/terms"
-              className="hover:text-slate-300 transition-colors"
-            >
+            <Link to="/terms" className="hover:text-white transition-colors">
               Terms of Service
             </Link>
-            <Link
-              to="/cookies"
-              className="hover:text-slate-300 transition-colors"
-            >
+            <Link to="/cookies" className="hover:text-white transition-colors">
               Cookie Policy
             </Link>
           </div>
 
-          <div className="flex items-center gap-1.5 text-[10px] font-mono">
-            Made with <Heart className="h-3.5 w-3.5 text-red-500" /> in Coventry
+          <div className="flex items-center gap-1.5 text-[#F1F0EC]/70">
+            <span>Made with</span>
+            <Heart className="w-3.5 h-3.5 text-[#FF5A36] fill-[#FF5A36] inline-block" />
+            <span>in Coventry</span>
           </div>
         </div>
       </div>
