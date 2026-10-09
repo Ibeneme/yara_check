@@ -210,12 +210,6 @@ const Footer = () => {
               Cookie Policy
             </Link>
           </div>
-
-          <div className="flex items-center gap-1.5 text-[#F1F0EC]/70">
-            <span>Made with</span>
-            <Heart className="w-3.5 h-3.5 text-[#FF5A36] fill-[#FF5A36] inline-block" />
-            <span>in Coventry</span>
-          </div>
         </div>
       </div>
     </footer>
